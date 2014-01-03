@@ -12,3 +12,20 @@ Application : window and thread management, world, scene
 UI : console, interfaces ?
 
 ThirdParties: physics engine, opengl, glew, opencl, lua
+
+no pch
+
+core
+- types
+- array
+system
+platform
+3rd
+engine
+- manager
+- component
+- entity
+- world
+- scene
+app
+- app
