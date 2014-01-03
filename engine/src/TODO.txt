@@ -1,3 +1,14 @@
 
-Basic types : int, float, vec4, mat4, quats etc.
-Filesystem : xml, logging, file manager etc.
+Basic types : int, half, float, vec4, mat4, quat, string, assert, map, array etc.
+Math : random, geometry, intersections
+System : xml, logging, file manager, thread, timer, job queue etc.
+Debugging : stats, profiling etc.
+Networking : ?
+Platform : platform specific code
+Inputs : mouse, keyboard and game controller
+Rendering : mesh and texture import, vertex and index buffer, primitive, particle emitter, texture, material and shader, text, culling
+Engine : camera, light, manager, entity, component
+Application : window and thread management, world, scene
+UI : console, interfaces ?
+
+ThirdParties: physics engine, opengl, glew, opencl, lua
