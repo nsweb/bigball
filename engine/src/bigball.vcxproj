@@ -72,7 +72,7 @@
     <LinkIncremental>true</LinkIncremental>
     <IntDir>..\intermediate\$(Platform)_$(Configuration)\</IntDir>
     <OutDir>..\bin\$(Platform)_$(Configuration)\</OutDir>
-    <IncludePath>..\..\3rdparty\SDL2-2.0.1\include;..\..\3rdparty\glew-1.10.0\include</IncludePath>
+    <IncludePath>..\..\3rdparty\SDL2-2.0.1\include;..\..\3rdparty\glew-1.10.0\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\..\3rdparty\SDL2-2.0.1\lib\x64;..\..\3rdparty\glew-1.10.0\lib\release\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
