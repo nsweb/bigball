@@ -1,7 +1,6 @@
 // engine.cpp
 //
 
-
 #include "engine.h"
 
 namespace bigball
@@ -19,20 +18,7 @@ Engine::~Engine()
 
 }
 
-bool Engine::StaticInit( bool bCreateWindow )
-{
-	g_pEngine = new Engine();
-	return g_pEngine->InitPrivate( bCreateWindow );
-}
-
-void Engine::StaticShutdown()
-{
-	g_pEngine->ShutdownPrivate();
-	delete g_pEngine;
-	g_pEngine = nullptr;
-}
-
-bool Engine::InitPrivate( bool bCreateWindow )
+bool Engine::Init( bool bCreateWindow )
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) /* Initialize SDL's Video subsystem */
 	{
@@ -80,7 +66,7 @@ bool Engine::InitPrivate( bool bCreateWindow )
 	return true;
 }
 
-void Engine::ShutdownPrivate()
+void Engine::Shutdown()
 {
 	/* Delete our opengl context, destroy our window, and shutdown SDL */
 	SDL_GL_DeleteContext( m_GLContext );

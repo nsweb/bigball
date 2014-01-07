@@ -20,11 +20,23 @@
     <ClInclude Include="core\types.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="engine\basemanager.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\camera.h">
+      <Filter>engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bigball.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="engine\engine.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\basemanager.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\camera.cpp">
       <Filter>engine</Filter>
     </ClCompile>
   </ItemGroup>

@@ -4,7 +4,7 @@
 #include "../bigball.h"
 
 #ifndef BB_ENGINE_H
-#define BB_ENGINE_H 1
+#define BB_ENGINE_H
 
 namespace bigball
 {
@@ -12,20 +12,18 @@ namespace bigball
 class BIGBALL_API Engine
 {
 public:
+					Engine();
+	virtual			~Engine();
 
-	static bool StaticInit( bool bCreateWindow );
-	static void StaticShutdown();
-
-	void		MainLoop();
+	virtual bool	Init( bool bCreateWindow );
+	virtual void	Shutdown();
+	virtual void	MainLoop();
 
 protected:
 	SDL_Window*		m_MainWindow; 
 	SDL_GLContext	m_GLContext; 
 
-				Engine();
-				~Engine();
-	bool		InitPrivate( bool bCreateWindow );
-	void		ShutdownPrivate();
+
 };
 
 extern BIGBALL_API Engine* g_pEngine;
