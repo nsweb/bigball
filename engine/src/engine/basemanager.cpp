@@ -1,6 +1,6 @@
 
 
-#include "basemanager.h"
+#include "../bigball.h"
 
 namespace bigball
 {

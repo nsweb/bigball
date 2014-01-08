@@ -1,7 +1,7 @@
 // engine.cpp
 //
 
-#include "engine.h"
+#include "../bigball.h"
 
 namespace bigball
 {

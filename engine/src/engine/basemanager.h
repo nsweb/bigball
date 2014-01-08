@@ -1,8 +1,6 @@
 
 
 
-#include "../bigball.h"
-
 #ifndef BB_BASEMANAGER_H
 #define BB_BASEMANAGER_H
 

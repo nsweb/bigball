@@ -27,4 +27,11 @@
 
 
 #include "core/core.h"
+#include "core/templates.h"
+#include "math/constants.h"
+#include "math/functions.h"
+#include "math/vector.h"
 #include "engine/engine.h"
+#include "engine/basemanager.h"
+#include "engine/camera.h"
+

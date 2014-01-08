@@ -7,6 +7,9 @@
     <Filter Include="engine">
       <UniqueIdentifier>{ad4b7d9a-896f-45a5-857b-8795708cb8a2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="math">
+      <UniqueIdentifier>{da8004c6-c33a-44c4-a78c-44c29d626aa7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h" />
@@ -26,6 +29,18 @@
     <ClInclude Include="engine\camera.h">
       <Filter>engine</Filter>
     </ClInclude>
+    <ClInclude Include="math\constants.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\vector.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="math\functions.h">
+      <Filter>math</Filter>
+    </ClInclude>
+    <ClInclude Include="core\templates.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bigball.cpp" />
@@ -38,6 +53,9 @@
     </ClCompile>
     <ClCompile Include="engine\camera.cpp">
       <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="math\vector.cpp">
+      <Filter>math</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

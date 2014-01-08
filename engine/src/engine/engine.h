@@ -1,7 +1,4 @@
 
-// engine.h
-
-#include "../bigball.h"
 
 #ifndef BB_ENGINE_H
 #define BB_ENGINE_H
@@ -28,6 +25,6 @@ protected:
 
 extern BIGBALL_API Engine* g_pEngine;
 
-};
+} /* namespace bigball */
 
 #endif  // BB_ENGINE_H

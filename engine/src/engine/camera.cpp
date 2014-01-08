@@ -1,21 +1,24 @@
 
-#include "camera.h"
+#include "../bigball.h"
+
+namespace bigball
+{
 
 Camera::Camera()
 {
-	m_fParameters[eParam_FOV] = 50.0f * DEG_TO_RAD;
+	m_fParameters[eParam_FOV] = 50.0f * F_DEG_TO_RAD;
 	m_fParameters[eParam_ASPECTRATIO] = 1.333f;
 	m_fParameters[eParam_NEARPLANE] = 30.0f;
 	m_fParameters[eParam_FARPLANE] = 2500.0f;
 
-	m_mTarget[eReference_CURRENT].Identity();
-	m_mTarget[eReference_DESIRED].Identity();
+	m_mTarget[eReference_CURRENT] = mat4(1.0f);
+	m_mTarget[eReference_DESIRED] = mat4(1.0f);
 
-	/*P3f Up( 0.0f, 0.0f, 1.0f );
+	/*vec3 Up( 0.0f, 0.0f, 1.0f );
 	SetUpVector( Up );
-	P3f LookAt( 1.0f, 0.0f, 0.0f );
+	vec3 LookAt( 1.0f, 0.0f, 0.0f );
 	SetTargetPosition( LookAt, true );
-	P3f Ref( 0.0f, 0.0f, 0.0f );
+	vec3 Ref( 0.0f, 0.0f, 0.0f );
 	SetPosition( Ref, true );*/
 }
 
@@ -37,7 +40,7 @@ float Camera::GetParam( eParam _eParam ) const
 }
 
 //-------------------------------------------------------------------------------
-/*void Camera::SetPosition( const P3f& _Position, bool _bImmediate )
+/*void Camera::SetPosition( const vec3& _Position, bool _bImmediate )
 {
 	m_Position[eReference_DESIRED] = _Position;
 	UpdateYawPitchTargetDist( eReference_DESIRED );
@@ -49,13 +52,13 @@ float Camera::GetParam( eParam _eParam ) const
 }
 
 //-------------------------------------------------------------------------------
-const P3f& Camera::GetPosition( bool _bCurrent ) const
+const vec3& Camera::GetPosition( bool _bCurrent ) const
 {
 	return ( _bCurrent ? m_Position[eReference_CURRENT] : m_Position[eReference_DESIRED] );
 }
 */
 //-------------------------------------------------------------------------------
-/*void Camera::SetUpVector( const P3f& _UpVector, bool _bImmediate )
+/*void Camera::SetUpVector( const vec3& _UpVector, bool _bImmediate )
 {
 	m_UpVector[eReference_DESIRED] = _UpVector;
 	UpdateYawPitchTargetDist( eReference_DESIRED );
@@ -67,13 +70,13 @@ const P3f& Camera::GetPosition( bool _bCurrent ) const
 }*/
 
 //-------------------------------------------------------------------------------
-/*const P3f& Camera::GetUpVector( bool _bCurrent ) const
+/*const vec3& Camera::GetUpVector( bool _bCurrent ) const
 {
 	return ( _bCurrent ? m_UpVector[eReference_CURRENT] : m_UpVector[eReference_DESIRED] );
 }*/
 
 //-------------------------------------------------------------------------------
-/*void Camera::SetTargetPosition( const P3f& _TargetPosition, bool _bImmediate )
+/*void Camera::SetTargetPosition( const vec3& _TargetPosition, bool _bImmediate )
 {
 	m_TargetPosition[eReference_DESIRED] = _TargetPosition;
 	if( _bImmediate ) 
@@ -81,13 +84,13 @@ const P3f& Camera::GetPosition( bool _bCurrent ) const
 }
 */
 //-------------------------------------------------------------------------------
-const P3f& Camera::GetTargetPosition() const
+const vec3& Camera::GetTargetPosition() const
 {
 	return m_TargetPosition;
 }
 
 //-------------------------------------------------------------------------------
-void Camera::SetTarget( const peMatrix& _mTarget, bool _bImmediate )
+void Camera::SetTarget( const mat4& _mTarget, bool _bImmediate )
 {
 	m_mTarget[eReference_DESIRED] = _mTarget;
 	if( _bImmediate ) 
@@ -148,14 +151,14 @@ void Camera::Update( float _fDt )
 	float fPrecalc = ( 1.0f - expf( -_fDt * fINTERPOLATIONFACTOR ) );
 
 	m_mTarget[eReference_CURRENT] = m_mTarget[eReference_DESIRED];
-	m_mTarget[eReference_CURRENT].GetTranslation( &m_TargetPosition );
+	m_TargetPosition = m_mTarget[eReference_CURRENT][3].xyz;
 	/*m_TargetPosition.x = m_mTarget[eReference_CURRENT]._41;
 	m_TargetPosition.y = m_mTarget[eReference_CURRENT]._42;
 	m_TargetPosition.z = m_mTarget[eReference_CURRENT]._43;*/
 
 	/*D3DXQUATERNION qCur, qDes, qOut;
-	P3f v3Scale;
-	P3f PosCur, PosDes;
+	vec3 v3Scale;
+	vec3 PosCur, PosDes;
 	D3DXMatrixDecompose( &v3Scale, &qCur, &PosCur, &m_mTarget[eReference_CURRENT] );
 	D3DXMatrixDecompose( &v3Scale, &qDes, &PosDes, &m_mTarget[eReference_DESIRED] );
 	
@@ -171,15 +174,15 @@ void Camera::Update( float _fDt )
 
 	// Lerp sur le yaw et le pitch
 	float fYawDist = m_fYaw[eReference_DESIRED] - m_fYaw[eReference_CURRENT];
-	if( fYawDist < 0.0f )	fYawDist += pePI*2.0f;
+	if( fYawDist < 0.0f )	fYawDist += F_PI*2.0f;
 	// Prendre le sens de rotation le plus court
-	if( fYawDist > pePI )
-		fYawDist = fYawDist - pePI*2.0f;
-	m_fYaw[eReference_CURRENT] = fmodf( m_fYaw[eReference_CURRENT] + fPrecalc*fYawDist, pePI*2.0f );
-	//if( m_fYaw[eReference_CURRENT] > pePI )	
-	//	m_fYaw[eReference_CURRENT] -= 2.0f*pePI;
+	if( fYawDist > F_PI )
+		fYawDist = fYawDist - F_PI*2.0f;
+	m_fYaw[eReference_CURRENT] = fmod( m_fYaw[eReference_CURRENT] + fPrecalc*fYawDist, F_PI*2.0f );
+	//if( m_fYaw[eReference_CURRENT] > F_PI )	
+	//	m_fYaw[eReference_CURRENT] -= 2.0f*F_PI;
 	if( m_fYaw[eReference_CURRENT] < 0.0f )
-		m_fYaw[eReference_CURRENT] += 2.0f*pePI;
+		m_fYaw[eReference_CURRENT] += 2.0f*F_PI;
 
 
 	// Lerp sur le yaw et le pitch
@@ -192,19 +195,20 @@ void Camera::Update( float _fDt )
 	if( fYaw > rwPI )	fYaw -= 2.0f*rwPI;*/
 
 	float fPitchDist = m_fPitch[eReference_DESIRED] - m_fPitch[eReference_CURRENT];
-	if( fPitchDist < 0.0f )	fPitchDist += pePI*2.0f;
+	if( fPitchDist < 0.0f )	fPitchDist += F_PI*2.0f;
 	// Prendre le sens de rotation le plus court
-	if( fPitchDist > pePI )
-		fPitchDist = fPitchDist - pePI*2.0f;
-	m_fPitch[eReference_CURRENT] = fmodf( m_fPitch[eReference_CURRENT] + fPrecalc*fPitchDist, pePI*2.0f );
-	if( m_fPitch[eReference_CURRENT] > pePI )	
-		m_fPitch[eReference_CURRENT] -= 2.0f*pePI;
+	if( fPitchDist > F_PI )
+		fPitchDist = fPitchDist - F_PI*2.0f;
+	m_fPitch[eReference_CURRENT] = fmod( m_fPitch[eReference_CURRENT] + fPrecalc*fPitchDist, F_PI*2.0f );
+	if( m_fPitch[eReference_CURRENT] > F_PI )	
+		m_fPitch[eReference_CURRENT] -= 2.0f*F_PI;
 
-	P3f v3Dir( cosf( m_fYaw[eReference_CURRENT] )*cosf( m_fPitch[eReference_CURRENT] ), cosf( m_fPitch[eReference_CURRENT] )*sinf( m_fYaw[eReference_CURRENT] ), sinf( m_fPitch[eReference_CURRENT] ) );
+	vec3 v3Dir( cosf( m_fYaw[eReference_CURRENT] )*cosf( m_fPitch[eReference_CURRENT] ), cosf( m_fPitch[eReference_CURRENT] )*sinf( m_fYaw[eReference_CURRENT] ), sinf( m_fPitch[eReference_CURRENT] ) );
 	m_Position = /*m_TargetPosition*/ - v3Dir*m_fTargetDist[eReference_CURRENT];
 
 	// Passer en coordonnées world
-	D3DXVec3TransformCoord( &m_Position, &m_Position, &m_mTarget[eReference_CURRENT] );
+	m_Position = (m_mTarget[eReference_CURRENT] * vec4( m_Position, 1.0f )).xyz;
+	//D3DXVec3TransformCoord( &m_Position, &m_Position, &m_mTarget[eReference_CURRENT] );
 
 	// Mettre à jour les matrices correspondantes
 	UpdateMatrix();
@@ -213,23 +217,23 @@ void Camera::Update( float _fDt )
 //-------------------------------------------------------------------------------
 /*void Camera::UpdatePosition( eReference _eRef )
 {
-	//P3f v3Dir( sinf( m_fYaw[_eRef] )*cosf( m_fPitch[_eRef] ), sinf( m_fPitch[_eRef] ), cosf( m_fYaw[_eRef] )*cosf( m_fPitch[_eRef] ) );
-	P3f v3Dir( cosf( m_fYaw[_eRef] )*cosf( m_fPitch[_eRef] ), cosf( m_fPitch[_eRef] )*sinf( m_fYaw[_eRef] ), sinf( m_fPitch[_eRef] ) );
+	//vec3 v3Dir( sinf( m_fYaw[_eRef] )*cosf( m_fPitch[_eRef] ), sinf( m_fPitch[_eRef] ), cosf( m_fYaw[_eRef] )*cosf( m_fPitch[_eRef] ) );
+	vec3 v3Dir( cosf( m_fYaw[_eRef] )*cosf( m_fPitch[_eRef] ), cosf( m_fPitch[_eRef] )*sinf( m_fYaw[_eRef] ), sinf( m_fPitch[_eRef] ) );
 	m_Position[_eRef] = m_TargetPosition[_eRef] - v3Dir*m_fTargetDist[_eRef];
 }
 
 //-------------------------------------------------------------------------------
 void Camera::UpdateYawPitchTargetDist( eReference _eRef )
 {
-	P3f v3Dir( m_TargetPosition[_eRef] - m_Position[_eRef] );
+	vec3 v3Dir( m_TargetPosition[_eRef] - m_Position[_eRef] );
 	m_fTargetDist[_eRef] = D3DXVec3Length( &v3Dir );
 	D3DXVec3Normalize( &v3Dir, &v3Dir );
-	P3f v3DirProj( v3Dir.x, 0.0f, v3Dir.z );
+	vec3 v3DirProj( v3Dir.x, 0.0f, v3Dir.z );
 	D3DXVec3Normalize( &v3DirProj, &v3DirProj );
 	m_fYaw[_eRef] = atan2f( v3DirProj.x, v3DirProj.z );
 	m_fPitch[_eRef] = atan2f( v3Dir.y, D3DXVec3Dot( &v3Dir, &v3DirProj ) );
-	if( m_fYaw[_eRef] < 0.0f )		m_fYaw[_eRef] = 2.0f*pePI + m_fYaw[_eRef];
-	if( m_fPitch[_eRef] < 0.0f )	m_fPitch[_eRef] = 2.0f*pePI + m_fPitch[_eRef];
+	if( m_fYaw[_eRef] < 0.0f )		m_fYaw[_eRef] = 2.0f*F_PI + m_fYaw[_eRef];
+	if( m_fPitch[_eRef] < 0.0f )	m_fPitch[_eRef] = 2.0f*F_PI + m_fPitch[_eRef];
 }*/
 
 //## Operation: UpdateRwFrame%3F65ABA6027B
@@ -284,18 +288,27 @@ void Camera::UpdateYawPitchTargetDist( eReference _eRef )
 //-------------------------------------------------------------------------------
 void Camera::UpdateMatrix()
 {
-	D3DXMatrixPerspectiveFovRH( &m_mProj, m_fParameters[eParam_FOV] / m_fParameters[eParam_ASPECTRATIO], m_fParameters[eParam_ASPECTRATIO], m_fParameters[eParam_NEARPLANE], m_fParameters[eParam_FARPLANE] );
-	//P3f v3LookAt = m_TargetPosition[eReference_CURRENT] - m_Position[eReference_CURRENT];
-	P3f UpVector( m_mTarget[eReference_CURRENT]._31, m_mTarget[eReference_CURRENT]._32, m_mTarget[eReference_CURRENT]._33 );
-	D3DXMatrixLookAtRH( &m_mView, &m_Position, &m_TargetPosition/*v3LookAt*/, &UpVector /*&m_UpVector[eReference_CURRENT]*/ );
+	m_mProj.perspective( m_fParameters[eParam_FOV] / m_fParameters[eParam_ASPECTRATIO], m_fParameters[eParam_ASPECTRATIO], m_fParameters[eParam_NEARPLANE], m_fParameters[eParam_FARPLANE] );
+	//D3DXMatrixPerspectiveFovRH( &m_mProj, m_fParameters[eParam_FOV] / m_fParameters[eParam_ASPECTRATIO], m_fParameters[eParam_ASPECTRATIO], m_fParameters[eParam_NEARPLANE], m_fParameters[eParam_FARPLANE] );
+	//vec3 UpVector( m_mTarget[eReference_CURRENT]._31, m_mTarget[eReference_CURRENT]._32, m_mTarget[eReference_CURRENT]._33 );
+	//D3DXMatrixLookAtRH( &m_mView, &m_Position, &m_TargetPosition/*v3LookAt*/, &UpVector /*&m_UpVector[eReference_CURRENT]*/ );
+	vec3 UpVector( m_mTarget[eReference_CURRENT][2].xyz );
+	m_mView.lookat( m_Position, m_TargetPosition, UpVector );
 }
 
 //-------------------------------------------------------------------------------
-void Camera::GetViewMatrixVectors( P3f& _Right, P3f& _Up, P3f& _Front )
+void Camera::GetViewMatrixVectors( vec3& _Right, vec3& _Up, vec3& _Front )
 {
-	_Right.x = m_mView._11;		_Right.y = m_mView._21;		_Right.z = m_mView._31;
-	_Up.x = m_mView._12;		_Up.y = m_mView._22;		_Up.z = m_mView._32;
-	_Front.x = -m_mView._13;	_Front.y = -m_mView._23;	_Front.z = -m_mView._33;
+	mat4 ViewT( transpose( m_mView ) );
+	_Right = ViewT[0].xyz;
+	_Up = ViewT[1].xyz;
+	_Front = ViewT[2].xyz;
+
+	//_Right.x = m_mView._11;		_Right.y = m_mView._21;		_Right.z = m_mView._31;
+	//_Up.x = m_mView._12;		_Up.y = m_mView._22;		_Up.z = m_mView._32;
+	//_Front.x = -m_mView._13;	_Front.y = -m_mView._23;	_Front.z = -m_mView._33;
 
 	//_Pos.x = m_mView._41;		_Pos.y = m_mView._42;		_Pos.z = m_mView._43;
 }
+
+} /* namespace bigball */
