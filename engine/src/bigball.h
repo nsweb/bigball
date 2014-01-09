@@ -28,6 +28,7 @@
 
 #include "core/core.h"
 #include "core/templates.h"
+#include "core/array.h"
 #include "math/constants.h"
 #include "math/functions.h"
 #include "math/vector.h"

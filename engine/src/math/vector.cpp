@@ -776,8 +776,10 @@ template<> mat4 mat4::perspective_fov(float fov_y, float width,
 
 template<> mat4 mat4::perspective( float fov_y, float aspect, float zNear, float zFar )
 {
-	//assert(aspect != 0.0f);
-	//assert(zFar != zNear);
+	ASSERT(aspect != 0.0f);
+	ASSERT(zFar != zNear);
+	mat2 toto;
+	toto.v0 += vec2();
 
 	float tanHalfFovy = tan(fov_y * 0.5f);
 	mat4 Result(0.0f);
@@ -795,7 +797,7 @@ template<> mat4 mat4::shifted_perspective(float fov_y, float screen_size,
 {
     float new_fov_y = fov_y * (F_PI / 180.0f);
     float tan_y = tan(new_fov_y * .5f);
-    //assert(tan_y > 0.000001f);
+    ASSERT(tan_y > 0.000001f);
     float dist_scr = (screen_size * screen_ratio_yx * .5f) / tan_y;
 
     return mat4::perspective_fov(fov_y, screen_size, screen_size * screen_ratio_yx,

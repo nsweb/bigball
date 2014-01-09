@@ -148,28 +148,12 @@ void Camera::Update( float _fDt )
 {
 	const float fINTERPOLATIONFACTOR = 4.0f;
 
-	float fPrecalc = ( 1.0f - expf( -_fDt * fINTERPOLATIONFACTOR ) );
+	float fPrecalc = ( 1.0f - exp( -_fDt * fINTERPOLATIONFACTOR ) );
 
 	m_mTarget[eReference_CURRENT] = m_mTarget[eReference_DESIRED];
 	m_TargetPosition = m_mTarget[eReference_CURRENT][3].xyz;
-	/*m_TargetPosition.x = m_mTarget[eReference_CURRENT]._41;
-	m_TargetPosition.y = m_mTarget[eReference_CURRENT]._42;
-	m_TargetPosition.z = m_mTarget[eReference_CURRENT]._43;*/
 
-	/*D3DXQUATERNION qCur, qDes, qOut;
-	vec3 v3Scale;
-	vec3 PosCur, PosDes;
-	D3DXMatrixDecompose( &v3Scale, &qCur, &PosCur, &m_mTarget[eReference_CURRENT] );
-	D3DXMatrixDecompose( &v3Scale, &qDes, &PosDes, &m_mTarget[eReference_DESIRED] );
-	
-	// Lerp sur la target position
-	m_TargetPosition = PosCur + fPrecalc*(PosDes - PosCur);
-
-	// Slerp sur la target
-	D3DXQuaternionSlerp( &qOut, &qCur, &qDes, fPrecalc );
-	D3DXMatrixTransformation( &m_mTarget[eReference_CURRENT], NULL, NULL, NULL,	NULL, &qOut, &m_TargetPosition );
-*/
-	// Lerp sur la targetdist
+	// Lerp on targetdist
 	m_fTargetDist[eReference_CURRENT] += fPrecalc*(m_fTargetDist[eReference_DESIRED] - m_fTargetDist[eReference_CURRENT]);
 
 	// Lerp sur le yaw et le pitch
@@ -195,13 +179,13 @@ void Camera::Update( float _fDt )
 	if( fYaw > rwPI )	fYaw -= 2.0f*rwPI;*/
 
 	float fPitchDist = m_fPitch[eReference_DESIRED] - m_fPitch[eReference_CURRENT];
-	if( fPitchDist < 0.0f )	fPitchDist += F_PI*2.0f;
+	if( fPitchDist < 0.0f )	fPitchDist += F_PI_2;
 	// Prendre le sens de rotation le plus court
 	if( fPitchDist > F_PI )
-		fPitchDist = fPitchDist - F_PI*2.0f;
+		fPitchDist = fPitchDist - F_PI_2;
 	m_fPitch[eReference_CURRENT] = fmod( m_fPitch[eReference_CURRENT] + fPrecalc*fPitchDist, F_PI*2.0f );
 	if( m_fPitch[eReference_CURRENT] > F_PI )	
-		m_fPitch[eReference_CURRENT] -= 2.0f*F_PI;
+		m_fPitch[eReference_CURRENT] -= F_PI_2;
 
 	vec3 v3Dir( cosf( m_fYaw[eReference_CURRENT] )*cosf( m_fPitch[eReference_CURRENT] ), cosf( m_fPitch[eReference_CURRENT] )*sinf( m_fYaw[eReference_CURRENT] ), sinf( m_fPitch[eReference_CURRENT] ) );
 	m_Position = /*m_TargetPosition*/ - v3Dir*m_fTargetDist[eReference_CURRENT];

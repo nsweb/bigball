@@ -7,6 +7,7 @@ namespace bigball
 {
 
 #define UNUSED(...)
+#define ASSERT(...)
 
 #undef BB_MATH_CONSTANT
 

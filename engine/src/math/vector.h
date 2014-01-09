@@ -15,7 +15,7 @@ namespace bigball
 //typedef tname<real> r##suffix;
 
 #define BB_VECTOR_TYPEDEFS(tname, suffix) \
-    template <typename T> struct tname; \
+    template <typename T> struct /*BIGBALL_API*/ tname; \
     typedef tname<float> suffix; \
     typedef tname<double> d##suffix; \
     typedef tname<int8_t> i8##suffix; \
@@ -68,7 +68,7 @@ typedef imat4 int4x4;
  * casts.
  */
 
-template<typename T, int N> struct XVec2
+template<typename T, int N> struct /*BIGBALL_API*/ XVec2
 {
     inline Vec2<T> operator =(Vec2<T> const &that);
 
@@ -84,7 +84,7 @@ template<typename T, int N> struct XVec2
     }
 };
 
-template<typename T, int N> struct XVec3
+template<typename T, int N> struct /*BIGBALL_API*/ XVec3
 {
     inline Vec3<T> operator =(Vec3<T> const &that);
 
@@ -100,7 +100,7 @@ template<typename T, int N> struct XVec3
     }
 };
 
-template<typename T, int N> struct XVec4
+template<typename T, int N> struct /*BIGBALL_API*/ XVec4
 {
     inline Vec4<T> operator =(Vec4<T> const &that);
 
@@ -147,7 +147,7 @@ template<typename T, int N> struct XVec4
  * 2-element vectors
  */
 
-template <typename T> struct BVec2
+template <typename T> struct /*BIGBALL_API*/ BVec2
 {
     explicit inline BB_CONSTEXPR BVec2() {}
     explicit inline BB_CONSTEXPR BVec2(T X, T Y) : x(X), y(Y) {}
@@ -209,7 +209,7 @@ template <typename T> struct BVec2
 //    real x, y;
 //};
 
-template <typename T> struct Vec2 : BVec2<T>
+template <typename T> struct /*BIGBALL_API*/ Vec2 : BVec2<T>
 {
     inline BB_CONSTEXPR Vec2() {}
     inline BB_CONSTEXPR Vec2(T X, T Y) : BVec2<T>(X, Y) {}
@@ -240,7 +240,7 @@ template <typename T> struct Vec2 : BVec2<T>
  * 2-element complexes
  */
 
-template <typename T> struct Cmplx
+template <typename T> struct /*BIGBALL_API*/ Cmplx
 {
     inline BB_CONSTEXPR Cmplx() {}
     inline BB_CONSTEXPR Cmplx(T X) : x(X), y(0) {}
@@ -310,7 +310,7 @@ static inline bool operator !=(T a, Cmplx<T> const &b) { return b != a; }
  * 3-element vectors
  */
 
-template <typename T> struct BVec3
+template <typename T> struct /*BIGBALL_API*/ BVec3
 {
     explicit inline BB_CONSTEXPR BVec3() {}
     explicit inline BB_CONSTEXPR BVec3(T X, T Y, T Z) : x(X), y(Y), z(Z) {}
@@ -461,7 +461,7 @@ template <typename T> struct BVec3
 //    real x, y, z;
 //};
 
-template <typename T> struct Vec3 : BVec3<T>
+template <typename T> struct /*BIGBALL_API*/ Vec3 : BVec3<T>
 {
     inline BB_CONSTEXPR Vec3() {}
     inline BB_CONSTEXPR Vec3(T X, T Y, T Z) : BVec3<T>(X, Y, Z) {}
@@ -509,7 +509,7 @@ template <typename T> struct Vec3 : BVec3<T>
  * 4-element vectors
  */
 
-template <typename T> struct BVec4
+template <typename T> struct /*BIGBALL_API*/ BVec4
 {
     explicit inline BB_CONSTEXPR BVec4() {}
     explicit inline BB_CONSTEXPR BVec4(T X, T Y, T Z, T W)
@@ -881,7 +881,7 @@ template <typename T> struct BVec4
 //    real x, y, z, w;
 //};
 
-template <typename T> struct Vec4 : BVec4<T>
+template <typename T> struct /*BIGBALL_API*/ Vec4 : BVec4<T>
 {
     inline BB_CONSTEXPR Vec4() {}
     inline BB_CONSTEXPR Vec4(T X, T Y, T Z, T W)
@@ -927,7 +927,7 @@ template <typename T> struct Vec4 : BVec4<T>
  * 4-element quaternions
  */
 
-template <typename T> struct Quat
+template <typename T> struct /*BIGBALL_API*/ Quat
 {
     inline BB_CONSTEXPR Quat() {}
     inline BB_CONSTEXPR Quat(T W) : w(W),  x(0), y(0), z(0) {}
@@ -1519,7 +1519,7 @@ inline Vec4<T> XVec4<T, N>::operator =(Vec4<T> const &that)
  * 2×2-element matrices
  */
 
-template <typename T> struct Mat2
+template <typename T> struct /*BIGBALL_API*/ Mat2
 {
     inline Mat2() {}
     inline Mat2(Vec2<T> V0, Vec2<T> V1)
@@ -1600,7 +1600,7 @@ template <typename T> struct Mat2
  * 3×3-element matrices
  */
 
-template <typename T> struct Mat3
+template <typename T> struct /*BIGBALL_API*/ Mat3
 {
     inline Mat3() {}
     inline Mat3(Vec3<T> V0, Vec3<T> V1, Vec3<T> V2)
@@ -1726,7 +1726,7 @@ template <typename T> struct Mat3
  * 4×4-element matrices (column major)
  */
 
-template <typename T> struct Mat4
+template <typename T> struct /*BIGBALL_API*/ Mat4
 {
     inline Mat4() {}
     inline Mat4(Vec4<T> V0, Vec4<T> V1, Vec4<T> V2, Vec4<T> V3)
