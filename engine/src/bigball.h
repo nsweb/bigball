@@ -6,6 +6,8 @@
 
 #pragma once
 
+#ifndef BB_BIGBALL_H
+#define BB_BIGBALL_H
 
 // defined with this macro as being exported.
 #ifdef BIGBALL_EXPORTS
@@ -27,12 +29,12 @@
 
 
 #include "core/core.h"
+#include "core/log.h"
 #include "core/templates.h"
 #include "core/array.h"
 #include "math/constants.h"
 #include "math/functions.h"
 #include "math/vector.h"
-#include "engine/engine.h"
-#include "engine/basemanager.h"
-#include "engine/camera.h"
 
+
+#endif // BB_BIGBALL_H

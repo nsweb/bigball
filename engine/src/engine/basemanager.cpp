@@ -1,6 +1,7 @@
 
 
 #include "../bigball.h"
+#include "basemanager.h"
 
 namespace bigball
 {
@@ -20,6 +21,10 @@ void BaseManager::Create()
 
 }
 void BaseManager::Destroy()
+{
+
+}
+void BaseManager::Tick( float DeltaSeconds )
 {
 
 }

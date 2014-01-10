@@ -252,7 +252,7 @@ public:
         m_reserved = toreserve;
     }
 
-    inline int Count() const { return m_count; }
+    inline int size() const { return m_count; }
     inline int Bytes() const { return m_count * sizeof(Element); }
 
 protected:

@@ -44,6 +44,18 @@
     <ClInclude Include="core\array.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="engine\entity.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\component.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\controller.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="core\log.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bigball.cpp" />
@@ -62,6 +74,18 @@
     </ClCompile>
     <ClCompile Include="math\constants.cpp">
       <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\entity.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\component.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\controller.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="core\log.cpp">
+      <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

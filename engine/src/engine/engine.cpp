@@ -2,6 +2,8 @@
 //
 
 #include "../bigball.h"
+#include "engine.h"
+#include "controller.h"
 
 namespace bigball
 {
@@ -29,8 +31,8 @@ bool Engine::Init( bool bCreateWindow )
     /* Request opengl 3.2 context.
      * SDL doesn't have the ability to choose which profile at this time of writing,
      * but it should default to the core profile */
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     /* Turn on double buffering with a 24bit Z buffer.
@@ -47,12 +49,18 @@ bool Engine::Init( bool bCreateWindow )
 		return false;
 	}
 
-    //checkSDLError(__LINE__);
-
     /* Create our opengl context and attach it to our window */
     m_GLContext = SDL_GL_CreateContext( m_MainWindow );
     //checkSDLError(__LINE__);
 
+	// Init GLEW
+	glewInit();
+
+	// Show version info
+	const char* RendererId = (const char*)glGetString (GL_RENDERER);	// get renderer string
+	const char* VersionId = (const char*)glGetString (GL_VERSION);		// version as a string
+	BB_LOG( EngineInit, Log, "Renderer: %s\n", RendererId );
+	BB_LOG( EngineInit, Log, ("OpenGL version supported %s\n", VersionId) );
 
     /* This makes our buffer swap syncronized with the monitor's vertical refresh */
     SDL_GL_SetSwapInterval(1);
@@ -62,25 +70,69 @@ bool Engine::Init( bool bCreateWindow )
     glClear ( GL_COLOR_BUFFER_BIT );
     /* Swap our back buffer to the front */
     SDL_GL_SwapWindow( m_MainWindow );
+
+	// Ready to init our managers
+	InitManagers();
+
  
 	return true;
 }
 
 void Engine::Shutdown()
 {
+	DestroyManagers();
+
 	/* Delete our opengl context, destroy our window, and shutdown SDL */
 	SDL_GL_DeleteContext( m_GLContext );
 	SDL_DestroyWindow( m_MainWindow );
 	SDL_Quit();
 }
 
+//////////////////////////////////////////////////////////////////////////
+void Engine::InitManagers()
+{
+	Controller* MainController = new Controller();
+	MainController->Create();
+	m_Managers.push_back( MainController );
+}
+
+void Engine::DestroyManagers()
+{
+	for( int32 i = m_Managers.size() - 1; i >=0 ; --i )
+	{
+		m_Managers[i]->Destroy();
+		delete m_Managers[i];
+	}
+	m_Managers.clear();
+}
+
+//////////////////////////////////////////////////////////////////////////
 void Engine::MainLoop()
 {
+	uint32 OldTime, CurrentTime = SDL_GetTicks();
+
 	while( 1 )
 	{
 		int32 LoopStatus = 0;
+		OldTime = CurrentTime;
+		CurrentTime = SDL_GetTicks();
+		float DeltaSeconds = (CurrentTime - OldTime) / 1000.0f;
 
-		glClear( GL_COLOR_BUFFER_BIT );
+
+		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+		// tell GL to only draw onto a pixel if the shape is closer to the viewer
+		glEnable( GL_DEPTH_TEST ); // enable depth-testing
+		glDepthFunc( GL_LESS ); // depth-testing interprets a smaller value as "closer"
+
+		for( int32 i = 0; i < m_Managers.size(); ++i )
+		{
+			m_Managers[i]->Tick( DeltaSeconds );
+		}
+
+		//glUseProgram (shader_programme);
+		//glBindVertexArray (vao);
+		//// draw points 0-3 from the currently bound VAO with current in-use shader
+		//glDrawArrays (GL_TRIANGLES, 0, 3);
 
 		SDL_GL_SwapWindow( m_MainWindow );
 

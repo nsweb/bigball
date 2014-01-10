@@ -1,5 +1,6 @@
 
 #include "../bigball.h"
+#include "camera.h"
 
 namespace bigball
 {

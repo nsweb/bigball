@@ -25,8 +25,9 @@ public:
 
 	virtual void	Create();
 	virtual void	Destroy();	
+	virtual void	Tick( float DeltaSeconds );
 };
 
-}
+} /* namespace bigball */
 
 #endif // BB_BASEMANAGER_H

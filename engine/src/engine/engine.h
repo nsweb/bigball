@@ -6,6 +6,8 @@
 namespace bigball
 {
 
+class BIGBALL_API BaseManager;
+
 class BIGBALL_API Engine
 {
 public:
@@ -17,10 +19,13 @@ public:
 	virtual void	MainLoop();
 
 protected:
-	SDL_Window*		m_MainWindow; 
-	SDL_GLContext	m_GLContext; 
+	SDL_Window*				m_MainWindow; 
+	SDL_GLContext			m_GLContext; 
 
+	Array<BaseManager*>		m_Managers;
 
+	virtual void	InitManagers();
+	virtual void	DestroyManagers();
 };
 
 extern BIGBALL_API Engine* g_pEngine;
