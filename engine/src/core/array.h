@@ -158,7 +158,7 @@ public:
     {
         ASSERT(m_count > 0);
         Element tmp = Last();
-        Remove(m_count - 1, 1);
+        erase(m_count - 1, 1);
         return tmp;
     }
 
@@ -177,7 +177,7 @@ public:
         }
     }
 
-    void Remove(int pos, int todelete = 1)
+    void erase(int pos, int todelete = 1)
     {
         ASSERT(todelete >= 0);
         ASSERT(pos - todelete >= -m_count - 1);
@@ -192,7 +192,7 @@ public:
         m_count -= todelete;
     }
 
-    void RemoveSwap(int pos, int todelete = 1)
+    void erase_swap(int pos, int todelete = 1)
     {
         ASSERT(todelete >= 0);
         ASSERT(pos - todelete >= -m_count - 1);
@@ -208,6 +208,28 @@ public:
         }
         m_count -= todelete;
     }
+
+	void remove( const Element& Item )
+    {
+        for( int i = 0; i < m_count; )
+        {
+        	if( m_data[i] == Item )
+				erase( i, 1 );
+			else
+				++i;
+        }
+    }
+
+	void remove_swap( const Element& Item )
+	{
+		for( int i = 0; i < m_count; )
+		{
+        	if( m_data[i] == Item )
+				erase_swap( i, 1 );
+			else
+				++i;
+		}
+	}
 
     void resize(int count, Element e = Element())
     {
@@ -227,7 +249,7 @@ public:
 
     inline void clear()
     {
-        Remove(0, m_count);
+        erase(0, m_count);
     }
 
     void reserve(int toreserve)

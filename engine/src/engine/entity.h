@@ -20,6 +20,8 @@ public:
 	virtual void	AddToWorld();
 	virtual void	RemoveFromWorld();
 
+	virtual void	Tick( float DeltaSeconds );
+
 protected:
 	Array<Component*> Components;
 };

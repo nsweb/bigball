@@ -34,4 +34,9 @@ void Entity::RemoveFromWorld()
 
 }
 
+void Entity::Tick( float DeltaSeconds )
+{
+
+}
+
 } /* namespace bigball */

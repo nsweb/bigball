@@ -56,6 +56,12 @@
     <ClInclude Include="core\log.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="core\string.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\entitymanager.h">
+      <Filter>engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bigball.cpp" />
@@ -86,6 +92,12 @@
     </ClCompile>
     <ClCompile Include="core\log.cpp">
       <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\string.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\entitymanager.cpp">
+      <Filter>engine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

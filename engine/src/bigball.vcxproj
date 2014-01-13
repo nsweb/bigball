@@ -163,6 +163,7 @@
     <ClInclude Include="core\array.h" />
     <ClInclude Include="core\core.h" />
     <ClInclude Include="core\log.h" />
+    <ClInclude Include="core\string.h" />
     <ClInclude Include="core\templates.h" />
     <ClInclude Include="core\types.h" />
     <ClInclude Include="engine\basemanager.h" />
@@ -171,6 +172,7 @@
     <ClInclude Include="engine\controller.h" />
     <ClInclude Include="engine\engine.h" />
     <ClInclude Include="engine\entity.h" />
+    <ClInclude Include="engine\entitymanager.h" />
     <ClInclude Include="math\constants.h" />
     <ClInclude Include="math\functions.h" />
     <ClInclude Include="math\vector.h" />
@@ -179,6 +181,7 @@
   <ItemGroup>
     <ClCompile Include="bigball.cpp" />
     <ClCompile Include="core\log.cpp" />
+    <ClCompile Include="core\string.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
@@ -199,6 +202,7 @@
     <ClCompile Include="engine\controller.cpp" />
     <ClCompile Include="engine\engine.cpp" />
     <ClCompile Include="engine\entity.cpp" />
+    <ClCompile Include="engine\entitymanager.cpp" />
     <ClCompile Include="math\constants.cpp" />
     <ClCompile Include="math\vector.cpp" />
   </ItemGroup>

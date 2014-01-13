@@ -4,6 +4,7 @@
 #include "../bigball.h"
 #include "engine.h"
 #include "controller.h"
+#include "entitymanager.h"
 
 namespace bigball
 {
@@ -91,9 +92,13 @@ void Engine::Shutdown()
 //////////////////////////////////////////////////////////////////////////
 void Engine::InitManagers()
 {
-	Controller* MainController = new Controller();
-	MainController->Create();
-	m_Managers.push_back( MainController );
+	Controller* pController = new Controller();
+	pController->Create();
+	m_Managers.push_back( pController );
+
+	EntityManager* pEntityManager = new EntityManager();
+	pEntityManager->Create();
+	m_Managers.push_back( pEntityManager );
 }
 
 void Engine::DestroyManagers()
