@@ -5,6 +5,7 @@
 #include "engine.h"
 #include "controller.h"
 #include "entitymanager.h"
+#include "coposition.h"
 
 namespace bigball
 {
@@ -75,6 +76,8 @@ bool Engine::Init( bool bCreateWindow )
 	// Ready to init our managers
 	InitManagers();
 
+	// Declare available components and entities
+	DeclareComponentsAndEntities();
  
 	return true;
 }
@@ -92,6 +95,12 @@ void Engine::Shutdown()
 //////////////////////////////////////////////////////////////////////////
 void Engine::InitManagers()
 {
+	tinyxml2::XMLDocument TestDoc;
+	//TestDoc.LoadFile("../../data/test.xml");
+	tinyxml2::XMLError err = TestDoc.LoadFile("../data/test.xml");
+	tinyxml2::XMLElement* FirstElt = TestDoc.FirstChildElement();
+	tinyxml2::XMLNode* FirstChild = TestDoc.FirstChild();
+
 	Controller* pController = new Controller();
 	pController->Create();
 	m_Managers.push_back( pController );
@@ -109,6 +118,11 @@ void Engine::DestroyManagers()
 		delete m_Managers[i];
 	}
 	m_Managers.clear();
+}
+
+void Engine::DeclareComponentsAndEntities()
+{
+	DECLARE_COMPONENT( CoPosition );
 }
 
 //////////////////////////////////////////////////////////////////////////

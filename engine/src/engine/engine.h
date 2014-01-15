@@ -26,6 +26,7 @@ protected:
 
 	virtual void	InitManagers();
 	virtual void	DestroyManagers();
+	virtual void	DeclareComponentsAndEntities();
 };
 
 extern BIGBALL_API Engine* g_pEngine;

@@ -6,6 +6,7 @@
 
 namespace bigball
 {
+class BIGBALL_API Entity;
 
 class BIGBALL_API Component 
 {
@@ -19,7 +20,7 @@ public:
 	virtual void	RemoveFromWorld();
 
 protected:
-
+	Entity*		m_Owner;
 };
 
 } /* namespace bigball */

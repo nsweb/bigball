@@ -15,7 +15,7 @@ namespace bigball
 }
 
 
-class BBLog
+class BIGBALL_API BBLog
 {
 public:
 

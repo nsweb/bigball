@@ -15,7 +15,7 @@ namespace bigball
  */
 
 template<typename T/*, typename ARRAY*/> 
-class /*BIGBALL_API*/ Array
+class BIGBALL_API Array
 {
 public:
     typedef T Element;
@@ -276,6 +276,27 @@ public:
 
     inline int size() const { return m_count; }
     inline int Bytes() const { return m_count * sizeof(Element); }
+
+	int find( const Element& Item )
+	{
+		for( int i = 0; i < m_count; ++i )
+		{
+        	if( m_data[i] == Item )
+				return i;
+		}
+		return -1;
+	}
+
+	template <typename KeyType>
+	int FindByKey( const KeyType& Key )
+	{
+		for( int i = 0; i < m_count; ++i )
+		{
+        	if( m_data[i] == Key )
+				return i;
+		}
+		return -1;
+	}
 
 protected:
     Element *m_data;

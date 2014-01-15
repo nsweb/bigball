@@ -33,6 +33,7 @@
 #include "core/templates.h"
 #include "core/array.h"
 #include "core/string.h"
+#include "core/name.h"
 #include "math/constants.h"
 #include "math/functions.h"
 #include "math/vector.h"

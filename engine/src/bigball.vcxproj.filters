@@ -62,6 +62,18 @@
     <ClInclude Include="engine\entitymanager.h">
       <Filter>engine</Filter>
     </ClInclude>
+    <ClInclude Include="core\name.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\entitypattern.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\componentmanager.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\coposition.h">
+      <Filter>engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bigball.cpp" />
@@ -97,6 +109,18 @@
       <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="engine\entitymanager.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="core\name.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\entitypattern.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\componentmanager.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\coposition.cpp">
       <Filter>engine</Filter>
     </ClCompile>
   </ItemGroup>

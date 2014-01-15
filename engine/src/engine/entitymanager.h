@@ -5,6 +5,7 @@
 #define BB_ENTITYMANAGER_H
 
 #include "basemanager.h"
+#include "entitypattern.h"
 
 namespace bigball
 {
@@ -12,8 +13,34 @@ namespace bigball
 class BIGBALL_API Entity;
 class BIGBALL_API Component;
 
-typedef Component* (*ComponentCreateFunc)();
-typedef Entity* (*EntityCreateFunc)();
+#define DECLARE_COMPONENT( Klass ) \
+{ \
+	ComponentFactory Factory; \
+	Factory.m_Name = Klass::GetComponentName(); \
+	Factory.m_CreateFunc = Klass::NewComponent; \
+	Factory.m_Manager = nullptr; \
+	EntityManager::GetStaticInstance()->RegisterFactory( Factory ); \
+}
+
+#define DECLARE_COMPONENT_MGR( Klass, Manager ) \
+{ \
+	ComponentFactory Factory; \
+	Factory.m_Name = Klass::GetComponentName(); \
+	Factory.m_CreateFunc = Klass::NewComponent; \
+	Factory.m_Manager = Manager::GetStaticInstance(); \
+	EntityManager::GetStaticInstance()->RegisterFactory( Factory ); \
+}
+
+#define DECLARE_ENTITYPATTERN( Name, Klass, CompList, OptionalCompList ) \
+{ \
+	EntityPattern Pattern; \
+	Pattern.m_Name = #Name; \
+	Pattern.m_CreateFunc = Klass::NewEntity; \
+	Pattern.SetComponentList CompList; \
+	Pattern.SetOptionalComponentList OptionalCompList; \
+	EntityManager::GetStaticInstance()->RegisterPattern( Pattern ); \
+}
+
 
 class BIGBALL_API EntityManager : public BaseManager 
 {
@@ -27,20 +54,21 @@ public:
 	virtual void	Destroy();	
 	virtual void	Tick( float DeltaSeconds );
 
-	Entity*			CreateEntity( uint64 EntityId );
+	Entity*			CreateEntity( char const* PatternName );
+	Entity*			CreateEntityFromXML( char const* XMLPath );
+
 	void			AddEntityToWorld( Entity* pEntity );
 	void			RemoveEntityFromWorld( Entity* pEntity );
 	void			DestroyEntity( Entity* pEntity );
 
-	static void		RegisterComponent( uint64 ComponentId, ComponentCreateFunc ComponentFactory );
-	static void		RegisterEntity( uint64 EntityId, EntityCreateFunc EntityFactory, uint64 ComponentIds );
+	void			RegisterFactory( ComponentFactory& Factory );
+	void			RegisterPattern( EntityPattern const& Pattern );
 
 protected:
 	Array<Entity*>		m_Entities;
 
-	static Array<ComponentCreateFunc>	m_ComponentFactories;
-	static Array<EntityCreateFunc>		m_EntityFactories;
-	static Array<uint64>				m_EntityComponentPatterns;
+	Array<ComponentFactory>		m_ComponentFactories;
+	Array<EntityPattern>		m_EntityPatterns;
 };
 
 } /* namespace bigball */

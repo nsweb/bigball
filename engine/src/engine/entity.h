@@ -9,11 +9,24 @@ namespace bigball
 
 class BIGBALL_API Component;
 
-class Entity 
+
+class BIGBALL_API Entity 
 {
 public:
+
+	enum State
+	{
+		Empty,
+		Created,
+		InWorld,
+	};
+
+	Array<Component*>	m_Components;
+
 					Entity();
 	virtual			~Entity();
+
+	static Entity*	NewEntity()		{ return new Entity();	}
 
 	virtual void	Create();
 	virtual void	Destroy();	
@@ -23,7 +36,8 @@ public:
 	virtual void	Tick( float DeltaSeconds );
 
 protected:
-	Array<Component*> Components;
+	State				m_State;
+
 };
 
 } /* namespace bigball */
