@@ -21,13 +21,14 @@ private:
 
 public:
 	Map<String,NameHandle> m_StringTable;
-	uint32 m_GlobalHandle;
+	//uint32 m_GlobalHandle;
 
 public:
 	
 	static void StaticInit();
 	static NameManager* GetStaticInstance() { return m_pStaticInstance; }
 	NameHandle FindOrAddHandle( String const& str );
+	const String& GetString( NameHandle Handle );
 
 };
 
@@ -59,16 +60,16 @@ public:
 
     inline char const* c_str() const
     {
-        return nullptr;
+        return NameManager::GetStaticInstance()->GetString( m_Handle ).c_str();
     }
 	inline String ToString() const
 	{
-		return String();
+		return NameManager::GetStaticInstance()->GetString( m_Handle );
 	}
 
     inline bool operator ==( Name const& Other ) const
     {
-        return false;
+        return m_Handle == Other.m_Handle && m_Num == Other.m_Num;
     }
 };
 

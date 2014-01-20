@@ -37,6 +37,43 @@ public:
 		m_NbActivePairs = 0;
 	}
 
+	void reserve( uint32 HashSize )
+	{
+		if( HashSize > m_HashSize )
+		{
+			// Get more entries
+			m_HashSize = bigball::NextPowerOfTwo(HashSize);
+			m_Mask = m_HashSize - 1;
+
+			BB_FREE(m_HashTable);
+			m_HashTable = (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );
+			Memory::Memset( m_HashTable, 0xFF, m_HashSize * sizeof(uint32) );
+
+			// Get some bytes for new entries
+			Pair* NewPairs	= new Pair[m_HashSize];/* (Pair*) Memory::Malloc( m_HashSize * sizeof(Pair) );*/		ASSERT(NewPairs);
+			uint32* NewNext	= (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );	ASSERT(NewNext);
+
+			// Copy old data if needed
+			for( uint32 i = 0; i < m_NbActivePairs; ++i )
+				NewPairs[i] = m_Pairs[i];
+
+			for( uint32 i=0; i < m_NbActivePairs; i++ )
+			{
+				uint32 HashValue = ((Hash<K> const &)*this)(m_Pairs[i].Key) & m_Mask;
+				m_NextTable[i] = m_HashTable[HashValue];
+				m_HashTable[HashValue] = i;
+			}
+
+			// Delete old data
+			BB_FREE(m_NextTable);
+			BB_DELETE_ARRAY(m_Pairs);
+
+			// Assign new pointer
+			m_Pairs = NewPairs;
+			m_NextTable = NewNext;
+		}
+	}
+
 	const Pair*	Find( K const& Key ) const
 	{
 		if( !m_HashTable )	return nullptr;	// Nothing has been allocated yet
