@@ -74,6 +74,15 @@
     <ClInclude Include="engine\coposition.h">
       <Filter>engine</Filter>
     </ClInclude>
+    <ClInclude Include="core\hash.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\map.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\memory.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bigball.cpp" />
@@ -122,6 +131,18 @@
     </ClCompile>
     <ClCompile Include="engine\coposition.cpp">
       <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="core\hash.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\map.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="math\functions.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="core\memory.cpp">
+      <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

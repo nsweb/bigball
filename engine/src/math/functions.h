@@ -75,11 +75,7 @@ static inline double lerp(double const &a, double const &b, double const &x)
     return a + (b - a) * x;
 }
 
-//static inline ldouble lerp(ldouble const &a, ldouble const &b, ldouble const &x)
-//{
-//    return a + (b - a) * x;
-//}
-
+BIGBALL_API uint32 NextPowerOfTwo( uint32 x );
 
 
 /* C++ doesn't define abs() and fmod() for all types; we add these for

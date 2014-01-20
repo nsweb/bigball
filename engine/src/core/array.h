@@ -275,6 +275,7 @@ public:
     }
 
     inline int size() const { return m_count; }
+	inline int size_reserved() const { return m_reserved; }
     inline int Bytes() const { return m_count * sizeof(Element); }
 
 	int find( const Element& Item )
