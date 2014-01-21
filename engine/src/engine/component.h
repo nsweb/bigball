@@ -11,13 +11,14 @@ class BIGBALL_API Entity;
 class BIGBALL_API Component 
 {
 public:
-					Component();
-	virtual			~Component();
+						Component();
+	virtual				~Component();
 
-	virtual void	Create();
-	virtual void	Destroy();	
-	virtual void	AddToWorld();
-	virtual void	RemoveFromWorld();
+	virtual void		Create( Entity* Owner, class tinyxml2::XMLDocument* Proto = nullptr );
+	virtual void		Destroy();	
+	virtual void		AddToWorld();
+	virtual void		RemoveFromWorld();
+	virtual char const*	GetComponentName() = 0;
 
 protected:
 	Entity*		m_Owner;

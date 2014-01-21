@@ -7,6 +7,8 @@
 namespace bigball
 {
 
+NameManager* NameManager::m_pStaticInstance = nullptr; 
+
 NameManager::NameManager()
 {
 	m_pStaticInstance = this;
@@ -19,11 +21,7 @@ NameManager::~NameManager()
 
 NameHandle NameManager::FindOrAddHandle( String const& str )
 {
-	const NameMap::Pair* NameEntry = m_StringTable.Find( str );
-	if( !NameEntry )
-	{
-		NameEntry = m_StringTable.Add( str, m_StringTable.m_NbActivePairs );
-	}
+	const NameMap::Pair* NameEntry = m_StringTable.Add( str, m_StringTable.m_NbActivePairs );
 
 	return NameEntry->Value;
 }
@@ -38,7 +36,7 @@ const String& NameManager::GetString( NameHandle Handle )
 	return m_StringTable.m_Pairs[0].Key;
 }
 
-void NameManager::StaticInit()
+void NameManager::Init()
 {
 	m_StringTable.reserve( 4096 );
 
@@ -47,7 +45,10 @@ void NameManager::StaticInit()
 NameManager* NameManager::GetStaticInstance() 
 { 
 	if( !m_pStaticInstance )
-		StaticInit();
+	{
+		m_pStaticInstance = new NameManager();
+		m_pStaticInstance->Init();
+	}
 	return m_pStaticInstance; 
 }
 

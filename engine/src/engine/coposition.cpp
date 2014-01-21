@@ -6,7 +6,7 @@
 namespace bigball
 {
 
-CoPosition::CoPosition()
+CoPosition::CoPosition() : m_Position(0.f), m_Rotation(1.0f)
 {
 
 }

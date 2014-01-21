@@ -8,6 +8,7 @@ namespace bigball
 {
 
 class BIGBALL_API Component;
+class BIGBALL_API EntityPattern;
 
 
 class BIGBALL_API Entity 
@@ -28,12 +29,14 @@ public:
 
 	static Entity*	NewEntity()		{ return new Entity();	}
 
-	virtual void	Create();
+	virtual void	Create( EntityPattern* Pattern, class tinyxml2::XMLDocument* Proto = nullptr );
 	virtual void	Destroy();	
 	virtual void	AddToWorld();
 	virtual void	RemoveFromWorld();
 
 	virtual void	Tick( float DeltaSeconds );
+
+	bool			IsInWorld()		{ return m_State == InWorld; }
 
 protected:
 	State				m_State;

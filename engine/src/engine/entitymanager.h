@@ -16,7 +16,7 @@ class BIGBALL_API Component;
 #define DECLARE_COMPONENT( Klass ) \
 { \
 	ComponentFactory Factory; \
-	Factory.m_Name = Klass::GetComponentName(); \
+	Factory.m_Name = Klass::GetStaticName(); \
 	Factory.m_CreateFunc = Klass::NewComponent; \
 	Factory.m_Manager = nullptr; \
 	EntityManager::GetStaticInstance()->RegisterFactory( Factory ); \
@@ -47,22 +47,23 @@ class BIGBALL_API EntityManager : public BaseManager
 	STATIC_MANAGER_H(EntityManager)
 
 public:
-					EntityManager();
-	virtual			~EntityManager();
+						EntityManager();
+	virtual				~EntityManager();
 
-	virtual void	Create();
-	virtual void	Destroy();	
-	virtual void	Tick( float DeltaSeconds );
+	virtual void		Create();
+	virtual void		Destroy();	
+	virtual void		Tick( float DeltaSeconds );
 
-	Entity*			CreateEntity( char const* PatternName );
-	Entity*			CreateEntityFromXML( char const* XMLPath );
+	Entity*				CreateEntity( char const* PatternName, class tinyxml2::XMLDocument* Proto = nullptr );
+	Entity*				CreateEntityFromXML( char const* XMLPath );
 
-	void			AddEntityToWorld( Entity* pEntity );
-	void			RemoveEntityFromWorld( Entity* pEntity );
-	void			DestroyEntity( Entity* pEntity );
+	void				AddEntityToWorld( Entity* pEntity );
+	void				RemoveEntityFromWorld( Entity* pEntity );
+	void				DestroyEntity( Entity* pEntity );
 
-	void			RegisterFactory( ComponentFactory& Factory );
-	void			RegisterPattern( EntityPattern const& Pattern );
+	void				RegisterFactory( ComponentFactory& Factory );
+	void				RegisterPattern( EntityPattern const& Pattern );
+	ComponentFactory*	FindComponentFactory( Name const& ComponentName );
 
 protected:
 	Array<Entity*>		m_Entities;

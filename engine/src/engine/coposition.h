@@ -19,7 +19,8 @@ public:
 	virtual				~CoPosition();
 
 	static Component*	NewComponent()		{ return new CoPosition();	}
-	static char const*	GetComponentName()	{ return "Position";		}
+	static char const*	GetStaticName()		{ return "Position";		}
+	virtual char const*	GetComponentName()	{ return GetStaticName();	}
 
 	//virtual void	Create();
 	//virtual void	Destroy();	

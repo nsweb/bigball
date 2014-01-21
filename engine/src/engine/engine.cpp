@@ -96,16 +96,16 @@ void Engine::Shutdown()
 void Engine::InitManagers()
 {
 
-	Map<String, int32> testmap;
-	testmap.Add( String("Toto"), 0 );
-	testmap.Add( String("Tata"), 1 );
-	testmap.Add( String("Titi"), 2 );
+	//Map<String, int32> testmap;
+	//testmap.Add( String("Toto"), 0 );
+	//testmap.Add( String("Tata"), 1 );
+	//testmap.Add( String("Titi"), 2 );
 
-	tinyxml2::XMLDocument TestDoc;
-	//TestDoc.LoadFile("../../data/test.xml");
-	tinyxml2::XMLError err = TestDoc.LoadFile("../data/test.xml");
-	tinyxml2::XMLElement* FirstElt = TestDoc.FirstChildElement();
-	tinyxml2::XMLNode* FirstChild = TestDoc.FirstChild();
+	//tinyxml2::XMLDocument TestDoc;
+	////TestDoc.LoadFile("../../data/test.xml");
+	//tinyxml2::XMLError err = TestDoc.LoadFile("../data/test.xml");
+	//tinyxml2::XMLElement* FirstElt = TestDoc.FirstChildElement();
+	//tinyxml2::XMLNode* FirstChild = TestDoc.FirstChild();
 
 	Controller* pController = new Controller();
 	pController->Create();

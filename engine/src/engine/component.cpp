@@ -6,7 +6,7 @@
 namespace bigball
 {
 
-Component::Component()
+Component::Component() : m_Owner(nullptr)
 {
 
 }
@@ -16,9 +16,9 @@ Component::~Component()
 
 }
 
-void Component::Create()
+void Component::Create( Entity* Owner, class tinyxml2::XMLDocument* Proto )
 {
-
+	m_Owner = Owner;
 }
 void Component::Destroy()
 {

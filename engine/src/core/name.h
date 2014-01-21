@@ -18,18 +18,17 @@ private:
 	static NameManager* m_pStaticInstance; 
 	NameManager();
 	~NameManager();
+	void Init();
 
 public:
 	Map<String,NameHandle> m_StringTable;
 	//uint32 m_GlobalHandle;
 
 public:
-	
-	static void StaticInit();
-	static NameManager* GetStaticInstance() { return m_pStaticInstance; }
+
+	static NameManager* GetStaticInstance();
 	NameHandle FindOrAddHandle( String const& str );
 	const String& GetString( NameHandle Handle );
-
 };
 
 class BIGBALL_API Name
