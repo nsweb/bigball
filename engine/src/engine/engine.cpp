@@ -154,6 +154,11 @@ void Engine::MainLoop()
 			m_Managers[i]->Tick( DeltaSeconds );
 		}
 
+		for( int32 i = 0; i < m_Managers.size(); ++i )
+		{
+			m_Managers[i]->_Render( DeltaSeconds );
+		}
+
 		//glUseProgram (shader_programme);
 		//glBindVertexArray (vao);
 		//// draw points 0-3 from the currently bound VAO with current in-use shader

@@ -15,7 +15,7 @@ namespace bigball
  */
 
 template<typename T/*, typename ARRAY*/> 
-class BIGBALL_API Array
+class /*BIGBALL_API*/ Array
 {
 public:
     typedef T Element;

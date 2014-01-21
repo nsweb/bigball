@@ -29,4 +29,9 @@ void BaseManager::Tick( float DeltaSeconds )
 
 }
 
+void BaseManager::_Render( float DeltaSeconds )
+{
+
+}
+
 }

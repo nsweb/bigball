@@ -25,7 +25,7 @@ class BIGBALL_API Component;
 #define DECLARE_COMPONENT_MGR( Klass, Manager ) \
 { \
 	ComponentFactory Factory; \
-	Factory.m_Name = Klass::GetComponentName(); \
+	Factory.m_Name = Klass::GetStaticName(); \
 	Factory.m_CreateFunc = Klass::NewComponent; \
 	Factory.m_Manager = Manager::GetStaticInstance(); \
 	EntityManager::GetStaticInstance()->RegisterFactory( Factory ); \

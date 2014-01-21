@@ -26,6 +26,7 @@ public:
 	virtual void	Create();
 	virtual void	Destroy();	
 	virtual void	Tick( float DeltaSeconds );
+	virtual void	_Render( float DeltaSeconds );
 };
 
 } /* namespace bigball */

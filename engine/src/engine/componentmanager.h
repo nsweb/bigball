@@ -18,8 +18,8 @@ public:
 					ComponentManager();
 	virtual			~ComponentManager();
 
-	void			AddComponentToWorld( Component* pComponent );
-	void			RemoveComponentFromWorld( Component* pComponent );
+	virtual void	AddComponentToWorld( Component* pComponent );
+	virtual void	RemoveComponentFromWorld( Component* pComponent );
 
 
 protected:

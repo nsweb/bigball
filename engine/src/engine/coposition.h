@@ -21,7 +21,7 @@ public:
 	static Component*	NewComponent()		{ return new CoPosition();	}
 	static char const*	GetStaticName()		{ return "Position";		}
 	virtual char const*	GetComponentName()	{ return GetStaticName();	}
-
+	virtual bool		IsA( Name const& ComponentName );
 	//virtual void	Create();
 	//virtual void	Destroy();	
 	//virtual void	AddToWorld();

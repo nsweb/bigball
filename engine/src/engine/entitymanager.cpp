@@ -54,6 +54,8 @@ Entity* EntityManager::CreateEntity( char const* PatternName, class tinyxml2::XM
 	EntityPattern& Pattern = m_EntityPatterns[PatternIdx];
 	Entity* NewEntity = Pattern.m_CreateFunc();
 	NewEntity->Create( &Pattern, Proto );
+
+	m_Entities.push_back( NewEntity );
 	
 	return NewEntity;
 }

@@ -16,5 +16,12 @@ CoPosition::~CoPosition()
 
 }
 
+bool CoPosition::IsA( Name const& ComponentName )
+{
+	if( ComponentName == GetComponentName() )
+		return true;
+	return Super::IsA( ComponentName );
+}
+
 
 } /* namespace bigball */

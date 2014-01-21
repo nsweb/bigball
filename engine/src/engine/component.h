@@ -19,6 +19,7 @@ public:
 	virtual void		AddToWorld();
 	virtual void		RemoveFromWorld();
 	virtual char const*	GetComponentName() = 0;
+	virtual bool		IsA( Name const& ComponentName )		{ return false;		}
 
 protected:
 	Entity*		m_Owner;
