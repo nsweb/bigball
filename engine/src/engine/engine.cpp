@@ -5,6 +5,7 @@
 #include "engine.h"
 #include "controller.h"
 #include "entitymanager.h"
+#include "../gfx/gfxmanager.h"
 #include "coposition.h"
 
 namespace bigball
@@ -95,12 +96,6 @@ void Engine::Shutdown()
 //////////////////////////////////////////////////////////////////////////
 void Engine::InitManagers()
 {
-
-	//Map<String, int32> testmap;
-	//testmap.Add( String("Toto"), 0 );
-	//testmap.Add( String("Tata"), 1 );
-	//testmap.Add( String("Titi"), 2 );
-
 	//tinyxml2::XMLDocument TestDoc;
 	////TestDoc.LoadFile("../../data/test.xml");
 	//tinyxml2::XMLError err = TestDoc.LoadFile("../data/test.xml");
@@ -114,6 +109,10 @@ void Engine::InitManagers()
 	EntityManager* pEntityManager = new EntityManager();
 	pEntityManager->Create();
 	m_Managers.push_back( pEntityManager );
+
+	GfxManager* pGfxManager = new GfxManager();
+	pGfxManager->Create();
+	m_Managers.push_back( pGfxManager );
 }
 
 void Engine::DestroyManagers()
