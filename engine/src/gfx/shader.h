@@ -15,9 +15,10 @@ public:
 	enum eType
 	{
 		Vertex = 0,
-		Tesselation,
+		Fragment,
+		TesselationControl,
+		TesselationEvaluation,
 		Geometry,
-		Pixel,
 		Compute,
 		MAX
 	};

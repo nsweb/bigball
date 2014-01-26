@@ -12,11 +12,9 @@ namespace bigball
 
 
 Shader::Shader() :
-	VertexShaderID(0),
-	FragmentShaderID(0),
 	ProgramID(0)
 {
-	
+	Memory::Memzero( ShaderIDs, sizeof(ShaderIDs) );
 }
 
 Shader::~Shader()
@@ -28,33 +26,31 @@ bool Shader::Create( String const& ShaderName )
 {
 	ProgramID = glCreateProgram();
 
-	GLenum ShaderTypes[eType::MAX] = { GL_VERTEX_SHADER, GL_TESSELLATE_SHADER, GL_GEOMETRY_SHADER, GL_FRAGMENT_SHADER, GL_COMPUTE_SHADER };
-	
+	GLenum ShaderTypes[eType::MAX] = { GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_TESS_CONTROL_SHADER, GL_TESS_EVALUATION_SHADER, GL_GEOMETRY_SHADER, GL_COMPUTE_SHADER };
+	char const* ShaderExts[eType::MAX] = { vs, ps, tcs, tes, gs, cs };
+	File ShaderFile;
+	String ShaderFileName, ShaderSrc;
 
-	ShaderInfo* entry = shaders;
-	while ( entry->type != GL_NONE ) {
-		GLuint shader = glCreateShader( entry->type );
+	for( int32 i = 0; i < eType::MAX; ++i )
+	{
+		ShaderFileName = String:Printf( "%s.%s.glsl", ShaderName.c_str(), ShaderExts[i] );
+		if( !ShaderFile.Open( ShaderFileName.c_str(), File::Read ) )
+			continue;
 
-		entry->shader = shader;
+		size_t FileSize = ShaderFile.GetFileSize();
+		ShaderFile.SerializeString( ShaderSrc );
 
-		const GLchar* source = ReadShader( entry->filename );
-		if ( source == NULL ) {
-			for ( entry = shaders; entry->type != GL_NONE; ++entry ) {
-				glDeleteShader( entry->shader );
-				entry->shader = 0;
-			}
+		GLuint ShaderID = glCreateShader( ShaderTypes[i] );
 
-			return 0;
-		}
+		ShaderIDs[i] = ShaderID;
 
-		glShaderSource( shader, 1, &source, NULL );
-		delete [] source;
-
-		glCompileShader( shader );
+		glShaderSource( ShaderID, 1, &ShaderSrc[0], nullptr );
+		glCompileShader( ShaderID );
 
 		GLint compiled;
-		glGetShaderiv( shader, GL_COMPILE_STATUS, &compiled );
-		if ( !compiled ) {
+		glGetShaderiv( ShaderID, GL_COMPILE_STATUS, &compiled );
+		if ( !compiled ) 
+		{
 #ifdef _DEBUG
 			GLsizei len;
 			glGetShaderiv( shader, GL_INFO_LOG_LENGTH, &len );
@@ -83,7 +79,8 @@ bool Shader::Create( String const& ShaderName )
 
 	GLint linked;
 	glGetProgramiv( program, GL_LINK_STATUS, &linked );
-	if ( !linked ) {
+	if ( !linked ) 
+	{
 #ifdef _DEBUG
 		GLsizei len;
 		glGetProgramiv( program, GL_INFO_LOG_LENGTH, &len );

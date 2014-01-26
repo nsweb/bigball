@@ -130,9 +130,20 @@ uint32 File::Serialize( void* pBuffer, uint32 Size )
 	return SerializedCount;
 }
 
-void File::SerializeString( String& BufferStr )
+uint32 File::SerializeString( String& BufferStr )
 {
-	// TODO
+	if( IsReading() )
+	{
+		char Buffer[256];
+		while( (uint32 SizeRead = Serialize( Buffer, sizeof(Buffer) )) > 0 )
+		{
+			
+		}
+	}
+	else
+	{
+		Serialize( BufferStr.
+	}
 }
 
 bool File::SerializeAsync( void* pBuffer, uint32 Size )
