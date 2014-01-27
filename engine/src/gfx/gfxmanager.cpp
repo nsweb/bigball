@@ -27,7 +27,12 @@ void GfxManager::Create()
 }
 void GfxManager::Destroy()
 {
-	
+	uint32 ShaderCount = m_Shaders.GetPairCount();
+	for( uint32 i = 0; i < ShaderCount; ++i )
+	{
+		auto pPair = m_Shaders.GetPairAt( i );
+		BB_DELETE( pPair->Value );
+	}
 }
 
 void GfxManager::Tick( float DeltaSeconds )
@@ -42,7 +47,13 @@ Shader* GfxManager::LoadShader( String const& ShaderName )
 		return pPair->Value;
 
 	Shader* pShader = new Shader();
-	pShader->Create( ShaderName );
+	if( !pShader->Create( ShaderName ) )
+	{
+		BB_DELETE( pShader );
+		return nullptr;
+	}
+
+	m_Shaders.Add( ShaderName, pShader );
 	return pShader;
 }
 

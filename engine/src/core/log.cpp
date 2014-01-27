@@ -35,7 +35,7 @@ void BBLog::Print( char const* File, int Line, char const* Category, Type type, 
 #if defined _WIN32 || _WIN64
 
 	String TmpString = String::Printf( Format, ap );
-	//TmpString += "\n";
+	TmpString += "\n";
 
 	String BufferString = String::Printf( "%s(%d) [%s] %s : %s", File, Line, LogPrefix[type], Category, TmpString.c_str() );
 

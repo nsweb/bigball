@@ -145,11 +145,11 @@ float Camera::GetTargetDist( bool _bCurrent ) const
 }
 
 //-------------------------------------------------------------------------------
-void Camera::Update( float _fDt )
+void Camera::Tick( float DeltaSeconds )
 {
 	const float fINTERPOLATIONFACTOR = 4.0f;
 
-	float fPrecalc = ( 1.0f - exp( -_fDt * fINTERPOLATIONFACTOR ) );
+	float fPrecalc = ( 1.0f - exp( -DeltaSeconds * fINTERPOLATIONFACTOR ) );
 
 	m_mTarget[eReference_CURRENT] = m_mTarget[eReference_DESIRED];
 	m_TargetPosition = m_mTarget[eReference_CURRENT][3].xyz;
@@ -294,6 +294,24 @@ void Camera::GetViewMatrixVectors( vec3& _Right, vec3& _Up, vec3& _Front )
 	//_Front.x = -m_mView._13;	_Front.y = -m_mView._23;	_Front.z = -m_mView._33;
 
 	//_Pos.x = m_mView._41;		_Pos.y = m_mView._42;		_Pos.z = m_mView._43;
+}
+
+
+void Camera::Create( EntityPattern* Pattern, class tinyxml2::XMLDocument* Proto )
+{
+	Super::Create( Pattern, Proto );
+}
+void Camera::Destroy()
+{
+	Super::Destroy();
+}
+void Camera::AddToWorld()
+{
+	Super::AddToWorld();
+}
+void Camera::RemoveFromWorld()
+{
+	Super::RemoveFromWorld();
 }
 
 } /* namespace bigball */

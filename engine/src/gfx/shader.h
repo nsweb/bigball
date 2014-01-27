@@ -31,6 +31,8 @@ public:
 protected:
 	GLuint	ShaderIDs[MAX];
 	GLuint	ProgramID;
+
+	void				DeleteShaders();
 	
 };
 

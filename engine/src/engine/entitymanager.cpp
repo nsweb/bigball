@@ -31,7 +31,14 @@ void EntityManager::Create()
 }
 void EntityManager::Destroy()
 {
-
+	// Destroy remaining entities (no remove from world)
+	for( int i = 0; i < m_Entities.size(); ++i )
+	{
+		Entity* pEntity = m_Entities[i];
+		pEntity->Destroy();
+		delete pEntity;
+	}
+	m_Entities.clear();
 }
 
 void EntityManager::Tick( float DeltaSeconds )

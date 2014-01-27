@@ -34,7 +34,7 @@ public:
         using namespace std;
         ASSERT(str);
         resize((int)strlen(str));
-        memcpy(&(*this)[0], str, size() + 1);
+        memcpy(&(*this)[0], str, Len() + 1);
     }
 
     inline String(char const *str, int count)
@@ -54,33 +54,33 @@ public:
 
     inline char &operator [](int n)
     {
-        /* Allow n == size() because we might have reasonable reasons
+        /* Allow n == Len() because we might have reasonable reasons
          * to access that hidden null character. */
         ASSERT(n >= 0);
-        ASSERT((unsigned)n <= (unsigned)size());
+        ASSERT((unsigned)n <= (unsigned)Len());
         return ((Super &)*this)[n];
     }
 
     inline char const &operator [](int n) const
     {
         ASSERT(n >= 0);
-        ASSERT(n <= size());
+        ASSERT(n <= Len());
         return ((Super const &)*this)[n];
     }
 
     inline char &Last()
     {
-        ASSERT(size() > 0);
-        return (*this)[size() - 1];
+        ASSERT(Len() > 0);
+        return (*this)[Len() - 1];
     }
 
     inline char const &Last() const
     {
-        ASSERT(size() > 0);
-        return (*this)[size() - 1];
+        ASSERT(Len() > 0);
+        return (*this)[Len() - 1];
     }
 
-    inline int size() const
+    inline int Len() const
     {
         return ((Super const &)*this).size() - 1;
     }
@@ -109,7 +109,7 @@ public:
     {
         ASSERT(start >= 0);
         ASSERT(count >= 0);
-        ASSERT(start + count <= size());
+        ASSERT(start + count <= Len());
         return String(&(*this)[start], count);
     }
 
@@ -156,7 +156,7 @@ public:
     inline String& ToLower()
     {
         char* p = c_str();
-        for (int i = 0; i < size(); ++i)
+        for (int i = 0; i < Len(); ++i)
             if ('A' <= p[i] && p[i] <= 'Z')
                 p[i] += 'a' - 'A';
         return *this;
@@ -165,7 +165,7 @@ public:
     inline String& ToUpper()
     {
         char* p = c_str();
-        for (int i = 0; i < size(); ++i)
+        for (int i = 0; i < Len(); ++i)
             if ('a' <= p[i] && p[i] <= 'z')
                 p[i] += 'A' - 'a';
         return *this;
@@ -176,7 +176,7 @@ public:
         using namespace std;
 
         int token_len = (int)strlen(token);
-        for (int i = size() - token_len; i >= 0; --i)
+        for (int i = Len() - token_len; i >= 0; --i)
             if (strstr(c_str() + i, token))
                 return i;
         return -1;
@@ -185,15 +185,15 @@ public:
     bool StartsWith(String const &s) const
     {
         using namespace std;
-        return size() >= s.size()
-                && memcmp(c_str(), s.c_str(), s.size()) == 0;
+        return Len() >= s.Len()
+                && memcmp(c_str(), s.c_str(), s.Len()) == 0;
     }
 
     bool EndsWith(String const &s) const
     {
         using namespace std;
-        return size() >= s.size()
-                && memcmp(c_str() + size() - s.size(), s.c_str(), s.size()) == 0;
+        return Len() >= s.Len()
+                && memcmp(c_str() + Len() - s.Len(), s.c_str(), s.Len()) == 0;
     }
 
     inline String operator +(String const &s) const
@@ -205,9 +205,9 @@ public:
     inline String& operator +=(String const &s)
     {
         using namespace std;
-        int old_count = size();
-        resize(size() + s.size());
-        memcpy(&(*this)[old_count], &s[0], size() - old_count);
+        int old_count = Len();
+        resize(Len() + s.Len());
+        memcpy(&(*this)[old_count], &s[0], Len() - old_count);
         return *this;
     }
 
@@ -227,8 +227,8 @@ public:
     inline bool operator ==(String const &s) const
     {
         using namespace std;
-        return size() == s.size()
-                && memcmp(c_str(), s.c_str(), size()) == 0;
+        return Len() == s.Len()
+                && memcmp(c_str(), s.c_str(), Len()) == 0;
     }
 
     inline bool operator !=(String const &s) const
@@ -242,7 +242,7 @@ public:
          * but it's probably still faster than doing it by hand. */
         using namespace std;
         int sz_len = (int)strlen(sz);
-        return size() == sz_len
+        return Len() == sz_len
                 && memcmp(c_str(), sz, sz_len) == 0;
     }
 

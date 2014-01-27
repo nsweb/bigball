@@ -46,6 +46,14 @@ void Entity::Create( EntityPattern* Pattern, class tinyxml2::XMLDocument* Proto 
 void Entity::Destroy()
 {
 	ASSERT( m_State == Created );
+
+	for( int i = 0; i < m_Components.size(); ++i )
+	{
+		Component* pComponent = m_Components[i];
+		pComponent->Destroy();
+	}
+	m_Components.clear();
+
 	m_State = Empty;
 }
 
@@ -68,6 +76,17 @@ void Entity::AddToWorld()
 void Entity::RemoveFromWorld()
 {
 	ASSERT( m_State == InWorld );
+
+	EntityManager* pEntityManager = EntityManager::GetStaticInstance();
+	for( int i = 0; i < m_Components.size(); ++i )
+	{
+		ComponentFactory* Factory = pEntityManager->FindComponentFactory( m_Components[i]->GetComponentName() );
+		if( Factory && Factory->m_Manager )
+		{
+			Factory->m_Manager->RemoveComponentFromWorld( m_Components[i] );
+		}
+	}
+
 	m_State = Created;
 }
 

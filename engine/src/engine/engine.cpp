@@ -7,6 +7,7 @@
 #include "entitymanager.h"
 #include "../gfx/gfxmanager.h"
 #include "coposition.h"
+#include "camera.h"
 
 namespace bigball
 {
@@ -57,13 +58,14 @@ bool Engine::Init( bool bCreateWindow )
     //checkSDLError(__LINE__);
 
 	// Init GLEW
+	glewExperimental = GL_TRUE; 
 	glewInit();
 
 	// Show version info
 	const char* RendererId = (const char*)glGetString (GL_RENDERER);	// get renderer string
 	const char* VersionId = (const char*)glGetString (GL_VERSION);		// version as a string
-	BB_LOG( EngineInit, Log, "Renderer: %s\n", RendererId );
-	BB_LOG( EngineInit, Log, ("OpenGL version supported %s\n", VersionId) );
+	BB_LOG( EngineInit, Log, "Renderer: %s", RendererId );
+	BB_LOG( EngineInit, Log, ("OpenGL version supported %s", VersionId) );
 
     /* This makes our buffer swap syncronized with the monitor's vertical refresh */
     SDL_GL_SetSwapInterval(1);
@@ -128,6 +130,7 @@ void Engine::DestroyManagers()
 void Engine::DeclareComponentsAndEntities()
 {
 	DECLARE_COMPONENT( CoPosition );
+	DECLARE_ENTITYPATTERN( Camera, Camera, (0), (0) );
 }
 
 //////////////////////////////////////////////////////////////////////////

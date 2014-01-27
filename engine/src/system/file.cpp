@@ -132,20 +132,27 @@ uint32 File::Serialize( void* pBuffer, uint32 Size )
 
 uint32 File::SerializeString( String& BufferStr )
 {
+	uint32 SerializedCount = 0;
 	if( IsReading() )
 	{
+		BufferStr = "";
 		char Buffer[256];
-		uint32 SizeRead;
+		uint32 SizeRead = 0;
+
 		while( (SizeRead = Serialize( Buffer, sizeof(Buffer) )) > 0 )
 		{
-			
+			int OldLen = BufferStr.Len();
+			BufferStr.resize( OldLen + SizeRead );
+			Memory::Memcpy( &BufferStr[OldLen], Buffer, SizeRead );
 		}
+		SerializedCount = BufferStr.Len();
 	}
 	else
 	{
-		Serialize( BufferStr.c_str(), BufferStr.size() );
+		SerializedCount = Serialize( BufferStr.c_str(), BufferStr.Len() );
 	}
-	return 0;
+
+	return SerializedCount;
 }
 
 bool File::SerializeAsync( void* pBuffer, uint32 Size )

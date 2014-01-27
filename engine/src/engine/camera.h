@@ -3,12 +3,16 @@
 #ifndef BB_CAMERA_H
 #define BB_CAMERA_H
 
+#include "entity.h"
 
 namespace bigball
 {
 
-class Camera
+class Camera : public Entity
 {
+private:
+	typedef Entity Super;
+
 public:
 					Camera();
 					~Camera();
@@ -29,6 +33,15 @@ public:
 		eReference_COUNT
 	};
 
+	// Begin : Entity interface
+	static Entity*			NewEntity()		{ return new Camera();	}
+	virtual void			Create( EntityPattern* Pattern, class tinyxml2::XMLDocument* Proto = nullptr );
+	virtual void			Destroy();	
+	virtual void			AddToWorld();
+	virtual void			RemoveFromWorld();
+	virtual void			Tick( float DeltaSeconds );
+	// End : Entity interface
+
 	void					SetParam( eParam _eParam, float _fValue );
 	float					GetParam( eParam _eParm ) const;
 	//void					SetUpVector( const P3f& _UpVector, bool _bImmediate = false );
@@ -46,8 +59,6 @@ public:
 	const vec3&				GetTargetPosition() const;
 	void					SetTarget( const mat4& _mTarget, bool _bImmediate = false );
 	//const P3f&				GetTarget( bool _bCurrent = true ) const;
-
-	void					Update( float _fDt );
 
 	const mat4&				GetViewMatrix()					{ return m_mView;			}
 	const mat4&				GetProjMatrix()					{ return m_mProj;			}
