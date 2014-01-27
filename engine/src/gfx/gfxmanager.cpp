@@ -27,7 +27,7 @@ void GfxManager::Create()
 }
 void GfxManager::Destroy()
 {
-
+	
 }
 
 void GfxManager::Tick( float DeltaSeconds )

@@ -2,7 +2,7 @@
 
 #include "../bigball.h"
 #include "shader.h"
-#include "file.h"
+#include "../system/file.h"
 
 
 
@@ -26,14 +26,14 @@ bool Shader::Create( String const& ShaderName )
 {
 	ProgramID = glCreateProgram();
 
-	GLenum ShaderTypes[eType::MAX] = { GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_TESS_CONTROL_SHADER, GL_TESS_EVALUATION_SHADER, GL_GEOMETRY_SHADER, GL_COMPUTE_SHADER };
-	char const* ShaderExts[eType::MAX] = { vs, ps, tcs, tes, gs, cs };
+	GLenum ShaderTypes[Shader::MAX] = { GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_TESS_CONTROL_SHADER, GL_TESS_EVALUATION_SHADER, GL_GEOMETRY_SHADER, GL_COMPUTE_SHADER };
+	char const* ShaderExts[Shader::MAX] = { "vs", "ps", "tcs", "tes", "gs", "cs" };
 	File ShaderFile;
 	String ShaderFileName, ShaderSrc;
 
-	for( int32 i = 0; i < eType::MAX; ++i )
+	for( int32 i = 0; i < Shader::MAX; ++i )
 	{
-		ShaderFileName = String:Printf( "%s.%s.glsl", ShaderName.c_str(), ShaderExts[i] );
+		ShaderFileName = String::Printf( "%s.%s.glsl", ShaderName.c_str(), ShaderExts[i] );
 		if( !ShaderFile.Open( ShaderFileName.c_str(), File::Read ) )
 			continue;
 
@@ -44,7 +44,8 @@ bool Shader::Create( String const& ShaderName )
 
 		ShaderIDs[i] = ShaderID;
 
-		glShaderSource( ShaderID, 1, &ShaderSrc[0], nullptr );
+		const char* SrcStr = ShaderSrc.c_str();
+		glShaderSource( ShaderID, 1, &SrcStr, nullptr );
 		glCompileShader( ShaderID );
 
 		GLint compiled;
@@ -53,20 +54,18 @@ bool Shader::Create( String const& ShaderName )
 		{
 #ifdef _DEBUG
 			GLsizei len;
-			glGetShaderiv( shader, GL_INFO_LOG_LENGTH, &len );
+			glGetShaderiv( ShaderID, GL_INFO_LOG_LENGTH, &len );
 
 			GLchar* log = new GLchar[len+1];
-			glGetShaderInfoLog( shader, len, &len, log );
-			std::cerr << "Shader compilation failed: " << log << std::endl;
+			glGetShaderInfoLog( ShaderID, len, &len, log );
+			BB_LOG( Shader, Log, "Shader compilation failed: %s", log );
 			delete [] log;
 #endif /* DEBUG */
 
 			return 0;
 		}
 
-		glAttachShader( program, shader );
-
-		++entry;
+		glAttachShader( ProgramID, ShaderID );
 	}
 
 #ifdef GL_VERSION_4_1
@@ -75,31 +74,33 @@ bool Shader::Create( String const& ShaderName )
 	}
 #endif /* GL_VERSION_4_1 */
 
-	glLinkProgram( program );
+	glLinkProgram( ProgramID );
 
 	GLint linked;
-	glGetProgramiv( program, GL_LINK_STATUS, &linked );
+	glGetProgramiv( ProgramID, GL_LINK_STATUS, &linked );
 	if ( !linked ) 
 	{
 #ifdef _DEBUG
 		GLsizei len;
-		glGetProgramiv( program, GL_INFO_LOG_LENGTH, &len );
+		glGetProgramiv( ProgramID, GL_INFO_LOG_LENGTH, &len );
 
 		GLchar* log = new GLchar[len+1];
-		glGetProgramInfoLog( program, len, &len, log );
-		std::cerr << "Shader linking failed: " << log << std::endl;
+		glGetProgramInfoLog( ProgramID, len, &len, log );
+		BB_LOG( Shader, Log, "Shader linking failed: %s", log );
 		delete [] log;
 #endif /* DEBUG */
 
-		for ( entry = shaders; entry->type != GL_NONE; ++entry ) {
-			glDeleteShader( entry->shader );
-			entry->shader = 0;
+		for( int32 i = 0; i < Shader::MAX; ++i )
+		{
+			if( ShaderIDs[i] != 0 )
+				glDeleteShader( ShaderIDs[i] );
+			ShaderIDs[i] = 0;
 		}
 
 		return 0;
 	}
 
-	return program;
+	return ProgramID != 0;
 }
 
 

@@ -21,7 +21,7 @@ public:
 		Write,
 	};
 
-	bool				Open( char const* FileName, eAccessMode Access, bool bAsync );
+	bool				Open( char const* FileName, eAccessMode Access, bool bAsync = false );
 	void				Close();
 	size_t				GetFileSize();
 	inline bool			IsReading()					{ return m_AccessMode == Read ? true:false;		}

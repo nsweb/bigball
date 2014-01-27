@@ -29,7 +29,7 @@ public:
 	bool				Create( String const& ShaderName );
 
 protected:
-	GLuint	ShaderIDs[eType::MAX];
+	GLuint	ShaderIDs[MAX];
 	GLuint	ProgramID;
 	
 };

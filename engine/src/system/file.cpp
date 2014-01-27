@@ -6,7 +6,7 @@ namespace bigball
 {
 
 File::File() :
-	m_AccessMode(eAccessMode::Read),
+	m_AccessMode(Read),
 	m_FileHandle(nullptr),
 	m_bAsync(false)
 {
@@ -114,7 +114,7 @@ uint32 File::Serialize( void* pBuffer, uint32 Size )
 	if( IsReading() )
 	{
 #if _WIN32 || _WIN64
-		ReadFile( m_FileHandle, pBuffer, Size, &SerializedCount, nullptr );
+		ReadFile( m_FileHandle, pBuffer, Size, (LPDWORD)&SerializedCount, nullptr );
 #else
 		SerializedCount = fread( pBuffer, Size, 1, m_FileHandle );
 #endif
@@ -122,7 +122,7 @@ uint32 File::Serialize( void* pBuffer, uint32 Size )
 	else
 	{
 #if _WIN32 || _WIN64
-		WriteFile( m_FileHandle, pBuffer, Size, &SerializedCount, nullptr );
+		WriteFile( m_FileHandle, pBuffer, Size, (LPDWORD)&SerializedCount, nullptr );
 #else
 		SerializedCount = fwrite( pBuffer, Size, 1, m_FileHandle );
 #endif
@@ -135,15 +135,17 @@ uint32 File::SerializeString( String& BufferStr )
 	if( IsReading() )
 	{
 		char Buffer[256];
-		while( (uint32 SizeRead = Serialize( Buffer, sizeof(Buffer) )) > 0 )
+		uint32 SizeRead;
+		while( (SizeRead = Serialize( Buffer, sizeof(Buffer) )) > 0 )
 		{
 			
 		}
 	}
 	else
 	{
-		Serialize( BufferStr.
+		Serialize( BufferStr.c_str(), BufferStr.size() );
 	}
+	return 0;
 }
 
 bool File::SerializeAsync( void* pBuffer, uint32 Size )
@@ -154,11 +156,11 @@ bool File::SerializeAsync( void* pBuffer, uint32 Size )
 	Memory::Memzero( &m_Overlapped, sizeof(m_Overlapped) );
 	if( IsReading() )
 	{
-		Result = ReadFile( m_hFile, pBuffer, Size, &SerializedCount, &m_Overlapped );
+		Result = ReadFile( m_FileHandle, pBuffer, Size, (LPDWORD)&SerializedCount, &m_Overlapped );
 	}
 	else
 	{
-		Result = WriteFile( m_hFile, pBuffer, Size, &SerializedCount, &m_Overlapped );
+		Result = WriteFile( m_FileHandle, pBuffer, Size, (LPDWORD)&SerializedCount, &m_Overlapped );
 	}
 	if( !Result )
 	{
@@ -231,7 +233,7 @@ bool FileExits( char const* FileName )
 #if _WIN32 || _WIN64
 	WIN32_FIND_DATA FileInfo;
 	HANDLE FindHandle = ::FindFirstFile( FileName, &FileInfo ) ;
-	bFileFound = ( FindHandle == INVALID_HANDLE_VALUE ? false:true );
+	bool bFileFound = ( FindHandle == INVALID_HANDLE_VALUE ? false:true );
 	::FindClose( FindHandle );
 
 	return bFileFound;
@@ -250,7 +252,7 @@ size_t FileSize( char const* FileName )
 {
 	size_t Size = 0;
 #if _WIN32 || _WIN64
-	HANDLE FileHandle = CreateFile( _strFileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
+	HANDLE FileHandle = CreateFile( FileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
 	if( FileHandle == INVALID_HANDLE_VALUE )
 		return 0;
 

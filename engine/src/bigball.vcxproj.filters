@@ -10,6 +10,12 @@
     <Filter Include="math">
       <UniqueIdentifier>{da8004c6-c33a-44c4-a78c-44c29d626aa7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="system">
+      <UniqueIdentifier>{77726452-b655-42ed-bb0a-85a5446b8b0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gfx">
+      <UniqueIdentifier>{674fbe42-e369-4427-9cb8-efc8a5d3969b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h" />
@@ -83,6 +89,15 @@
     <ClInclude Include="core\memory.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="system\file.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\gfxmanager.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\shader.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="bigball.cpp" />
@@ -143,6 +158,15 @@
     </ClCompile>
     <ClCompile Include="core\memory.cpp">
       <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="system\file.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\gfxmanager.cpp">
+      <Filter>gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\shader.cpp">
+      <Filter>gfx</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
