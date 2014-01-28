@@ -9,6 +9,8 @@
 namespace bigball
 {
 
+//BIGBALL_TEMPLATE class vec3;
+
 class BIGBALL_API CoPosition : public Component 
 {
 private:

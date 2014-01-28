@@ -260,7 +260,7 @@ public:
 			m_NextTable[PairIndex] = m_HashTable[LastHashValue];
 			m_HashTable[LastHashValue] = PairIndex;
 
-			mNbActivePairs--;
+			m_NbActivePairs--;
 		}
 		return true;
 	}

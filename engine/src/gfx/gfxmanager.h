@@ -10,6 +10,7 @@ namespace bigball
 {
 
 class BIGBALL_API Shader;
+BIGBALL_TEMPLATE template class BIGBALL_API Map<String,Shader*>;
 
 class BIGBALL_API GfxManager : public BaseManager 
 {

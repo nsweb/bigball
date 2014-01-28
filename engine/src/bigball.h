@@ -12,10 +12,13 @@
 // defined with this macro as being exported.
 #ifdef BIGBALL_EXPORTS
 #define BIGBALL_API __declspec(dllexport)
+#define BIGBALL_TEMPLATE 
 #elif defined( BIGBALL_IMPORTS )
 #define BIGBALL_API __declspec(dllimport)
+#define BIGBALL_TEMPLATE extern
 #else
 #define BIGBALL_API
+#define BIGBALL_TEMPLATE 
 #endif
 
 
@@ -26,7 +29,6 @@
 	// Windows Header Files:
 	#include <windows.h>
 #endif
-
 
 #include "core/core.h"
 #include "core/memory.h"

@@ -1,9 +1,59 @@
 
 #include "../bigball.h"
 #include "camera.h"
+#include "controller.h"
 
 namespace bigball
 {
+Camera::Camera()
+{
+	//m_fParameters[eParam_FOV] = 50.0f * F_DEG_TO_RAD;
+	//m_fParameters[eParam_ASPECTRATIO] = 1.333f;
+	//m_fParameters[eParam_NEARPLANE] = 30.0f;
+	//m_fParameters[eParam_FARPLANE] = 2500.0f;
+
+	//m_mTarget[eReference_CURRENT] = mat4(1.0f);
+	//m_mTarget[eReference_DESIRED] = mat4(1.0f);
+
+	/*vec3 Up( 0.0f, 0.0f, 1.0f );
+	SetUpVector( Up );
+	vec3 LookAt( 1.0f, 0.0f, 0.0f );
+	SetTargetPosition( LookAt, true );
+	vec3 Ref( 0.0f, 0.0f, 0.0f );
+	SetPosition( Ref, true );*/
+}
+
+Camera::~Camera()
+{
+}
+
+void Camera::Create( EntityPattern* Pattern, class tinyxml2::XMLDocument* Proto )
+{
+	Super::Create( Pattern, Proto );
+}
+void Camera::Destroy()
+{
+	Super::Destroy();
+}
+void Camera::AddToWorld()
+{
+	Super::AddToWorld();
+
+	Controller::GetStaticInstance()->AddCamera( this );
+}
+void Camera::RemoveFromWorld()
+{
+	Controller::GetStaticInstance()->RemoveCamera( this );
+
+	Super::RemoveFromWorld();
+}
+
+void Camera::Tick( float DeltaSeconds )
+{
+
+}
+
+#if 0
 
 Camera::Camera()
 {
@@ -313,5 +363,7 @@ void Camera::RemoveFromWorld()
 {
 	Super::RemoveFromWorld();
 }
+
+#endif
 
 } /* namespace bigball */

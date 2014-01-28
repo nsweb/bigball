@@ -8,7 +8,23 @@
 namespace bigball
 {
 
-class Camera : public Entity
+enum BIGBALL_API eCameraParam
+{
+	eCP_FOV = 0,
+	eCP_ASPECTRATIO,
+	eCP_NEARPLANE,
+	eCP_FARPLANE,
+	eCP_MAX
+};
+
+struct BIGBALL_API CameraView
+{
+	dvec3	m_Eye;
+	quat	m_Rotation;
+	float	m_fParameters[eCP_MAX];
+};
+
+class BIGBALL_API Camera : public Entity
 {
 private:
 	typedef Entity Super;
@@ -17,14 +33,44 @@ public:
 					Camera();
 					~Camera();
 
-	enum eParam
-	{
-		eParam_FOV = 0,
-		eParam_ASPECTRATIO,
-		eParam_NEARPLANE,
-		eParam_FARPLANE,
-		eParam_COUNT
-	};
+	// Begin : Entity interface
+	static Entity*			NewEntity()		{ return new Camera();	}
+	virtual void			Create( EntityPattern* Pattern, class tinyxml2::XMLDocument* Proto = nullptr );
+	virtual void			Destroy();	
+	virtual void			AddToWorld();
+	virtual void			RemoveFromWorld();
+	virtual void			Tick( float DeltaSeconds );
+	// End : Entity interface
+
+protected:
+	CameraView			m_View;
+};
+
+class BIGBALL_API CameraBehavior_Base
+{
+public:
+	virtual char const*	GetBehaviorName()	{ return "Base";	}
+	virtual bool		IsA( Name const& BehName )	{ if( BehName == GetBehaviorName() ) return true; return false; }
+};
+
+class BIGBALL_API CameraBehavior_Fly : public CameraBehavior_Base
+{
+private:
+	typedef CameraBehavior_Base Super;
+public:
+	virtual char const*	GetBehaviorName()	{ return "Fly";		}
+	virtual bool		IsA( Name const& BehName )	{ if( BehName == GetBehaviorName() ) return true; return Super::IsA( BehName ); }
+};
+
+#if 0
+class Camera : public Entity
+{
+private:
+	typedef Entity Super;
+
+public:
+					Camera();
+					~Camera();
 
 	enum eReference
 	{
@@ -66,6 +112,10 @@ public:
 	
 
 protected:
+	dvec3					m_Position;
+	quat					m_Rotation;
+
+
 	//P3f					m_Position[eReference_COUNT];
 	//P3f					m_TargetPosition[eReference_COUNT];
 	mat4					m_mTarget[eReference_COUNT];
@@ -85,6 +135,7 @@ protected:
 	//void					UpdateYawPitchTargetDist( eReference _eRef );
 	//void					UpdatePosition( eReference _eRef );
 };
+#endif
 
 } /* namespace bigball */
 

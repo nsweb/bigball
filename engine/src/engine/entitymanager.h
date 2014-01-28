@@ -41,6 +41,9 @@ class BIGBALL_API Component;
 	EntityManager::GetStaticInstance()->RegisterPattern( Pattern ); \
 }
 
+BIGBALL_TEMPLATE template class BIGBALL_API Array<Entity*>;
+BIGBALL_TEMPLATE template class BIGBALL_API Array<ComponentFactory>;
+BIGBALL_TEMPLATE template class BIGBALL_API Array<EntityPattern>;
 
 class BIGBALL_API EntityManager : public BaseManager 
 {

@@ -16,7 +16,7 @@
 namespace bigball
 {
 
-class String : protected Array<char>
+class BIGBALL_API String : protected Array<char>
 {
 private:
     typedef Array<char> Super;

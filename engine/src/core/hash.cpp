@@ -150,22 +150,22 @@ static uint32_t HashCharString(char const *s)
     return ret ^ 0xffffffffu;
 }
 
-BIGBALL_API uint32_t Hash<char const *>::operator ()(char const *s) const
+uint32_t Hash<char const *>::operator ()(char const *s) const
 {
     return HashCharString(s);
 }
 
-BIGBALL_API uint32_t Hash<char const *>::operator ()(String const &s) const
+uint32_t Hash<char const *>::operator ()(String const &s) const
 {
     return HashCharString(&s[0]);
 }
 
-BIGBALL_API uint32_t Hash<String>::operator ()(String const &s) const
+uint32_t Hash<String>::operator ()(String const &s) const
 {
     return HashCharString(&s[0]);
 }
 
-BIGBALL_API uint32_t Hash<String>::operator ()(char const *s) const
+uint32_t Hash<String>::operator ()(char const *s) const
 {
     return HashCharString(s);
 }

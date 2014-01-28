@@ -23,15 +23,15 @@ template<> class Hash<double>   { public: uint32_t operator()(double) const; };
 template<> class Hash<char const *>
 {
 public:
-    BIGBALL_API uint32_t operator()(char const *x) const;
-    BIGBALL_API uint32_t operator()(String const &s) const;
+    uint32_t operator()(char const *x) const;
+    uint32_t operator()(String const &s) const;
 };
 
 template<> class Hash<String>
 {
 public:
-    BIGBALL_API uint32_t operator()(String const &s) const;
-    BIGBALL_API uint32_t operator()(char const *x) const;
+    uint32_t operator()(String const &s) const;
+    uint32_t operator()(char const *x) const;
 };
 
 } /* namespace bigball */
