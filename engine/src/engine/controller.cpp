@@ -12,6 +12,7 @@ STATIC_MANAGER_CPP( Controller )
 Controller::Controller()
 {
 	m_pStaticInstance = this;
+	m_pActiveCamCtrl = nullptr;
 }
 
 Controller::~Controller()
@@ -21,15 +22,15 @@ Controller::~Controller()
 
 void Controller::Create()
 {
-	// Create set of camera behaviors
-	CameraBehavior_Fly* pCBH = new CameraBehavior_Fly();
-	m_CamBehaviors.push_back( pCBH );
+	// Create set of camera Ctrls
+	CameraCtrl_Fly* pCBH = new CameraCtrl_Fly();
+	m_CamCtrls.push_back( pCBH );
 }
 void Controller::Destroy()
 {
-	for( int32 i = 0; i < m_CamBehaviors.size(); ++i )
-		BB_DELETE( m_CamBehaviors[i] );
-	m_CamBehaviors.clear();
+	for( int32 i = 0; i < m_CamCtrls.size(); ++i )
+		BB_DELETE( m_CamCtrls[i] );
+	m_CamCtrls.clear();
 }
 
 void Controller::Tick( float DeltaSeconds )
@@ -48,6 +49,11 @@ void Controller::RemoveCamera( Camera* pCamera )
 	int CameraIdx = m_Cameras.find( pCamera );
 	if( INDEX_NONE != CameraIdx )
 		m_Cameras.remove( pCamera );
+}
+
+void Controller::UpdateRenderCamera( float DeltaSeconds )
+{
+	m_pActiveCamCtrl->UpdateView( m_RenderView, DeltaSeconds );
 }
 
 }

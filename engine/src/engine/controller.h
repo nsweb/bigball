@@ -11,16 +11,25 @@ namespace bigball
 {
 
 class BIGBALL_API Camera;
-class BIGBALL_API CameraBehavior_Base;
+class BIGBALL_API CameraCtrl_Base;
 
 BIGBALL_TEMPLATE template class BIGBALL_API Array<Camera*>;
-BIGBALL_TEMPLATE template class BIGBALL_API Array<CameraBehavior_Base*>;
+BIGBALL_TEMPLATE template class BIGBALL_API Array<CameraCtrl_Base*>;
+
 
 class BIGBALL_API Controller : public BaseManager 
 {
 	STATIC_MANAGER_H(Controller)
 
 public:
+
+	enum eInputModifier
+	{
+		eIM_Ctrl = 0x00000001,
+		eIM_Alt = 0x00000002,
+		eIM_Shift = 0x00000004,
+	};
+
 						Controller();
 	virtual				~Controller();
 
@@ -30,11 +39,19 @@ public:
 
 	void				AddCamera( Camera* pCamera );
 	void				RemoveCamera( Camera* pCamera );
+	void				UpdateRenderCamera( float DeltaSeconds );
+
+	void				OnInputX( uint32 ModifierFlags, float Delta );
+	void				OnInputY( uint32 ModifierFlags, float Delta );
+	void				OnMouseMove( uint32 ModifierFlags, vec2 Delta );
 
 protected:
 
 	Array<Camera*>				m_Cameras;
-	Array<CameraBehavior_Base*>	m_CamBehaviors;
+	Array<CameraCtrl_Base*>		m_CamCtrls;
+	CameraCtrl_Base*			m_pActiveCamCtrl;
+	CameraView					m_RenderView;
+
 };
 
 } /* namespace bigball */

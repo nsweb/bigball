@@ -46,20 +46,22 @@ protected:
 	CameraView			m_View;
 };
 
-class BIGBALL_API CameraBehavior_Base
+class BIGBALL_API CameraCtrl_Base
 {
 public:
-	virtual char const*	GetBehaviorName()	{ return "Base";	}
-	virtual bool		IsA( Name const& BehName )	{ if( BehName == GetBehaviorName() ) return true; return false; }
+	virtual char const*	GetCtrlName()	{ return "Base";	}
+	virtual bool		IsA( Name const& CtrlName )	{ if( CtrlName == GetCtrlName() ) return true; return false; }
+	virtual void		UpdateView( CameraView& CamView, float DeltaSeconds );
 };
 
-class BIGBALL_API CameraBehavior_Fly : public CameraBehavior_Base
+class BIGBALL_API CameraCtrl_Fly : public CameraCtrl_Base
 {
 private:
-	typedef CameraBehavior_Base Super;
+	typedef CameraCtrl_Base Super;
 public:
-	virtual char const*	GetBehaviorName()	{ return "Fly";		}
-	virtual bool		IsA( Name const& BehName )	{ if( BehName == GetBehaviorName() ) return true; return Super::IsA( BehName ); }
+	virtual char const*	GetCtrlName()	{ return "Fly";		}
+	virtual bool		IsA( Name const& CtrlName )	{ if( CtrlName == GetCtrlName() ) return true; return Super::IsA( CtrlName ); }
+	virtual void		UpdateView( CameraView& CamView, float DeltaSeconds );
 };
 
 #if 0
