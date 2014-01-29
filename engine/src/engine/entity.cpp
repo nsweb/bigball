@@ -9,6 +9,8 @@
 namespace bigball
 {
 
+CLASS_EQUIP_CPP(Entity);
+
 Entity::Entity() : m_State(Empty)
 {
 	
@@ -64,7 +66,7 @@ void Entity::AddToWorld()
 	EntityManager* pEntityManager = EntityManager::GetStaticInstance();
 	for( int i = 0; i < m_Components.size(); ++i )
 	{
-		ComponentFactory* Factory = pEntityManager->FindComponentFactory( m_Components[i]->GetComponentName() );
+		ComponentFactory* Factory = pEntityManager->FindComponentFactory( m_Components[i]->GetClassName() );
 		if( Factory && Factory->m_Manager )
 		{
 			Factory->m_Manager->AddComponentToWorld( m_Components[i] );
@@ -80,7 +82,7 @@ void Entity::RemoveFromWorld()
 	EntityManager* pEntityManager = EntityManager::GetStaticInstance();
 	for( int i = 0; i < m_Components.size(); ++i )
 	{
-		ComponentFactory* Factory = pEntityManager->FindComponentFactory( m_Components[i]->GetComponentName() );
+		ComponentFactory* Factory = pEntityManager->FindComponentFactory( m_Components[i]->GetClassName() );
 		if( Factory && Factory->m_Manager )
 		{
 			Factory->m_Manager->RemoveComponentFromWorld( m_Components[i] );

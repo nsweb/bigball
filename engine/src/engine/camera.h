@@ -11,14 +11,17 @@ namespace bigball
 enum BIGBALL_API eCameraParam
 {
 	eCP_FOV = 0,
-	eCP_ASPECTRATIO,
 	eCP_NEARPLANE,
 	eCP_FARPLANE,
+	eCP_ASPECTRATIO,
 	eCP_MAX
 };
 
-struct BIGBALL_API CameraView
+class BIGBALL_API CameraView
 {
+public:
+	CameraView();
+
 	dvec3	m_Eye;
 	quat	m_Rotation;
 	float	m_fParameters[eCP_MAX];
@@ -26,8 +29,7 @@ struct BIGBALL_API CameraView
 
 class BIGBALL_API Camera : public Entity
 {
-private:
-	typedef Entity Super;
+	CLASS_EQUIP_H(Camera, Entity)
 
 public:
 					Camera();
@@ -46,21 +48,20 @@ protected:
 	CameraView			m_View;
 };
 
+//////////////////////////////////////////////////////////////////////////
 class BIGBALL_API CameraCtrl_Base
 {
+	CLASS_EQUIP_BASE_H(CameraCtrl_Base)
+
 public:
-	virtual char const*	GetCtrlName()	{ return "Base";	}
-	virtual bool		IsA( Name const& CtrlName )	{ if( CtrlName == GetCtrlName() ) return true; return false; }
 	virtual void		UpdateView( CameraView& CamView, float DeltaSeconds );
 };
 
 class BIGBALL_API CameraCtrl_Fly : public CameraCtrl_Base
 {
-private:
-	typedef CameraCtrl_Base Super;
+	CLASS_EQUIP_H(CameraCtrl_Fly, CameraCtrl_Base)
+
 public:
-	virtual char const*	GetCtrlName()	{ return "Fly";		}
-	virtual bool		IsA( Name const& CtrlName )	{ if( CtrlName == GetCtrlName() ) return true; return Super::IsA( CtrlName ); }
 	virtual void		UpdateView( CameraView& CamView, float DeltaSeconds );
 };
 

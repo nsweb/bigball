@@ -5,6 +5,7 @@
 
 namespace bigball
 {
+CLASS_EQUIP_CPP(Component);
 
 Component::Component() : m_Owner(nullptr)
 {

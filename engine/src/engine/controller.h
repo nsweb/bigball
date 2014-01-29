@@ -5,16 +5,16 @@
 #define BB_CONTROLLER_H
 
 #include "basemanager.h"
-
+#include "camera.h"
 
 namespace bigball
 {
 
-class BIGBALL_API Camera;
-class BIGBALL_API CameraCtrl_Base;
+//class BIGBALL_API Camera;
+//class BIGBALL_API CameraCtrl_Base;
 
-BIGBALL_TEMPLATE template class BIGBALL_API Array<Camera*>;
-BIGBALL_TEMPLATE template class BIGBALL_API Array<CameraCtrl_Base*>;
+//BIGBALL_TEMPLATE template class BIGBALL_API Array<Camera*>;
+//BIGBALL_TEMPLATE template class BIGBALL_API Array<CameraCtrl_Base*>;
 
 
 class BIGBALL_API Controller : public BaseManager 

@@ -7,7 +7,7 @@ namespace bigball
 {
 
 class BIGBALL_API BaseManager;
-BIGBALL_TEMPLATE template class BIGBALL_API Array< BaseManager* >;
+//BIGBALL_TEMPLATE template class BIGBALL_API Array< BaseManager* >;
 
 class BIGBALL_API Engine
 {

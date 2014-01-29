@@ -5,6 +5,21 @@
 
 namespace bigball
 {
+
+CLASS_EQUIP_CPP(Camera);
+CLASS_EQUIP_CPP(CameraCtrl_Base);
+CLASS_EQUIP_CPP(CameraCtrl_Fly);
+
+CameraView::CameraView() :
+	m_Eye(0.0f),
+	m_Rotation(1.0f)
+{
+	m_fParameters[eCP_FOV] = 55.0f;
+	m_fParameters[eCP_ASPECTRATIO] = 16.0f / 9.0f;
+	m_fParameters[eCP_NEARPLANE] = 1.0f;
+	m_fParameters[eCP_FARPLANE] = 10000.0f;
+}
+
 Camera::Camera()
 {
 	//m_fParameters[eParam_FOV] = 50.0f * F_DEG_TO_RAD;
@@ -21,6 +36,7 @@ Camera::Camera()
 	SetTargetPosition( LookAt, true );
 	vec3 Ref( 0.0f, 0.0f, 0.0f );
 	SetPosition( Ref, true );*/
+
 }
 
 Camera::~Camera()
@@ -30,6 +46,19 @@ Camera::~Camera()
 void Camera::Create( EntityPattern* Pattern, class tinyxml2::XMLDocument* Proto )
 {
 	Super::Create( Pattern, Proto );
+
+	tinyxml2::XMLElement* RootElt = Proto->FirstChildElement();
+	tinyxml2::XMLElement* CameraElt = RootElt->FirstChildElement( "camera" );
+	if( CameraElt )
+	{
+		char const* ParamNames[] = { "fov", "near", "far" };
+		for( int32 i = 0; i < COUNT_OF( ParamNames ); ++i )
+		{
+			tinyxml2::XMLElement* Elt = CameraElt->FirstChildElement( ParamNames[i] );
+			if( Elt )
+				Elt->QueryFloatText( &m_View.m_fParameters[i] );
+		}
+	}
 }
 void Camera::Destroy()
 {
@@ -365,5 +394,17 @@ void Camera::RemoveFromWorld()
 }
 
 #endif
+
+
+void CameraCtrl_Base::UpdateView( CameraView& CamView, float DeltaSeconds )
+{
+
+}
+
+
+void CameraCtrl_Fly::UpdateView( CameraView& CamView, float DeltaSeconds )
+{
+
+}
 
 } /* namespace bigball */

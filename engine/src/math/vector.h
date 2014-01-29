@@ -1910,6 +1910,8 @@ template<typename T> Mat4<T> inverse(Mat4<T> const &);
 
 #undef BB_CONSTEXPR
 
+//BIGBALL_TEMPLATE template struct BIGBALL_API Vec3<float>;
+
 } /* namespace bigball */
 
 #endif // BB_MATHVECTOR_H

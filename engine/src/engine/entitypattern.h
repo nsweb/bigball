@@ -14,7 +14,7 @@ class BIGBALL_API ComponentManager;
 typedef Entity* (*EntityCreateFunc)();
 typedef Component* (*ComponentCreateFunc)();
 
-BIGBALL_TEMPLATE template class BIGBALL_API Array<Name>;
+//BIGBALL_TEMPLATE template class BIGBALL_API Array<Name>;
 
 //////////////////////////////////////////////////////////////////////////
 class BIGBALL_API ComponentFactory

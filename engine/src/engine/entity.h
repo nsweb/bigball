@@ -10,10 +10,12 @@ namespace bigball
 class BIGBALL_API Component;
 class BIGBALL_API EntityPattern;
 
-BIGBALL_TEMPLATE template class BIGBALL_API Array<Component*>;
+//BIGBALL_TEMPLATE template class BIGBALL_API Array<Component*>;
 
 class BIGBALL_API Entity 
 {
+	CLASS_EQUIP_BASE_H(Entity)
+
 public:
 
 	enum State

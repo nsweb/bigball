@@ -16,7 +16,7 @@ class BIGBALL_API Component;
 #define DECLARE_COMPONENT( Klass ) \
 { \
 	ComponentFactory Factory; \
-	Factory.m_Name = Klass::GetStaticName(); \
+	Factory.m_Name = Klass::StaticClass(); \
 	Factory.m_CreateFunc = Klass::NewComponent; \
 	Factory.m_Manager = nullptr; \
 	EntityManager::GetStaticInstance()->RegisterFactory( Factory ); \
@@ -25,7 +25,7 @@ class BIGBALL_API Component;
 #define DECLARE_COMPONENT_MGR( Klass, Manager ) \
 { \
 	ComponentFactory Factory; \
-	Factory.m_Name = Klass::GetStaticName(); \
+	Factory.m_Name = Klass::StaticClass(); \
 	Factory.m_CreateFunc = Klass::NewComponent; \
 	Factory.m_Manager = Manager::GetStaticInstance(); \
 	EntityManager::GetStaticInstance()->RegisterFactory( Factory ); \
@@ -41,9 +41,9 @@ class BIGBALL_API Component;
 	EntityManager::GetStaticInstance()->RegisterPattern( Pattern ); \
 }
 
-BIGBALL_TEMPLATE template class BIGBALL_API Array<Entity*>;
-BIGBALL_TEMPLATE template class BIGBALL_API Array<ComponentFactory>;
-BIGBALL_TEMPLATE template class BIGBALL_API Array<EntityPattern>;
+//BIGBALL_TEMPLATE template class BIGBALL_API Array<Entity*>;
+//BIGBALL_TEMPLATE template class BIGBALL_API Array<ComponentFactory>;
+//BIGBALL_TEMPLATE template class BIGBALL_API Array<EntityPattern>;
 
 class BIGBALL_API EntityManager : public BaseManager 
 {
