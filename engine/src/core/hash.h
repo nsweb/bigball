@@ -4,6 +4,24 @@
 namespace bigball
 {
 
+struct HashData
+{
+public:
+	static void InitHashData()
+	{
+		/* Initialise CRC32 table */
+		for (int i = 0; i < 256; i++)
+		{
+			uint32_t tmp = i;
+			for (int j = 8; j--; )
+				tmp = (tmp >> 1) ^ ((tmp & 1) ? 0xedb88320 : 0);
+			crc32_table[i] = tmp;
+		}
+	}
+
+	static uint32_t crc32_table[256];
+};
+
 template<typename T> class Hash;
 
 template<> class Hash<int8_t>   { public: uint32_t operator()(int8_t) const; };

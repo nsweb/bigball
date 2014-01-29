@@ -9,24 +9,8 @@ namespace bigball
  * Hash implementations
  */
 
-static class HashData
-{
-public:
-    HashData()
-    {
-        /* Initialise CRC32 table */
-        for (int i = 0; i < 256; i++)
-        {
-            uint32_t tmp = i;
-            for (int j = 8; j--; )
-                tmp = (tmp >> 1) ^ ((tmp & 1) ? 0xedb88320 : 0);
-            crc32_table[i] = tmp;
-        }
-    }
+uint32_t HashData::crc32_table[256] = {0};
 
-    uint32_t crc32_table[256];
-}
-const data;
 
 /*
  * Helper hash functions
@@ -35,39 +19,39 @@ const data;
 static inline uint32_t Hash8(uint8_t x)
 {
     uint32_t ret = 0xffffffffu;
-    ret = data.crc32_table[(uint8_t)(ret ^ x)] ^ (ret >> 8);
+    ret = HashData::crc32_table[(uint8_t)(ret ^ x)] ^ (ret >> 8);
     return ret ^ 0xffffffffu;
 }
 
 static inline uint32_t Hash16(uint16_t x)
 {
     uint32_t ret = 0xffffffffu;
-    ret = data.crc32_table[(uint8_t)(ret ^ x)] ^ (ret >> 8);
-    ret = data.crc32_table[(uint8_t)(ret ^ (x >> 8))] ^ (ret >> 8);
+    ret = HashData::crc32_table[(uint8_t)(ret ^ x)] ^ (ret >> 8);
+    ret = HashData::crc32_table[(uint8_t)(ret ^ (x >> 8))] ^ (ret >> 8);
     return ret ^ 0xffffffffu;
 }
 
 static inline uint32_t Hash32(uint32_t x)
 {
     uint32_t ret = 0xffffffffu;
-    ret = data.crc32_table[(uint8_t)(ret ^ x)] ^ (ret >> 8);
-    ret = data.crc32_table[(uint8_t)(ret ^ (x >> 8))] ^ (ret >> 8);
-    ret = data.crc32_table[(uint8_t)(ret ^ (x >> 16))] ^ (ret >> 8);
-    ret = data.crc32_table[(uint8_t)(ret ^ (x >> 24))] ^ (ret >> 8);
+    ret = HashData::crc32_table[(uint8_t)(ret ^ x)] ^ (ret >> 8);
+    ret = HashData::crc32_table[(uint8_t)(ret ^ (x >> 8))] ^ (ret >> 8);
+    ret = HashData::crc32_table[(uint8_t)(ret ^ (x >> 16))] ^ (ret >> 8);
+    ret = HashData::crc32_table[(uint8_t)(ret ^ (x >> 24))] ^ (ret >> 8);
     return ret ^ 0xffffffffu;
 }
 
 static inline uint32_t Hash64(uint64_t x)
 {
     uint32_t ret = 0xffffffffu;
-    ret = data.crc32_table[(uint8_t)(ret ^ x)] ^ (ret >> 8);
-    ret = data.crc32_table[(uint8_t)(ret ^ (x >> 8))] ^ (ret >> 8);
-    ret = data.crc32_table[(uint8_t)(ret ^ (x >> 16))] ^ (ret >> 8);
-    ret = data.crc32_table[(uint8_t)(ret ^ (x >> 24))] ^ (ret >> 8);
-    ret = data.crc32_table[(uint8_t)(ret ^ (x >> 32))] ^ (ret >> 8);
-    ret = data.crc32_table[(uint8_t)(ret ^ (x >> 40))] ^ (ret >> 8);
-    ret = data.crc32_table[(uint8_t)(ret ^ (x >> 48))] ^ (ret >> 8);
-    ret = data.crc32_table[(uint8_t)(ret ^ (x >> 56))] ^ (ret >> 8);
+    ret = HashData::crc32_table[(uint8_t)(ret ^ x)] ^ (ret >> 8);
+    ret = HashData::crc32_table[(uint8_t)(ret ^ (x >> 8))] ^ (ret >> 8);
+    ret = HashData::crc32_table[(uint8_t)(ret ^ (x >> 16))] ^ (ret >> 8);
+    ret = HashData::crc32_table[(uint8_t)(ret ^ (x >> 24))] ^ (ret >> 8);
+    ret = HashData::crc32_table[(uint8_t)(ret ^ (x >> 32))] ^ (ret >> 8);
+    ret = HashData::crc32_table[(uint8_t)(ret ^ (x >> 40))] ^ (ret >> 8);
+    ret = HashData::crc32_table[(uint8_t)(ret ^ (x >> 48))] ^ (ret >> 8);
+    ret = HashData::crc32_table[(uint8_t)(ret ^ (x >> 56))] ^ (ret >> 8);
     return ret ^ 0xffffffffu;
 }
 
@@ -145,29 +129,37 @@ static uint32_t HashCharString(char const *s)
     uint32_t ret = 0xffffffffu, ch;
 
     while ((ch = (uint8_t)*s++))
-        ret = data.crc32_table[(uint8_t)(ret ^ ch)] ^ (ret >> 8);
+        ret = HashData::crc32_table[(uint8_t)(ret ^ ch)] ^ (ret >> 8);
 
     return ret ^ 0xffffffffu;
 }
 
 uint32_t Hash<char const *>::operator ()(char const *s) const
 {
-    return HashCharString(s);
+	uint32 HVal = HashCharString(s);
+	//BB_LOG( TEST, Log, "Hash %s - val = %ud", s, HVal );
+	return HVal;
 }
 
 uint32_t Hash<char const *>::operator ()(String const &s) const
 {
-    return HashCharString(&s[0]);
+	uint32 HVal = HashCharString(&s[0]);
+	//BB_LOG( TEST, Log, "Hash %s - val = %ud", s.c_str(), HVal );
+    return HVal;
 }
 
 uint32_t Hash<String>::operator ()(String const &s) const
 {
-    return HashCharString(&s[0]);
+	uint32 HVal = HashCharString(&s[0]);
+	//BB_LOG( TEST, Log, "Hash %s - val = %ud", s.c_str(), HVal );
+	return HVal;
 }
 
 uint32_t Hash<String>::operator ()(char const *s) const
 {
-    return HashCharString(s);
+	uint32 HVal = HashCharString(s);
+	//BB_LOG( TEST, Log, "Hash %s - val = %ud", s, HVal );
+	return HVal;
 }
 
 } /* namespace bigball */

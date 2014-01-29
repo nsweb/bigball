@@ -20,9 +20,9 @@ enum BIGBALL_API eCameraParam
 class BIGBALL_API CameraView
 {
 public:
-	CameraView();
+					CameraView();
 
-	dvec3	m_Eye;
+	dvec3	m_Position;
 	quat	m_Rotation;
 	float	m_fParameters[eCP_MAX];
 };
@@ -36,13 +36,18 @@ public:
 					~Camera();
 
 	// Begin : Entity interface
-	static Entity*			NewEntity()		{ return new Camera();	}
-	virtual void			Create( EntityPattern* Pattern, class tinyxml2::XMLDocument* Proto = nullptr );
-	virtual void			Destroy();	
-	virtual void			AddToWorld();
-	virtual void			RemoveFromWorld();
-	virtual void			Tick( float DeltaSeconds );
+	static Entity*	NewEntity()		{ return new Camera();	}
+	virtual void	Create( EntityPattern* Pattern, class tinyxml2::XMLDocument* Proto = nullptr );
+	virtual void	Destroy();	
+	virtual void	AddToWorld();
+	virtual void	RemoveFromWorld();
+	virtual void	Tick( float DeltaSeconds );
 	// End : Entity interface
+
+	void			SetPosition( dvec3 Position );
+	dvec3			GetPosition()		{ return m_View.m_Position; }
+	void			SetRotation( quat Rotation );
+	quat			GetRotation()		{ return m_View.m_Rotation; }
 
 protected:
 	CameraView			m_View;

@@ -11,7 +11,7 @@ CLASS_EQUIP_CPP(CameraCtrl_Base);
 CLASS_EQUIP_CPP(CameraCtrl_Fly);
 
 CameraView::CameraView() :
-	m_Eye(0.0f),
+	m_Position(0.0f),
 	m_Rotation(1.0f)
 {
 	m_fParameters[eCP_FOV] = 55.0f;
@@ -80,6 +80,15 @@ void Camera::RemoveFromWorld()
 void Camera::Tick( float DeltaSeconds )
 {
 
+}
+
+void Camera::SetPosition( dvec3 Position )
+{
+	m_View.m_Position = Position;
+}
+void Camera::SetRotation( quat Rotation )
+{
+	m_View.m_Rotation = Rotation;
 }
 
 #if 0
@@ -376,22 +385,6 @@ void Camera::GetViewMatrixVectors( vec3& _Right, vec3& _Up, vec3& _Front )
 }
 
 
-void Camera::Create( EntityPattern* Pattern, class tinyxml2::XMLDocument* Proto )
-{
-	Super::Create( Pattern, Proto );
-}
-void Camera::Destroy()
-{
-	Super::Destroy();
-}
-void Camera::AddToWorld()
-{
-	Super::AddToWorld();
-}
-void Camera::RemoveFromWorld()
-{
-	Super::RemoveFromWorld();
-}
 
 #endif
 

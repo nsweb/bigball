@@ -38,8 +38,10 @@ const String& NameManager::GetString( NameHandle Handle )
 
 void NameManager::Init()
 {
-	m_StringTable.reserve( 4096 );
+	HashData::InitHashData();
 
+	m_StringTable.reserve( 4096 );
+	
 	FindOrAddHandle( "None" );
 }
 NameManager* NameManager::GetStaticInstance() 
