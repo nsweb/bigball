@@ -44,6 +44,8 @@ public:
 	void				OnInputX( uint32 ModifierFlags, float Delta );
 	void				OnInputY( uint32 ModifierFlags, float Delta );
 	void				OnMouseMove( uint32 ModifierFlags, vec2 Delta );
+	CameraView const&	GetRenderView()					{ return m_RenderView;				}
+	mat4 const&			GetRenderProjMatrix()			{ return m_RenderProjMatrix;		}
 
 protected:
 
@@ -51,6 +53,7 @@ protected:
 	Array<CameraCtrl_Base*>		m_CamCtrls;
 	CameraCtrl_Base*			m_pActiveCamCtrl;
 	CameraView					m_RenderView;
+	mat4						m_RenderProjMatrix;
 
 };
 

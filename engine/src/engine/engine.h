@@ -18,9 +18,11 @@ public:
 	virtual bool	Init( bool bCreateWindow );
 	virtual void	Shutdown();
 	virtual void	MainLoop();
+	SDL_DisplayMode const& GetDisplayMode()		{ return m_DisplayMode;		}
 
 protected:
 	SDL_Window*				m_MainWindow; 
+	SDL_DisplayMode			m_DisplayMode;
 	SDL_GLContext			m_GLContext; 
 
 	Array<BaseManager*>		m_Managers;

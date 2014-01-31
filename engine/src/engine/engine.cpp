@@ -76,12 +76,15 @@ bool Engine::Init( bool bCreateWindow )
     /* Swap our back buffer to the front */
     SDL_GL_SwapWindow( m_MainWindow );
 
+	SDL_GetWindowDisplayMode( m_MainWindow, &m_DisplayMode );
+
 	// Ready to init our managers
 	InitManagers();
 
 	// Declare available components and entities
 	DeclareComponentsAndEntities();
- 
+
+	
 	return true;
 }
 

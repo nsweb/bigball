@@ -27,7 +27,7 @@ public:
 	//virtual void	RemoveFromWorld();
 
 protected:
-	vec3	m_Position;
+	dvec3	m_Position;
 	quat	m_Rotation;
 };
 

@@ -3,6 +3,7 @@
 #include "../bigball.h"
 #include "controller.h"
 #include "camera.h"
+#include "engine.h"
 
 namespace bigball
 {
@@ -25,6 +26,7 @@ void Controller::Create()
 	// Create set of camera Ctrls
 	CameraCtrl_Fly* pCBH = new CameraCtrl_Fly();
 	m_CamCtrls.push_back( pCBH );
+	m_pActiveCamCtrl = pCBH;
 }
 void Controller::Destroy()
 {
@@ -35,7 +37,7 @@ void Controller::Destroy()
 
 void Controller::Tick( float DeltaSeconds )
 {
-
+	UpdateRenderCamera( DeltaSeconds );
 }
 
 void Controller::AddCamera( Camera* pCamera )
@@ -54,6 +56,10 @@ void Controller::RemoveCamera( Camera* pCamera )
 void Controller::UpdateRenderCamera( float DeltaSeconds )
 {
 	m_pActiveCamCtrl->UpdateView( m_RenderView, DeltaSeconds );
+
+	// Compute proj matrix
+	SDL_DisplayMode DisplayMode = g_pEngine->GetDisplayMode();
+	m_RenderProjMatrix = mat4::perspective_fov( m_RenderView.m_fParameters[eCP_FOV], (float)DisplayMode.w, (float)DisplayMode.h, m_RenderView.m_fParameters[eCP_NEARPLANE], m_RenderView.m_fParameters[eCP_FARPLANE] );
 }
 
 }

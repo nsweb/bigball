@@ -79,7 +79,6 @@ void Camera::RemoveFromWorld()
 
 void Camera::Tick( float DeltaSeconds )
 {
-
 }
 
 void Camera::SetPosition( dvec3 Position )

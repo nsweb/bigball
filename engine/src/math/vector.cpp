@@ -157,6 +157,50 @@ template<> mat4 inverse(mat4 const &mat)
     return ret;
 }
 
+static inline double det3(double a, double b, double c,
+	double d, double e, double f,
+	double g, double h, double i)
+{
+	return a * (e * i - h * f)
+		+ b * (f * g - i * d)
+		+ c * (d * h - g * e);
+}
+
+static inline double cofact(dmat4 const &mat, int i, int j)
+{
+	return det3(mat[(i + 1) & 3][(j + 1) & 3],
+		mat[(i + 2) & 3][(j + 1) & 3],
+		mat[(i + 3) & 3][(j + 1) & 3],
+		mat[(i + 1) & 3][(j + 2) & 3],
+		mat[(i + 2) & 3][(j + 2) & 3],
+		mat[(i + 3) & 3][(j + 2) & 3],
+		mat[(i + 1) & 3][(j + 3) & 3],
+		mat[(i + 2) & 3][(j + 3) & 3],
+		mat[(i + 3) & 3][(j + 3) & 3]) * (((i + j) & 1) ? -1.0 : 1.0);
+}
+
+template<> double determinant(dmat4 const &mat)
+{
+	double ret = 0;
+	for (int n = 0; n < 4; n++)
+		ret += mat[n][0] * cofact(mat, n, 0);
+	return ret;
+}
+
+template<> dmat4 inverse(dmat4 const &mat)
+{
+	dmat4 ret;
+	double d = determinant(mat);
+	if (d)
+	{
+		d = 1.0f / d;
+		for (int j = 0; j < 4; j++)
+			for (int i = 0; i < 4; i++)
+				ret[j][i] = cofact(mat, i, j) * d;
+	}
+	return ret;
+}
+
 template<> void vec2::printf() const
 {
     //Log::Debug("[ %6.6f %6.6f ]\n", x, y);
