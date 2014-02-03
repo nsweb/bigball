@@ -16,19 +16,36 @@ namespace bigball
 //BIGBALL_TEMPLATE template class BIGBALL_API Array<Camera*>;
 //BIGBALL_TEMPLATE template class BIGBALL_API Array<CameraCtrl_Base*>;
 
+enum eControllerInputModifier
+{
+	eIM_Ctrl = 0x00000001,
+	eIM_Alt = 0x00000002,
+	eIM_Shift = 0x00000004,
+};
 
+enum eControllerInputType
+{
+	eCIT_Key = 0,
+	eCIT_KeyCtrl,
+	eCIT_Mouse,
+	eCIT_MouseCtrl,
+};
+
+struct ControllerInput
+{
+	vec3				m_Delta;
+	eControllerInputType			m_Type;
+
+	bool operator == ( eControllerInputType OtherType ) const		{ return m_Type == OtherType; }
+};
+
+
+//////////////////////////////////////////////////////////////////////////
 class BIGBALL_API Controller : public BaseManager 
 {
 	STATIC_MANAGER_H(Controller)
 
 public:
-
-	enum eInputModifier
-	{
-		eIM_Ctrl = 0x00000001,
-		eIM_Alt = 0x00000002,
-		eIM_Shift = 0x00000004,
-	};
 
 						Controller();
 	virtual				~Controller();
@@ -43,17 +60,21 @@ public:
 
 	void				OnInputX( uint32 ModifierFlags, float Delta );
 	void				OnInputY( uint32 ModifierFlags, float Delta );
-	void				OnMouseMove( uint32 ModifierFlags, vec2 Delta );
+	void				OnInputZ( uint32 ModifierFlags, float Delta );
+	void				OnMouseMove( uint32 ModifierFlags, vec3 Delta );
 	CameraView const&	GetRenderView()					{ return m_RenderView;				}
 	mat4 const&			GetRenderProjMatrix()			{ return m_RenderProjMatrix;		}
 
 protected:
-
+	Array<ControllerInput>		m_FrameInputs;
 	Array<Camera*>				m_Cameras;
 	Array<CameraCtrl_Base*>		m_CamCtrls;
+	Camera*						m_pActiveCam;
 	CameraCtrl_Base*			m_pActiveCamCtrl;
 	CameraView					m_RenderView;
 	mat4						m_RenderProjMatrix;
+
+	void				OnInputXYZ( uint32 ModifierFlags, vec3 Delta );
 
 };
 

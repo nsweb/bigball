@@ -48,6 +48,7 @@ public:
 	dvec3			GetPosition()		{ return m_View.m_Position; }
 	void			SetRotation( quat Rotation );
 	quat			GetRotation()		{ return m_View.m_Rotation; }
+	CameraView&		GetView()			{ return m_View;			}
 
 protected:
 	CameraView			m_View;
@@ -60,6 +61,7 @@ class BIGBALL_API CameraCtrl_Base
 
 public:
 	virtual void		UpdateView( CameraView& CamView, float DeltaSeconds );
+	virtual bool		OnControllerInput( Camera* pCamera, struct ControllerInput const& Input );
 };
 
 class BIGBALL_API CameraCtrl_Fly : public CameraCtrl_Base
@@ -67,7 +69,14 @@ class BIGBALL_API CameraCtrl_Fly : public CameraCtrl_Base
 	CLASS_EQUIP_H(CameraCtrl_Fly, CameraCtrl_Base)
 
 public:
+						CameraCtrl_Fly();
+
+	float			m_StrafeSpeed;
+	float			m_RotationSpeed;
+
+public:
 	virtual void		UpdateView( CameraView& CamView, float DeltaSeconds );
+	virtual bool		OnControllerInput( Camera* pCamera, struct ControllerInput const& Input );
 };
 
 #if 0

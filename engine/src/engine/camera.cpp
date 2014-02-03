@@ -393,10 +393,43 @@ void CameraCtrl_Base::UpdateView( CameraView& CamView, float DeltaSeconds )
 
 }
 
+bool CameraCtrl_Base::OnControllerInput( Camera* pCamera, ControllerInput const& Input )
+{
+	return false;
+}
+
+CameraCtrl_Fly::CameraCtrl_Fly() :
+	m_StrafeSpeed(10.0f),
+	m_RotationSpeed(1000.0f)
+{
+
+}
 
 void CameraCtrl_Fly::UpdateView( CameraView& CamView, float DeltaSeconds )
 {
 
+}
+
+bool CameraCtrl_Fly::OnControllerInput( Camera* pCamera, ControllerInput const& Input )
+{
+	CameraView& View = pCamera->GetView();
+
+	if( Input.m_Type == eCIT_Key )
+	{
+		mat4 CamToWorldMat( View.m_Rotation );
+		vec3 Right = CamToWorldMat.v0.xyz;
+		vec3 Up = CamToWorldMat.v1.xyz;
+		vec3 Front = -CamToWorldMat.v2.xyz;
+		View.m_Position += (Right * Input.m_Delta.x + Up * Input.m_Delta.z + Front * Input.m_Delta.y) * m_StrafeSpeed;
+	}
+	else if( Input.m_Type == eCIT_Mouse )
+	{
+		quat YawPitchRoll( quat::fromeuler_xyz( Input.m_Delta.y * m_RotationSpeed, Input.m_Delta.x * m_RotationSpeed, 0.0f ) );
+
+		View.m_Rotation = View.m_Rotation * YawPitchRoll;
+	}
+
+	return true;
 }
 
 } /* namespace bigball */

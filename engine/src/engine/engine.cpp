@@ -35,7 +35,7 @@ bool Engine::Init( bool bCreateWindow )
     /* Request opengl 3.2 context.
      * SDL doesn't have the ability to choose which profile at this time of writing,
      * but it should default to the core profile */
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
@@ -46,7 +46,7 @@ bool Engine::Init( bool bCreateWindow )
 
     /* Create our window centered at 512x512 resolution */
     m_MainWindow = SDL_CreateWindow("GL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                  1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+                                  320/*1280*/, 160/*720*/, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if( !m_MainWindow ) /* Die if creation failed */
 	{
       //  sdldie("Unable to create window");
@@ -77,6 +77,11 @@ bool Engine::Init( bool bCreateWindow )
     SDL_GL_SwapWindow( m_MainWindow );
 
 	SDL_GetWindowDisplayMode( m_MainWindow, &m_DisplayMode );
+
+	// Allow FPS style mouse movement
+	SDL_SetRelativeMouseMode(SDL_FALSE);
+	SDL_SetRelativeMouseMode(SDL_TRUE);
+	SDL_SetWindowGrab( m_MainWindow, SDL_TRUE );
 
 	// Ready to init our managers
 	InitManagers();
@@ -164,27 +169,61 @@ void Engine::MainLoop()
 			m_Managers[i]->_Render( DeltaSeconds );
 		}
 
-		//glUseProgram (shader_programme);
-		//glBindVertexArray (vao);
-		//// draw points 0-3 from the currently bound VAO with current in-use shader
-		//glDrawArrays (GL_TRIANGLES, 0, 3);
 
 		SDL_GL_SwapWindow( m_MainWindow );
 
+		// Handle SDL events & inputs
 		SDL_Event Event;
+		const uint8* Keys = SDL_GetKeyboardState( nullptr );
+		uint32 Modifiers = 0;
+		if( Keys[SDL_SCANCODE_LCTRL] || Keys[SDL_SCANCODE_RCTRL] )
+			Modifiers |= eIM_Ctrl;
+		if( Keys[SDL_SCANCODE_LSHIFT] || Keys[SDL_SCANCODE_RSHIFT] )
+			Modifiers |= eIM_Shift;
+		if( Keys[SDL_SCANCODE_LALT] || Keys[SDL_SCANCODE_RALT] )
+			Modifiers |= eIM_Alt;
+
+		//Event.key.keysym.mod
+		if( Keys[SDL_SCANCODE_LEFT] )
+			Controller::GetStaticInstance()->OnInputX( Modifiers, -DeltaSeconds );
+		if( Keys[SDL_SCANCODE_RIGHT] )
+			Controller::GetStaticInstance()->OnInputX( Modifiers, DeltaSeconds );
+		if( Keys[SDL_SCANCODE_UP] )
+			Controller::GetStaticInstance()->OnInputY( Modifiers, DeltaSeconds );
+		if( Keys[SDL_SCANCODE_DOWN] )
+			Controller::GetStaticInstance()->OnInputY( Modifiers, -DeltaSeconds );
+		if( Keys[SDL_SCANCODE_PAGEUP] )
+			Controller::GetStaticInstance()->OnInputZ( Modifiers, DeltaSeconds );
+		if( Keys[SDL_SCANCODE_PAGEDOWN] )
+			Controller::GetStaticInstance()->OnInputZ( Modifiers, -DeltaSeconds );
+		
 
 		while( SDL_PollEvent( &Event ) )
 		{
 			switch( Event.type )
 			{
 			case SDL_KEYDOWN:
+				{
+					SDL_Keycode keyPressed = Event.key.keysym.sym;
+					//if( keyPressed == SDLK_LEFT )
+					//	Controller::GetStaticInstance()->OnInputX( Event.key.keysym.mod, -DeltaSeconds );
+				}
 				break;
 			case SDL_KEYUP:
-				// if escape is pressed, quit
-				if( Event.key.keysym.sym == SDLK_ESCAPE )
-					LoopStatus = 1; // set status to 1 to exit main loop
+				{
+					// if escape is pressed, quit
+					if( Event.key.keysym.sym == SDLK_ESCAPE )
+						LoopStatus = 1; // set status to 1 to exit main loop
+				}
 				break;
 			case SDL_MOUSEMOTION:
+				{
+					vec3 MouseDelta(	-(float)Event.motion.xrel / (float)m_DisplayMode.w, 
+										-(float)Event.motion.yrel / (float)m_DisplayMode.h,
+										0.f );
+					//BB_LOG( Inputs, Log, "MouseDelta x=%f y=%f Mouse x=%d y=%d xrel=%d yrel=%d mod=%d", MouseDelta.x, MouseDelta.y, Event.motion.x, Event.motion.y, Event.motion.xrel, Event.motion.yrel, Event.key.keysym.mod );
+					Controller::GetStaticInstance()->OnMouseMove( Modifiers, MouseDelta * DeltaSeconds );
+				}
 				break;
 			case SDL_MOUSEBUTTONDOWN:
 				break;
