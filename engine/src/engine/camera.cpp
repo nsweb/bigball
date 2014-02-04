@@ -11,8 +11,7 @@ CLASS_EQUIP_CPP(CameraCtrl_Base);
 CLASS_EQUIP_CPP(CameraCtrl_Fly);
 
 CameraView::CameraView() :
-	m_Position(0.0f),
-	m_Rotation(1.0f)
+	m_Transform( dquat(1.), dvec3(0.) )
 {
 	m_fParameters[eCP_FOV] = 55.0f;
 	m_fParameters[eCP_ASPECTRATIO] = 16.0f / 9.0f;
@@ -83,11 +82,11 @@ void Camera::Tick( float DeltaSeconds )
 
 void Camera::SetPosition( dvec3 Position )
 {
-	m_View.m_Position = Position;
+	m_View.m_Transform.SetTranslation( Position );
 }
-void Camera::SetRotation( quat Rotation )
+void Camera::SetRotation( dquat Rotation )
 {
-	m_View.m_Rotation = Rotation;
+	m_View.m_Transform.SetRotation( Rotation );
 }
 
 #if 0
@@ -416,17 +415,17 @@ bool CameraCtrl_Fly::OnControllerInput( Camera* pCamera, ControllerInput const& 
 
 	if( Input.m_Type == eCIT_Key )
 	{
-		mat4 CamToWorldMat( View.m_Rotation );
+		mat4 CamToWorldMat( View.m_Transform.GetRotation() );
 		vec3 Right = CamToWorldMat.v0.xyz;
 		vec3 Up = CamToWorldMat.v1.xyz;
 		vec3 Front = -CamToWorldMat.v2.xyz;
-		View.m_Position += (Right * Input.m_Delta.x + Up * Input.m_Delta.z + Front * Input.m_Delta.y) * m_StrafeSpeed;
+		View.m_Transform.GetTranslation() += (Right * Input.m_Delta.x + Up * Input.m_Delta.z + Front * Input.m_Delta.y) * m_StrafeSpeed;
 	}
 	else if( Input.m_Type == eCIT_Mouse )
 	{
 		quat YawPitchRoll( quat::fromeuler_xyz( Input.m_Delta.y * m_RotationSpeed, Input.m_Delta.x * m_RotationSpeed, 0.0f ) );
 
-		View.m_Rotation = View.m_Rotation * YawPitchRoll;
+		View.m_Transform.SetRotation( View.m_Transform.GetRotation() * YawPitchRoll );
 	}
 
 	return true;

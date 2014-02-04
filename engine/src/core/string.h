@@ -32,7 +32,7 @@ public:
       : Super()
     {
         using namespace std;
-        ASSERT(str);
+        BB_ASSERT(str);
         resize((int)strlen(str));
         memcpy(&(*this)[0], str, Len() + 1);
     }
@@ -41,7 +41,7 @@ public:
       : Super()
     {
         using namespace std;
-        ASSERT(str);
+        BB_ASSERT(str);
         resize(count);
         memcpy(&(*this)[0], str, count);
         ((Super &)*this)[count] = '\0';
@@ -56,27 +56,27 @@ public:
     {
         /* Allow n == Len() because we might have reasonable reasons
          * to access that hidden null character. */
-        ASSERT(n >= 0);
-        ASSERT((unsigned)n <= (unsigned)Len());
+        BB_ASSERT(n >= 0);
+        BB_ASSERT((unsigned)n <= (unsigned)Len());
         return ((Super &)*this)[n];
     }
 
     inline char const &operator [](int n) const
     {
-        ASSERT(n >= 0);
-        ASSERT(n <= Len());
+        BB_ASSERT(n >= 0);
+        BB_ASSERT(n <= Len());
         return ((Super const &)*this)[n];
     }
 
     inline char &Last()
     {
-        ASSERT(Len() > 0);
+        BB_ASSERT(Len() > 0);
         return (*this)[Len() - 1];
     }
 
     inline char const &Last() const
     {
-        ASSERT(Len() > 0);
+        BB_ASSERT(Len() > 0);
         return (*this)[Len() - 1];
     }
 
@@ -100,16 +100,16 @@ public:
     /* Does not initialise the newly allocated characters */
     void resize(int count)
     {
-        ASSERT(count >= 0);
+        BB_ASSERT(count >= 0);
         ((Super &)*this).resize(count + 1);
         ((Super &)*this).Last() = '\0';
     }
 
     String Sub(int start, int count) const
     {
-        ASSERT(start >= 0);
-        ASSERT(count >= 0);
-        ASSERT(start + count <= Len());
+        BB_ASSERT(start >= 0);
+        BB_ASSERT(count >= 0);
+        BB_ASSERT(start + count <= Len());
         return String(&(*this)[start], count);
     }
 

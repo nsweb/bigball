@@ -22,9 +22,10 @@ class BIGBALL_API CameraView
 public:
 					CameraView();
 
-	dvec3	m_Position;
-	quat	m_Rotation;
-	float	m_fParameters[eCP_MAX];
+	//dvec3	m_Position;
+	//quat	m_Rotation;
+	dtransform	m_Transform;
+	float		m_fParameters[eCP_MAX];
 };
 
 class BIGBALL_API Camera : public Entity
@@ -45,9 +46,9 @@ public:
 	// End : Entity interface
 
 	void			SetPosition( dvec3 Position );
-	dvec3			GetPosition()		{ return m_View.m_Position; }
-	void			SetRotation( quat Rotation );
-	quat			GetRotation()		{ return m_View.m_Rotation; }
+	dvec3			GetPosition()		{ return m_View.m_Transform.GetTranslation(); }
+	void			SetRotation( dquat Rotation );
+	dquat			GetRotation()		{ return m_View.m_Transform.GetRotation(); }
 	CameraView&		GetView()			{ return m_View;			}
 
 protected:

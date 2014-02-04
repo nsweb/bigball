@@ -188,6 +188,7 @@
     <ClInclude Include="gfx\shader.h" />
     <ClInclude Include="math\constants.h" />
     <ClInclude Include="math\functions.h" />
+    <ClInclude Include="math\transform.h" />
     <ClInclude Include="math\vector.h" />
     <ClInclude Include="system\file.h" />
     <ClInclude Include="targetver.h" />
@@ -226,6 +227,7 @@
     <ClCompile Include="gfx\shader.cpp" />
     <ClCompile Include="math\constants.cpp" />
     <ClCompile Include="math\functions.cpp" />
+    <ClCompile Include="math\transform.cpp" />
     <ClCompile Include="math\vector.cpp" />
     <ClCompile Include="system\file.cpp" />
   </ItemGroup>

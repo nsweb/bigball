@@ -7,7 +7,7 @@ namespace bigball
 {
 
 #define UNUSED(...)
-#define ASSERT(...)
+#define BB_ASSERT(...)
 
 #define BB_FREE(p)			{ if(p) Memory::Free(p); (p)=nullptr; }
 #define BB_DELETE(p)		{ if(p) delete(p); (p)=nullptr; }

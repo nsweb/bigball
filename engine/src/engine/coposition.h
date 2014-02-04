@@ -27,8 +27,7 @@ public:
 	//virtual void	RemoveFromWorld();
 
 protected:
-	dvec3	m_Position;
-	quat	m_Rotation;
+	transform	m_Transform;
 };
 
 } /* namespace bigball */

@@ -1028,6 +1028,12 @@ template <typename T> struct /*BIGBALL_API*/ Quat
 };
 
 template<typename T>
+bool isNormalized(Quat<T> const &val)
+{
+	return (abs((T)1 - sqlength(val)) <= (T)0.01);
+}
+
+template<typename T>
 inline T norm(Quat<T> const &val)
 {
     return length(val);
@@ -1762,7 +1768,14 @@ template <typename T> struct /*BIGBALL_API*/ Mat4
         v2(mat[2], (T)0),
         v3((T)0, (T)0, (T)0, val) {}
 
+	explicit inline Mat4(Mat3<T> mat, Vec3<T> trans)
+	  : v0(mat[0], (T)0),
+		v1(mat[1], (T)0),
+		v2(mat[2], (T)0),
+		v3(trans,  (T)1) {}
+
     explicit Mat4(Quat<T> const &q);
+	explicit Mat4(Quat<T> const &q, Vec3<T> const& t);
 
     inline Vec4<T>& operator[](size_t n) { return (&v0)[n]; }
     inline Vec4<T> const& operator[](size_t n) const { return (&v0)[n]; }

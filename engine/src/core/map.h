@@ -50,8 +50,8 @@ public:
 			Memory::Memset( m_HashTable, 0xFF, m_HashSize * sizeof(uint32) );
 
 			// Get some bytes for new entries
-			Pair* NewPairs	= new Pair[m_HashSize];/* (Pair*) Memory::Malloc( m_HashSize * sizeof(Pair) );*/		ASSERT(NewPairs);
-			uint32* NewNext	= (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );	ASSERT(NewNext);
+			Pair* NewPairs	= new Pair[m_HashSize];/* (Pair*) Memory::Malloc( m_HashSize * sizeof(Pair) );*/		BB_ASSERT(NewPairs);
+			uint32* NewNext	= (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );	BB_ASSERT(NewNext);
 
 			// Copy old data if needed
 			for( uint32 i = 0; i < m_NbActivePairs; ++i )
@@ -86,12 +86,12 @@ public:
 
 		while( Offset != INDEX_NONE && m_Pairs[Offset].Key != Key )
 		{
-			//ASSERT(m_Pairs[Offset].mID0!=INVALID_USER_ID);
+			//BB_ASSERT(m_Pairs[Offset].mID0!=INVALID_USER_ID);
 			Offset = m_NextTable[Offset];		// Better to have a separate array for this
 		}
 		if( Offset == INDEX_NONE )	return nullptr;
 
-		ASSERT( Offset < m_NbActivePairs );
+		BB_ASSERT( Offset < m_NbActivePairs );
 		// Match m_Pairs[Offset] => the pair is persistent
 		return &m_Pairs[Offset];
 	}
@@ -105,12 +105,12 @@ public:
 
 		while( Offset != INDEX_NONE && m_Pairs[Offset].Key != Key )
 		{
-			//ASSERT(m_Pairs[Offset].mID0!=INVALID_USER_ID);
+			//BB_ASSERT(m_Pairs[Offset].mID0!=INVALID_USER_ID);
 			Offset = m_NextTable[Offset];		// Better to have a separate array for this
 		}
 		if( Offset == INDEX_NONE )	return nullptr;
 
-		ASSERT( Offset < m_Pairs.size() );
+		BB_ASSERT( Offset < m_Pairs.size() );
 		// Match m_Pairs[Offset] => the pair is persistent
 		return &m_Pairs[Offset];
 	}
@@ -135,8 +135,8 @@ public:
 			Memory::Memset( m_HashTable, 0xFF, m_HashSize * sizeof(uint32) );
 
 			// Get some bytes for new entries
-			Pair* NewPairs	= new Pair[m_HashSize];/* (Pair*) Memory::Malloc( m_HashSize * sizeof(Pair) );*/		ASSERT(NewPairs);
-			uint32* NewNext	= (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );	ASSERT(NewNext);
+			Pair* NewPairs	= new Pair[m_HashSize];/* (Pair*) Memory::Malloc( m_HashSize * sizeof(Pair) );*/		BB_ASSERT(NewPairs);
+			uint32* NewNext	= (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );	BB_ASSERT(NewNext);
 
 			// Copy old data if needed
 			for( uint32 i = 0; i < m_NbActivePairs; ++i )
@@ -181,13 +181,13 @@ public:
 		const uint32 HashValue = ((Hash<K> const &)*this)(Key) & m_Mask;
 		const Pair* P = Find( Key, HashValue );
 		if(!P)	return false;
-		ASSERT(P->Key==Key);
+		BB_ASSERT(P->Key==Key);
 
 		const uint32 PairIndex = GetPairIndex(P);
 
 		// Walk the hash table to fix m_NextTable
 		uint32 Offset = m_HashTable[HashValue];
-		ASSERT(Offset!=INDEX_NONE);
+		BB_ASSERT(Offset!=INDEX_NONE);
 
 		uint32 Previous=INDEX_NONE;
 		while(Offset!=PairIndex)
@@ -199,7 +199,7 @@ public:
 		// Let us go/jump us
 		if(Previous!=INDEX_NONE)
 		{
-			ASSERT(m_NextTable[Previous]==PairIndex);
+			BB_ASSERT(m_NextTable[Previous]==PairIndex);
 			m_NextTable[Previous] = m_NextTable[PairIndex];
 		}
 		// else we were the first
@@ -227,7 +227,7 @@ public:
 
 			// Walk the hash table to fix m_NextTable
 			uint32 Offset = m_HashTable[LastHashValue];
-			ASSERT(Offset!=INDEX_NONE);
+			BB_ASSERT(Offset!=INDEX_NONE);
 
 			uint32 Previous=INDEX_NONE;
 			while(Offset!=LastPairIndex)
@@ -239,7 +239,7 @@ public:
 			// Let us go/jump us
 			if(Previous!=INDEX_NONE)
 			{
-				ASSERT(m_NextTable[Previous]==LastPairIndex);
+				BB_ASSERT(m_NextTable[Previous]==LastPairIndex);
 				m_NextTable[Previous] = m_NextTable[LastPairIndex];
 			}
 			// else we were the first
@@ -255,7 +255,7 @@ public:
 			// 2) Re-insert in free slot
 			m_Pairs[PairIndex] = m_Pairs[LastPairIndex];
 #ifdef _DEBUG
-			ASSERT(m_NextTable[PairIndex]==INDEX_NONE);
+			BB_ASSERT(m_NextTable[PairIndex]==INDEX_NONE);
 #endif
 			m_NextTable[PairIndex] = m_HashTable[LastHashValue];
 			m_HashTable[LastHashValue] = PairIndex;
@@ -266,7 +266,7 @@ public:
 	}
 
 	uint32 GetPairCount()			{ return m_NbActivePairs; }
-	Pair* GetPairAt( uint32 Index )	{ ASSERT(Index >= 0 && Index < m_NbActivePairs); return &m_Pairs[Index]; }
+	Pair* GetPairAt( uint32 Index )	{ BB_ASSERT(Index >= 0 && Index < m_NbActivePairs); return &m_Pairs[Index]; }
 
 public:
 	Pair*			m_Pairs;

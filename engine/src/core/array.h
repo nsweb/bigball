@@ -100,21 +100,21 @@ public:
     {
         /* Allow array[0] even if size is zero so that people can
          * always use &array[0] to get a pointer to the data. */
-        ASSERT(n >= 0);
-        ASSERT((unsigned)n < (unsigned)m_count || (!n && !m_count));
+        BB_ASSERT(n >= 0);
+        BB_ASSERT((unsigned)n < (unsigned)m_count || (!n && !m_count));
         return m_data[n];
     }
 
     inline Element const& operator[](int n) const
     {
-        ASSERT(n >= 0);
-        ASSERT(n < m_count || (!n && !m_count));
+        BB_ASSERT(n >= 0);
+        BB_ASSERT(n < m_count || (!n && !m_count));
         return m_data[n];
     }
 
     inline Element& Last()
     {
-        ASSERT(m_count > 0);
+        BB_ASSERT(m_count > 0);
         return m_data[m_count - 1];
     }
 
@@ -130,7 +130,7 @@ public:
 
     inline Element const& Last() const
     {
-        ASSERT(m_count > 0);
+        BB_ASSERT(m_count > 0);
         return m_data[m_count - 1];
     }
 
@@ -156,7 +156,7 @@ public:
 
     inline T pop_back()
     {
-        ASSERT(m_count > 0);
+        BB_ASSERT(m_count > 0);
         Element tmp = Last();
         erase(m_count - 1, 1);
         return tmp;
@@ -164,10 +164,10 @@ public:
 
     void Swap(int pos1, int pos2)
     {
-        ASSERT(pos1 >= 0);
-        ASSERT(pos2 >= 0);
-        ASSERT(pos1 < m_count);
-        ASSERT(pos2 < m_count);
+        BB_ASSERT(pos1 >= 0);
+        BB_ASSERT(pos2 >= 0);
+        BB_ASSERT(pos1 < m_count);
+        BB_ASSERT(pos2 < m_count);
 
         if (pos1 != pos2)
         {
@@ -179,9 +179,9 @@ public:
 
     void erase(int pos, int todelete = 1)
     {
-        ASSERT(todelete >= 0);
-        ASSERT(pos - todelete >= -m_count - 1);
-        ASSERT(pos + todelete <= m_count);
+        BB_ASSERT(todelete >= 0);
+        BB_ASSERT(pos - todelete >= -m_count - 1);
+        BB_ASSERT(pos + todelete <= m_count);
         if (pos < 0)
             pos = m_count + pos;
 
@@ -194,9 +194,9 @@ public:
 
     void erase_swap(int pos, int todelete = 1)
     {
-        ASSERT(todelete >= 0);
-        ASSERT(pos - todelete >= -m_count - 1);
-        ASSERT(pos + todelete <= m_count);
+        BB_ASSERT(todelete >= 0);
+        BB_ASSERT(pos - todelete >= -m_count - 1);
+        BB_ASSERT(pos + todelete <= m_count);
         if (pos < 0)
             pos = m_count + pos;
 
@@ -233,7 +233,7 @@ public:
 
     void resize(int count, Element e = Element())
     {
-        ASSERT(count >= 0);
+        BB_ASSERT(count >= 0);
         reserve(count);
 
         /* Too many elements? Remove them. */

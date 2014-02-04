@@ -11,7 +11,7 @@ namespace bigball
 
 CLASS_EQUIP_CPP(Entity);
 
-Entity::Entity() : m_State(Empty)
+Entity::Entity() : m_State(Empty), m_pPattern(nullptr)
 {
 	
 }
@@ -23,7 +23,9 @@ Entity::~Entity()
 
 void Entity::Create( EntityPattern* Pattern, class tinyxml2::XMLDocument* Proto )
 {
-	ASSERT( m_State == Empty );
+	BB_ASSERT( m_State == Empty );
+
+	m_pPattern = Pattern;
 
 	// Create associated components
 	EntityManager* pEntityManager = EntityManager::GetStaticInstance();
@@ -47,7 +49,7 @@ void Entity::Create( EntityPattern* Pattern, class tinyxml2::XMLDocument* Proto 
 }
 void Entity::Destroy()
 {
-	ASSERT( m_State == Created );
+	BB_ASSERT( m_State == Created );
 
 	for( int i = 0; i < m_Components.size(); ++i )
 	{
@@ -61,7 +63,7 @@ void Entity::Destroy()
 
 void Entity::AddToWorld()
 {
-	ASSERT( m_State == Created );
+	BB_ASSERT( m_State == Created );
 
 	EntityManager* pEntityManager = EntityManager::GetStaticInstance();
 	for( int i = 0; i < m_Components.size(); ++i )
@@ -77,7 +79,7 @@ void Entity::AddToWorld()
 }
 void Entity::RemoveFromWorld()
 {
-	ASSERT( m_State == InWorld );
+	BB_ASSERT( m_State == InWorld );
 
 	EntityManager* pEntityManager = EntityManager::GetStaticInstance();
 	for( int i = 0; i < m_Components.size(); ++i )
@@ -95,6 +97,31 @@ void Entity::RemoveFromWorld()
 void Entity::Tick( float DeltaSeconds )
 {
 
+}
+
+Component* Entity::GetComponent( Name const& ComponentName )
+{
+	for( int i = 0; i < m_pPattern->m_Components.size(); ++i )
+	{
+		if( m_pPattern->m_Components[i] == ComponentName )
+		{
+			BB_ASSERT( m_Components[i]->IsA( ComponentName) );
+			return m_Components[i];
+		}
+	}
+	return nullptr;
+}
+
+Component* Entity::GetCompatibleComponent( Name const& ComponentName )
+{
+	for( int i = 0; i < m_Components.size(); ++i )
+	{
+		if( m_Components[i]->IsA( ComponentName ) )
+		{
+			return m_Components[i];
+		}
+	}
+	return nullptr;
 }
 
 } /* namespace bigball */

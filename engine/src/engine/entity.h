@@ -40,9 +40,12 @@ public:
 	virtual void	Tick( float DeltaSeconds );
 
 	bool			IsInWorld()		{ return m_State == InWorld; }
+	Component*		GetComponent( Name const& ComponentName );
+	Component*		GetCompatibleComponent( Name const& ComponentName );
 
 protected:
 	State				m_State;
+	EntityPattern*		m_pPattern;
 
 };
 

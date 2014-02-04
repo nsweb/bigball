@@ -113,14 +113,14 @@ void EntityManager::DestroyEntity( Entity* pEntity )
 
 void EntityManager::RegisterPattern( EntityPattern const& Pattern )
 {
-	ASSERT( -1 == m_EntityPatterns.FindByKey( Pattern.m_Name ) );
+	BB_ASSERT( -1 == m_EntityPatterns.FindByKey( Pattern.m_Name ) );
 
 	m_EntityPatterns.push_back( Pattern );
 }
 
 void EntityManager::RegisterFactory( ComponentFactory& Factory )
 {
-	ASSERT( -1 == m_ComponentFactories.FindByKey( Factory.m_Name ) );
+	BB_ASSERT( -1 == m_ComponentFactories.FindByKey( Factory.m_Name ) );
 
 	m_ComponentFactories.push_back( Factory );
 }

@@ -98,6 +98,9 @@
     <ClInclude Include="gfx\shader.h">
       <Filter>gfx</Filter>
     </ClInclude>
+    <ClInclude Include="math\transform.h">
+      <Filter>math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -163,6 +166,9 @@
     </ClCompile>
     <ClCompile Include="gfx\shader.cpp">
       <Filter>gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="math\transform.cpp">
+      <Filter>math</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

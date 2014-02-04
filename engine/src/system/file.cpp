@@ -382,7 +382,7 @@ size_t FileSize( char const* FileName )
 //
 ///*#ifdef	_DEBUG
 //	s32 iFileIsClosed = ::fclose(m_FileHandle);
-//	M_ASSERT(iFileIsClosed == 0, ("%s", m_Filename.c_str()) );
+//	BB_ASSERT(iFileIsClosed == 0, ("%s", m_Filename.c_str()) );
 //#else //_DEBUG*/
 //	fclose(m_hFile);
 ////#endif//_DEBUG
@@ -456,7 +456,7 @@ size_t File::GetFileSize()
 		return 0;
 	}
 	s32 EndPos = ::ftell(m_FileHandle);
-	M_ASSERT(EndPos != -1L, ("GetFileSize() error"));
+	BB_ASSERT(EndPos != -1L, ("GetFileSize() error"));
 	Seek(OldPos, E_MC_SEEK_BEGIN);  // Restores the current file position
 
 	return EndPos;
@@ -474,7 +474,7 @@ size_t File::GetFileSize()
 //		va_start( marker, format ); 
 //		//M_LOCK();
 //		SizeWritten = vfprintf(m_hFile, format, marker);
-//		//M_ASSERT(SizeWritten>=0, ("%s: problem on fprintf", m_Filename.c_str()) );
+//		//BB_ASSERT(SizeWritten>=0, ("%s: problem on fprintf", m_Filename.c_str()) );
 //		va_end( marker );
 //	}
 //	return SizeWritten;

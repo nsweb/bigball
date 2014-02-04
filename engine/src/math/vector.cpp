@@ -468,6 +468,10 @@ template<> mat4::Mat4(quat const &q)
 {
     *this = mat4(mat3(q), 1.f);
 }
+template<> mat4::Mat4(quat const &q, vec3 const& t)
+{
+	 *this = mat4(mat3(q), t);
+}
 
 static inline void MatrixToQuat(quat &that, mat3 const &m)
 {
@@ -820,10 +824,8 @@ template<> mat4 mat4::perspective_fov(float fov_y, float width,
 
 template<> mat4 mat4::perspective( float fov_y, float aspect, float zNear, float zFar )
 {
-	ASSERT(aspect != 0.0f);
-	ASSERT(zFar != zNear);
-	mat2 toto;
-	toto.v0 += vec2();
+	BB_ASSERT(aspect != 0.0f);
+	BB_ASSERT(zFar != zNear);
 
 	float tanHalfFovy = tan(fov_y * 0.5f);
 	mat4 Result(0.0f);
@@ -841,7 +843,7 @@ template<> mat4 mat4::shifted_perspective(float fov_y, float screen_size,
 {
     float new_fov_y = fov_y * (F_PI / 180.0f);
     float tan_y = tan(new_fov_y * .5f);
-    ASSERT(tan_y > 0.000001f);
+    BB_ASSERT(tan_y > 0.000001f);
     float dist_scr = (screen_size * screen_ratio_yx * .5f) / tan_y;
 
     return mat4::perspective_fov(fov_y, screen_size, screen_size * screen_ratio_yx,
