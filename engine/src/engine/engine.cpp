@@ -46,7 +46,7 @@ bool Engine::Init( bool bCreateWindow )
 
     /* Create our window centered at 512x512 resolution */
     m_MainWindow = SDL_CreateWindow("GL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                  320/*1280*/, 160/*720*/, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+                                  640/*1280*/, 480/*720*/, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if( !m_MainWindow ) /* Die if creation failed */
 	{
       //  sdldie("Unable to create window");

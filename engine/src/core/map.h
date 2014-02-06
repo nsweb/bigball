@@ -42,7 +42,7 @@ public:
 		if( HashSize > m_HashSize )
 		{
 			// Get more entries
-			m_HashSize = bigball::NextPowerOfTwo(HashSize);
+			m_HashSize = (bigball::IsPowerOfTwo(HashSize) ? HashSize : bigball::NextPowerOfTwo(HashSize));
 			m_Mask = m_HashSize - 1;
 
 			BB_FREE(m_HashTable);
@@ -81,19 +81,7 @@ public:
 		// Compute hash value for this key
 		uint32 HashValue = ((Hash<K> const &)*this)(Key) & m_Mask;
 
-		// Look for it in the table
-		uint32 Offset = m_HashTable[HashValue];
-
-		while( Offset != INDEX_NONE && m_Pairs[Offset].Key != Key )
-		{
-			//BB_ASSERT(m_Pairs[Offset].mID0!=INVALID_USER_ID);
-			Offset = m_NextTable[Offset];		// Better to have a separate array for this
-		}
-		if( Offset == INDEX_NONE )	return nullptr;
-
-		BB_ASSERT( Offset < m_NbActivePairs );
-		// Match m_Pairs[Offset] => the pair is persistent
-		return &m_Pairs[Offset];
+		return Find( Key, HashValue );
 	}
 
 	Pair* Find( K const& Key, uint32 HashValue ) const
@@ -124,42 +112,46 @@ public:
 			return P;	// Persistent pair
 
 		// This is a new pair
-		if( m_NbActivePairs >= m_HashSize )
-		{
-			// Get more entries
-			m_HashSize = bigball::NextPowerOfTwo(m_NbActivePairs + 1);
-			m_Mask = m_HashSize - 1;
+		reserve( m_NbActivePairs + 1 );
+		//if( m_NbActivePairs >= m_HashSize )
+		//{
+		//	// Get more entries
+		//	m_HashSize = bigball::NextPowerOfTwo(m_NbActivePairs + 1);
+		//	m_Mask = m_HashSize - 1;
 
-			BB_FREE(m_HashTable);
-			m_HashTable = (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );
-			Memory::Memset( m_HashTable, 0xFF, m_HashSize * sizeof(uint32) );
+		//	BB_FREE(m_HashTable);
+		//	m_HashTable = (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );
+		//	Memory::Memset( m_HashTable, 0xFF, m_HashSize * sizeof(uint32) );
 
-			// Get some bytes for new entries
-			Pair* NewPairs	= new Pair[m_HashSize];/* (Pair*) Memory::Malloc( m_HashSize * sizeof(Pair) );*/		BB_ASSERT(NewPairs);
-			uint32* NewNext	= (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );	BB_ASSERT(NewNext);
+		//	// Get some bytes for new entries
+		//	Pair* NewPairs	= new Pair[m_HashSize];/* (Pair*) Memory::Malloc( m_HashSize * sizeof(Pair) );*/		BB_ASSERT(NewPairs);
+		//	uint32* NewNext	= (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );	BB_ASSERT(NewNext);
 
-			// Copy old data if needed
-			for( uint32 i = 0; i < m_NbActivePairs; ++i )
-				NewPairs[i] = m_Pairs[i];
+		//	// Copy old data if needed
+		//	for( uint32 i = 0; i < m_NbActivePairs; ++i )
+		//		NewPairs[i] = m_Pairs[i];
 
-			for( uint32 i=0; i < m_NbActivePairs; i++ )
-			{
-				uint32 HashValue = ((Hash<K> const &)*this)(m_Pairs[i].Key) & m_Mask;
-				m_NextTable[i] = m_HashTable[HashValue];
-				m_HashTable[HashValue] = i;
-			}
+		//	for( uint32 i=0; i < m_NbActivePairs; i++ )
+		//	{
+		//		uint32 HashValue = ((Hash<K> const &)*this)(m_Pairs[i].Key) & m_Mask;
+		//		m_NextTable[i] = m_HashTable[HashValue];
+		//		m_HashTable[HashValue] = i;
+		//	}
 
-			// Delete old data
-			BB_FREE(m_NextTable);
-			BB_DELETE_ARRAY(m_Pairs);
+		//	// Delete old data
+		//	BB_FREE(m_NextTable);
+		//	BB_DELETE_ARRAY(m_Pairs);
 
-			// Assign new pointer
-			m_Pairs = NewPairs;
-			m_NextTable = NewNext;
+		//	// Assign new pointer
+		//	m_Pairs = NewPairs;
+		//	m_NextTable = NewNext;
 
-			// Recompute hash value with new hash size
-			HashValue = ((Hash<K> const &)*this)(Key) & m_Mask;
-		}
+		//	// Recompute hash value with new hash size
+		//	HashValue = ((Hash<K> const &)*this)(Key) & m_Mask;
+		//}
+
+		// Recompute hash value with new hash size
+		HashValue = ((Hash<K> const &)*this)(Key) & m_Mask;
 
 		Pair* p = &m_Pairs[m_NbActivePairs];
 		p->Key = Key;

@@ -423,6 +423,7 @@ bool CameraCtrl_Fly::OnControllerInput( Camera* pCamera, ControllerInput const& 
 	}
 	else if( Input.m_Type == eCIT_Mouse )
 	{
+		// TODO : arcball rotation
 		quat YawPitchRoll( quat::fromeuler_xyz( Input.m_Delta.y * m_RotationSpeed, Input.m_Delta.x * m_RotationSpeed, 0.0f ) );
 
 		View.m_Transform.SetRotation( View.m_Transform.GetRotation() * YawPitchRoll );

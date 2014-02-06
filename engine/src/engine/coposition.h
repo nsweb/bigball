@@ -26,6 +26,11 @@ public:
 	//virtual void	AddToWorld();
 	//virtual void	RemoveFromWorld();
 
+	void			SetPosition( vec3 Position );
+	vec3			GetPosition()		{ return m_Transform.GetTranslation(); }
+	void			SetRotation( quat Rotation );
+	quat			GetRotation()		{ return m_Transform.GetRotation(); }
+
 protected:
 	transform	m_Transform;
 };

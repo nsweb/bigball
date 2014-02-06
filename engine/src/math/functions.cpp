@@ -21,6 +21,10 @@ uint32 NextPowerOfTwo( uint32 x )
 	return x+1;
 }
 
+bool IsPowerOfTwo( uint32 x )
+{
+	return (x != 0) && ((x & (x - 1)) == 0);
+}
 
 } /* namespace bigball */
 

@@ -17,5 +17,15 @@ CoPosition::~CoPosition()
 
 }
 
+void CoPosition::SetPosition( vec3 Position )
+{
+	m_Transform.SetTranslation( Position );
+}
+
+void CoPosition::SetRotation( quat Rotation )
+{
+	m_Transform.SetRotation( Rotation );
+}
+
 
 } /* namespace bigball */
