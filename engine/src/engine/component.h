@@ -20,8 +20,9 @@ public:
 	virtual void		Destroy();	
 	virtual void		AddToWorld();
 	virtual void		RemoveFromWorld();
+	inline Entity*		GetEntity()				{ return m_Owner;		}
 
-protected:
+private:
 	Entity*		m_Owner;
 };
 

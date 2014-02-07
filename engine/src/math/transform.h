@@ -26,8 +26,10 @@ template <typename T> struct /*BIGBALL_API*/ Transform
     inline BB_CONSTEXPR Transform(Quat<T> const& Rot, Vec3<T> const& Trans) : m_Rotation(Rot), m_Translation(Trans) {}
 	inline BB_CONSTEXPR Transform(Vec3<T> const& Trans) : m_Rotation(1), m_Translation(Trans) {}
 
-    inline Quat<T>& GetRotation()			{ return m_Rotation;	}
-	inline Vec3<T>& GetTranslation()		{ return m_Translation;	}
+    inline Quat<T>& GetRotation()					{ return m_Rotation;	}
+	inline Quat<T> const & GetRotation() const		{ return m_Rotation;	}
+	inline Vec3<T>& GetTranslation()				{ return m_Translation;	}
+	inline Vec3<T> const & GetTranslation()	const	{ return m_Translation;	}
 	inline void	SetRotation( Quat<T> const& Rot )					{ m_Rotation = Rot;	}
 	inline void	SetTranslation( Vec3<T> const& Trans )				{ m_Translation = Trans; }
 	inline void Set( Quat<T> const& Rot, Vec3<T> const& Trans )		{ m_Rotation = Rot; m_Translation = Trans; }
@@ -51,6 +53,27 @@ template <typename T> struct /*BIGBALL_API*/ Transform
 		Ret.m_Rotation = BInvRot * m_Rotation;
 		Ret.m_Translation = BInvRot * (m_Translation - B.m_Translation);
 
+		return Ret;
+	}
+
+	inline Vec3<T> TransformPositionInverse( Vec3<T> const& V ) const
+	{
+		return ( ~m_Rotation * (V - m_Translation) );
+	}
+	inline Vec3<T> TransformVectorInverse( Vec3<T> const& V ) const
+	{
+		return ( ~m_Rotation * V );
+	}
+	inline Vec3<T> TransformPosition( Vec3<T> const& V ) const
+	{
+		Vec3<T> Ret = Rotation*V;
+		Ret += m_Translation;
+
+		return Ret;
+	}
+	inline Vec3<T> TransformVector( Vec3<T> const& V ) const
+	{
+		Vec3<T> Ret = Rotation*V;
 		return Ret;
 	}
 
