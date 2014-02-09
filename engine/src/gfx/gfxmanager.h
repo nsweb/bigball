@@ -12,6 +12,7 @@ namespace bigball
 class BIGBALL_API Shader;
 //BIGBALL_TEMPLATE template class BIGBALL_API Map<String,Shader*>;
 
+////////////////////////////////////////////////////////////
 class BIGBALL_API GfxManager : public BaseManager 
 {
 	STATIC_MANAGER_H(GfxManager)
@@ -22,7 +23,7 @@ public:
 
 	virtual void		Create();
 	virtual void		Destroy();	
-	virtual void		Tick( float DeltaSeconds );
+	virtual void		Tick( struct TickContext& TickCtxt );
 
 	Shader*				LoadShader( String const& ShaderName );
 

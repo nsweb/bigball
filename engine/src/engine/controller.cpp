@@ -36,7 +36,7 @@ void Controller::Destroy()
 	m_CamCtrls.clear();
 }
 
-void Controller::Tick( float DeltaSeconds )
+void Controller::Tick( TickContext& TickCtxt )
 {
 	// Manage inputs
 	if( m_pActiveCamCtrl && m_pActiveCam )
@@ -49,7 +49,7 @@ void Controller::Tick( float DeltaSeconds )
 	m_FrameInputs.clear();
 
 
-	UpdateRenderCamera( DeltaSeconds );
+	UpdateRenderCamera( TickCtxt.m_DeltaSeconds );
 }
 
 void Controller::AddCamera( Camera* pCamera )

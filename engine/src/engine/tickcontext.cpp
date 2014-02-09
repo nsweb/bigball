@@ -35,7 +35,7 @@ void GfxManager::Destroy()
 	}
 }
 
-void GfxManager::Tick( TickContext& TickCtxt )
+void GfxManager::Tick( float DeltaSeconds )
 {
 	
 }

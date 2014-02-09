@@ -27,6 +27,8 @@ protected:
 
 	Array<BaseManager*>		m_Managers;
 
+	uint32					m_FrameCount;
+
 	virtual void	InitManagers();
 	virtual void	DestroyManagers();
 	virtual void	DeclareComponentsAndEntities();

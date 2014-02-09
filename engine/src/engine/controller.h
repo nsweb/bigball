@@ -52,7 +52,7 @@ public:
 
 	virtual void		Create();
 	virtual void		Destroy();	
-	virtual void		Tick( float DeltaSeconds );
+	virtual void		Tick( struct TickContext& TickCtxt );
 
 	void				AddCamera( Camera* pCamera );
 	void				RemoveCamera( Camera* pCamera );

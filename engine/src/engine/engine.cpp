@@ -14,9 +14,11 @@ namespace bigball
 
 Engine* g_pEngine = nullptr;
 
-Engine::Engine()
+Engine::Engine() :
+	m_MainWindow(nullptr),
+	m_FrameCount(0)
 {
-	m_MainWindow = nullptr;
+	
 }
 
 Engine::~Engine()
@@ -159,14 +161,23 @@ void Engine::MainLoop()
 		glEnable( GL_DEPTH_TEST ); // enable depth-testing
 		glDepthFunc( GL_LESS ); // depth-testing interprets a smaller value as "closer"
 
+		TickContext TickCtxt;
+		TickCtxt.m_DeltaSeconds = DeltaSeconds;
+		TickCtxt.m_FrameIdx = m_FrameCount
 		for( int32 i = 0; i < m_Managers.size(); ++i )
 		{
-			m_Managers[i]->Tick( DeltaSeconds );
+			m_Managers[i]->Tick( TickCtxt );
 		}
 
+		// Prepare rendering
+		RenderContext RenderCtxt;
+		RenderCtxt.m_View = Controller::GetStaticInstance()->GetRenderView();
+		RenderCtxt.m_ProjMat = Controller::GetStaticInstance()->GetRenderProjMatrix();
+		RenderCtxt.m_DeltaSeconds = DeltaSeconds;
+		RenderCtxt.m_FrameIdx = m_FrameCount++;
 		for( int32 i = 0; i < m_Managers.size(); ++i )
 		{
-			m_Managers[i]->_Render( DeltaSeconds );
+			m_Managers[i]->_Render( RenderCtxt );
 		}
 
 

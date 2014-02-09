@@ -25,8 +25,8 @@ public:
 
 	virtual void	Create();
 	virtual void	Destroy();	
-	virtual void	Tick( float DeltaSeconds );
-	virtual void	_Render( float DeltaSeconds );
+	virtual void	Tick( struct TickContext& TickCtxt );
+	virtual void	_Render( struct RenderContext& RenderCtxt );
 };
 
 } /* namespace bigball */

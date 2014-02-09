@@ -55,7 +55,7 @@ public:
 
 	virtual void		Create();
 	virtual void		Destroy();	
-	virtual void		Tick( float DeltaSeconds );
+	virtual void		Tick( struct TickContext& TickCtxt );
 
 	Entity*				CreateEntity( char const* PatternName, class tinyxml2::XMLDocument* Proto = nullptr );
 	Entity*				CreateEntityFromXML( char const* XMLPath );
