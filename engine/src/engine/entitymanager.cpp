@@ -4,6 +4,7 @@
 #include "entity.h"
 #include "component.h"
 #include "entitymanager.h"
+#include "tickcontext.h"
 
 
 //DECLARE_ENTITY( PlanetId, PlanetClass, (COPLANET | CORENDER) )

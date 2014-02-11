@@ -4,6 +4,7 @@
 #include "controller.h"
 #include "camera.h"
 #include "engine.h"
+#include "tickcontext.h"
 
 namespace bigball
 {

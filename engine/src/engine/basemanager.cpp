@@ -24,12 +24,12 @@ void BaseManager::Destroy()
 {
 
 }
-void BaseManager::Tick( float DeltaSeconds )
+void BaseManager::Tick( struct TickContext& TickCtxt )
 {
 
 }
 
-void BaseManager::_Render( float DeltaSeconds )
+void BaseManager::_Render( struct RenderContext& RenderCtxt )
 {
 
 }

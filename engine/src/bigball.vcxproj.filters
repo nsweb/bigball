@@ -101,6 +101,15 @@
     <ClInclude Include="math\transform.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="engine\tickcontext.h">
+      <Filter>engine</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\rendercontext.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="math\frustum.h">
+      <Filter>math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -168,6 +177,15 @@
       <Filter>gfx</Filter>
     </ClCompile>
     <ClCompile Include="math\transform.cpp">
+      <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\tickcontext.cpp">
+      <Filter>engine</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\rendercontext.cpp">
+      <Filter>gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="math\frustum.cpp">
       <Filter>math</Filter>
     </ClCompile>
   </ItemGroup>

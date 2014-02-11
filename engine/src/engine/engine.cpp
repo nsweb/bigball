@@ -6,8 +6,10 @@
 #include "controller.h"
 #include "entitymanager.h"
 #include "../gfx/gfxmanager.h"
+#include "../gfx/rendercontext.h"
 #include "coposition.h"
 #include "camera.h"
+#include "tickcontext.h"
 
 namespace bigball
 {
@@ -163,7 +165,7 @@ void Engine::MainLoop()
 
 		TickContext TickCtxt;
 		TickCtxt.m_DeltaSeconds = DeltaSeconds;
-		TickCtxt.m_FrameIdx = m_FrameCount
+		TickCtxt.m_FrameIdx = m_FrameCount;
 		for( int32 i = 0; i < m_Managers.size(); ++i )
 		{
 			m_Managers[i]->Tick( TickCtxt );

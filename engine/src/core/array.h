@@ -1,5 +1,4 @@
 
-
 #ifndef BB_COREARRAY_H
 #define BB_COREARRAY_H
 
