@@ -437,41 +437,41 @@ template<> mat3 mat3::rotate(float degrees, vec3 v)
     return rotate(degrees, v.x, v.y, v.z);
 }
 
-template<> mat3::Mat3(quat const &q)
-{
-    float n = norm(q);
+//template<> mat3::Mat3(quat const &q)
+//{
+//    float n = norm(q);
+//
+//    if (!n)
+//    {
+//        for (int j = 0; j < 3; j++)
+//            for (int i = 0; i < 3; i++)
+//                (*this)[i][j] = (i == j) ? 1.f : 0.f;
+//        return;
+//    }
+//
+//    float s = 2.0f / n;
+//
+//    v0[0] = 1.0f - s * (q.y * q.y + q.z * q.z);
+//    v0[1] = s * (q.x * q.y + q.z * q.w);
+//    v0[2] = s * (q.x * q.z - q.y * q.w);
+//
+//    v1[0] = s * (q.x * q.y - q.z * q.w);
+//    v1[1] = 1.0f - s * (q.z * q.z + q.x * q.x);
+//    v1[2] = s * (q.y * q.z + q.x * q.w);
+//
+//    v2[0] = s * (q.x * q.z + q.y * q.w);
+//    v2[1] = s * (q.y * q.z - q.x * q.w);
+//    v2[2] = 1.0f - s * (q.x * q.x + q.y * q.y);
+//}
 
-    if (!n)
-    {
-        for (int j = 0; j < 3; j++)
-            for (int i = 0; i < 3; i++)
-                (*this)[i][j] = (i == j) ? 1.f : 0.f;
-        return;
-    }
-
-    float s = 2.0f / n;
-
-    v0[0] = 1.0f - s * (q.y * q.y + q.z * q.z);
-    v0[1] = s * (q.x * q.y + q.z * q.w);
-    v0[2] = s * (q.x * q.z - q.y * q.w);
-
-    v1[0] = s * (q.x * q.y - q.z * q.w);
-    v1[1] = 1.0f - s * (q.z * q.z + q.x * q.x);
-    v1[2] = s * (q.y * q.z + q.x * q.w);
-
-    v2[0] = s * (q.x * q.z + q.y * q.w);
-    v2[1] = s * (q.y * q.z - q.x * q.w);
-    v2[2] = 1.0f - s * (q.x * q.x + q.y * q.y);
-}
-
-template<> mat4::Mat4(quat const &q)
-{
-    *this = mat4(mat3(q), 1.f);
-}
-template<> mat4::Mat4(quat const &q, vec3 const& t)
-{
-	 *this = mat4(mat3(q), t);
-}
+//template<> mat4::Mat4(quat const &q)
+//{
+//    *this = mat4(mat3(q), 1.f);
+//}
+//template<> mat4::Mat4(quat const &q, vec3 const& t)
+//{
+//	 *this = mat4(mat3(q), t);
+//}
 
 static inline void MatrixToQuat(quat &that, mat3 const &m)
 {

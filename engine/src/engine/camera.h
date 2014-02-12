@@ -11,9 +11,9 @@ namespace bigball
 enum BIGBALL_API eCameraParam
 {
 	eCP_FOV = 0,
-	eCP_NEARPLANE,
-	eCP_FARPLANE,
-	eCP_ASPECTRATIO,
+	eCP_NEAR,
+	eCP_FAR,
+	eCP_ASPECT,
 	eCP_MAX
 };
 

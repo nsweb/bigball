@@ -14,9 +14,9 @@ CameraView::CameraView() :
 	m_Transform( dquat(1.), dvec3(0.) )
 {
 	m_fParameters[eCP_FOV] = 55.0f;
-	m_fParameters[eCP_ASPECTRATIO] = 16.0f / 9.0f;
-	m_fParameters[eCP_NEARPLANE] = 1.0f;
-	m_fParameters[eCP_FARPLANE] = 10000.0f;
+	m_fParameters[eCP_ASPECT] = 16.0f / 9.0f;
+	m_fParameters[eCP_NEAR] = 1.0f;
+	m_fParameters[eCP_FAR] = 10000.0f;
 }
 
 Camera::Camera()

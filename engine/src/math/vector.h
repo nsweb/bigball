@@ -77,11 +77,11 @@ template<typename T, int N> struct /*BIGBALL_API*/ XVec2
         int i = (N >> (4 * (1 - n))) & 3;
         return static_cast<T*>(static_cast<void*>(this))[i];
     }
-    inline T const& operator[](size_t n) const
-    {
-        int i = (N >> (4 * (1 - n))) & 3;
-        return static_cast<T const*>(static_cast<void const *>(this))[i];
-    }
+	inline T const& operator[](size_t n) const
+	{
+		int i = (N >> (4 * (1 - n))) & 3;
+		return static_cast<T const*>(static_cast<void const *>(this))[i];
+	}
 };
 
 template<typename T, int N> struct /*BIGBALL_API*/ XVec3
@@ -322,7 +322,7 @@ template <typename T> struct /*BIGBALL_API*/ BVec3
         struct { T s, t, p; };
 
         XVec2<T,0x00> const xx, rr, ss;
-        XVec2<T,0x01> const xy, rg, st; /* lvalue */
+        XVec2<T,0x01> /*const*/ xy, rg, st; /* lvalue */
         XVec2<T,0x02> const xz, rb, sp; /* lvalue */
         XVec2<T,0x10> const yx, gr, ts; /* lvalue */
         XVec2<T,0x11> const yy, gg, tt;
@@ -336,7 +336,7 @@ template <typename T> struct /*BIGBALL_API*/ BVec3
         XVec3<T,0x002> const xxz, rrb, ssp;
         XVec3<T,0x010> const xyx, rgr, sts;
         XVec3<T,0x011> const xyy, rgg, stt;
-        XVec3<T,0x012> const xyz, rgb, stp; /* lvalue */
+        XVec3<T,0x012> /*const*/ xyz, rgb, stp; /* lvalue */
         XVec3<T,0x020> const xzx, rbr, sps;
         XVec3<T,0x021> const xzy, rbg, spt; /* lvalue */
         XVec3<T,0x022> const xzz, rbb, spp;
@@ -522,7 +522,7 @@ template <typename T> struct /*BIGBALL_API*/ BVec4
         struct { T s, t, p, q; };
 
         XVec2<T,0x00> const xx, rr, ss;
-        XVec2<T,0x01> const xy, rg, st; /* lvalue */
+        XVec2<T,0x01> /*const*/ xy, rg, st; /* lvalue */
         XVec2<T,0x02> const xz, rb, sp; /* lvalue */
         XVec2<T,0x03> const xw, ra, sq; /* lvalue */
         XVec2<T,0x10> const yx, gr, ts; /* lvalue */
@@ -544,7 +544,7 @@ template <typename T> struct /*BIGBALL_API*/ BVec4
         XVec3<T,0x003> const xxw, rra, ssq;
         XVec3<T,0x010> const xyx, rgr, sts;
         XVec3<T,0x011> const xyy, rgg, stt;
-        XVec3<T,0x012> const xyz, rgb, stp; /* lvalue */
+        XVec3<T,0x012> /*const*/ xyz, rgb, stp; /* lvalue */
         XVec3<T,0x013> const xyw, rga, stq; /* lvalue */
         XVec3<T,0x020> const xzx, rbr, sps;
         XVec3<T,0x021> const xzy, rbg, spt; /* lvalue */
@@ -630,7 +630,7 @@ template <typename T> struct /*BIGBALL_API*/ BVec4
         XVec4<T,0x0120> const xyzx, rgbr, stps;
         XVec4<T,0x0121> const xyzy, rgbg, stpt;
         XVec4<T,0x0122> const xyzz, rgbb, stpp;
-        XVec4<T,0x0123> const xyzw, rgba, stpq; /* lvalue */
+        XVec4<T,0x0123> /*const*/ xyzw, rgba, stpq; /* lvalue */
         XVec4<T,0x0130> const xywx, rgar, stqs;
         XVec4<T,0x0131> const xywy, rgag, stqt;
         XVec4<T,0x0132> const xywz, rgab, stqp; /* lvalue */
@@ -1500,24 +1500,27 @@ inline Quat<T> Quat<T>::operator *(Quat<T> const &val) const
 template<typename T, int N>
 inline Vec2<T> XVec2<T, N>::operator =(Vec2<T> const &that)
 {
+	XVec2<T, N>& ThisRef = *this;
     for (int i = 0; i < 2; i++)
-        *this[i] = that[i];
+        ThisRef[i] = that[i];
     return *this;
 }
 
 template<typename T, int N>
 inline Vec3<T> XVec3<T, N>::operator =(Vec3<T> const &that)
 {
+	XVec3<T, N>& ThisRef = *this;
     for (int i = 0; i < 3; i++)
-        *this[i] = that[i];
+        ThisRef[i] = that[i];
     return *this;
 }
 
 template<typename T, int N>
 inline Vec4<T> XVec4<T, N>::operator =(Vec4<T> const &that)
 {
+	XVec4<T, N>& ThisRef = *this;
     for (int i = 0; i < 4; i++)
-        *this[i] = that[i];
+        ThisRef[i] = that[i];
     return *this;
 }
 
@@ -1632,7 +1635,32 @@ template <typename T> struct /*BIGBALL_API*/ Mat3
         v1(mat[1].xyz),
         v2(mat[2].xyz) {}
 
-    explicit Mat3(Quat<T> const &q);
+    explicit Mat3(Quat<T> const &q)
+	{
+		T n = norm(q);
+
+		if (!n)
+		{
+			for (int j = 0; j < 3; j++)
+				for (int i = 0; i < 3; i++)
+					(*this)[i][j] = (i == j) ? (T)1.0 : (T)0.0;
+			return;
+		}
+
+		T s = (T)2.0 / n;
+
+		v0[0] = (T)1.0 - s * (q.y * q.y + q.z * q.z);
+		v0[1] = s * (q.x * q.y + q.z * q.w);
+		v0[2] = s * (q.x * q.z - q.y * q.w);
+
+		v1[0] = s * (q.x * q.y - q.z * q.w);
+		v1[1] = (T)1.0 - s * (q.z * q.z + q.x * q.x);
+		v1[2] = s * (q.y * q.z + q.x * q.w);
+
+		v2[0] = s * (q.x * q.z + q.y * q.w);
+		v2[1] = s * (q.y * q.z - q.x * q.w);
+		v2[2] = (T)1.0 - s * (q.x * q.x + q.y * q.y);
+	}
 
     inline Vec3<T>& operator[](size_t n) { return (&v0)[n]; }
     inline Vec3<T> const& operator[](size_t n) const { return (&v0)[n]; }
@@ -1774,8 +1802,17 @@ template <typename T> struct /*BIGBALL_API*/ Mat4
 		v2(mat[2], (T)0),
 		v3(trans,  (T)1) {}
 
-    explicit Mat4(Quat<T> const &q);
-	explicit Mat4(Quat<T> const &q, Vec3<T> const& t);
+ //   explicit Mat4(Quat<T> const &q);
+	//explicit Mat4(Quat<T> const &q, Vec3<T> const& t);
+
+	explicit inline Mat4(Quat<T> const &q)
+	{
+		*this = Mat4(Mat3<T>(q), (T)1.0);
+	}
+	explicit inline Mat4(Quat<T> const &q, Vec3<T> const& t)
+	{
+		*this = Mat4(Mat3<T>(q), t);
+	}
 
     inline Vec4<T>& operator[](size_t n) { return (&v0)[n]; }
     inline Vec4<T> const& operator[](size_t n) const { return (&v0)[n]; }

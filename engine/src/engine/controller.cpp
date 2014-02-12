@@ -82,8 +82,8 @@ void Controller::UpdateRenderCamera( float DeltaSeconds )
 
 	// Compute proj matrix
 	SDL_DisplayMode DisplayMode = g_pEngine->GetDisplayMode();
-	m_RenderView.m_fParameters[eCP_ASPECTRATIO] = (float)DisplayMode.w / (float)DisplayMode.h;
-	m_RenderProjMatrix = mat4::perspective_fov( m_RenderView.m_fParameters[eCP_FOV], (float)DisplayMode.w, (float)DisplayMode.h, m_RenderView.m_fParameters[eCP_NEARPLANE], m_RenderView.m_fParameters[eCP_FARPLANE] );
+	m_RenderView.m_fParameters[eCP_ASPECT] = (float)DisplayMode.w / (float)DisplayMode.h;
+	m_RenderProjMatrix = mat4::perspective_fov( m_RenderView.m_fParameters[eCP_FOV], (float)DisplayMode.w, (float)DisplayMode.h, m_RenderView.m_fParameters[eCP_NEAR], m_RenderView.m_fParameters[eCP_FAR] );
 }
 
 void Controller::OnInputX( uint32 ModifierFlags, float Delta )
