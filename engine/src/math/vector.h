@@ -1796,10 +1796,10 @@ template <typename T> struct /*BIGBALL_API*/ Mat4
         v2(mat[2], (T)0),
         v3((T)0, (T)0, (T)0, val) {}
 
-	explicit inline Mat4(Mat3<T> mat, Vec3<T> trans)
-	  : v0(mat[0], (T)0),
-		v1(mat[1], (T)0),
-		v2(mat[2], (T)0),
+	explicit inline Mat4(Mat3<T> mat, Vec3<T> trans, T scale)
+	  : v0(mat[0]*scale, (T)0),
+		v1(mat[1]*scale, (T)0),
+		v2(mat[2]*scale, (T)0),
 		v3(trans,  (T)1) {}
 
  //   explicit Mat4(Quat<T> const &q);
@@ -1809,9 +1809,9 @@ template <typename T> struct /*BIGBALL_API*/ Mat4
 	{
 		*this = Mat4(Mat3<T>(q), (T)1.0);
 	}
-	explicit inline Mat4(Quat<T> const &q, Vec3<T> const& t)
+	explicit inline Mat4(Quat<T> const &q, Vec3<T> const& trans, T scale)
 	{
-		*this = Mat4(Mat3<T>(q), t);
+		*this = Mat4(Mat3<T>(q), trans, scale);
 	}
 
     inline Vec4<T>& operator[](size_t n) { return (&v0)[n]; }

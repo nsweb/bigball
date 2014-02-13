@@ -11,7 +11,7 @@ CLASS_EQUIP_CPP(CameraCtrl_Base);
 CLASS_EQUIP_CPP(CameraCtrl_Fly);
 
 CameraView::CameraView() :
-	m_Transform( dquat(1.), dvec3(0.) )
+	m_Transform( dquat(1.), dvec3(0.), 1. )
 {
 	m_fParameters[eCP_FOV] = 55.0f;
 	m_fParameters[eCP_ASPECT] = 16.0f / 9.0f;

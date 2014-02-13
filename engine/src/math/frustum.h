@@ -127,7 +127,6 @@ public:
 	{
 		// check box outside/inside of frustum
 		int SumOut = 0;
-		float d;
 		for( int i = 0; i < eFP_MAX; i++ )
 		{
 			int Out = 0;
@@ -154,6 +153,27 @@ public:
 		Out=0; for( int i=0; i < eFPT_MAX; i++ ) Out += ((m_Points[i].z < BoxMin.z) ? 1 : 0); if( Out==eFPT_MAX ) return Outside;
 
 		return SumOut > 0 ? Intersect : FullyInside;
+	}
+
+	eIntersectionStatus SphereIntersection( Vec3<T> const& SphereCenter, T SphereRadius )
+	{
+		Vec4<T> VSphere( SphereCenter, (T)1.0 );
+		int In = 0;
+		float d;
+		if( (d = dot( m_Planes[eFP_Near], VSphere )) < -SphereRadius ) return Outside;
+		In += d > SphereRadius ? 1 : 0;
+		if( (d = dot( m_Planes[eFP_Far], VSphere )) < -SphereRadius ) return Outside;
+		In += d > SphereRadius ? 1 : 0;
+		if( (d = dot( m_Planes[eFP_Right], VSphere )) < -SphereRadius ) return Outside;
+		In += d > SphereRadius ? 1 : 0;
+		if( (d = dot( m_Planes[eFP_Left], VSphere )) < -SphereRadius ) return Outside;
+		In += d > SphereRadius ? 1 : 0;
+		if( (d = dot( m_Planes[eFP_Top], VSphere )) < -SphereRadius ) return Outside;
+		In += d > SphereRadius ? 1 : 0;
+		if( (d = dot( m_Planes[eFP_Bottom], VSphere )) < -SphereRadius ) return Outside;
+		In += d > SphereRadius ? 1 : 0;
+
+		return In < 6 ? Intersect : FullyInside;
 	}
 
     Vec4<T> m_Planes[eFP_MAX];
