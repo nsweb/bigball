@@ -18,6 +18,7 @@ struct BIGBALL_API RenderContext
 	mat4		m_ProjMat;
 	float		m_DeltaSeconds;
 	uint32		m_FrameIdx;
+	uint32		m_RenderMode;
 };
 
 } /* namespace bigball */

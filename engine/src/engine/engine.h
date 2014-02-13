@@ -28,6 +28,7 @@ protected:
 	Array<BaseManager*>		m_Managers;
 
 	uint32					m_FrameCount;
+	uint32					m_RenderMode;
 
 	virtual void	InitManagers();
 	virtual void	DestroyManagers();

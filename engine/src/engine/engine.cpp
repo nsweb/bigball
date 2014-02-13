@@ -18,7 +18,8 @@ Engine* g_pEngine = nullptr;
 
 Engine::Engine() :
 	m_MainWindow(nullptr),
-	m_FrameCount(0)
+	m_FrameCount(0),
+	m_RenderMode(0)
 {
 	
 }
@@ -177,6 +178,7 @@ void Engine::MainLoop()
 		RenderCtxt.m_ProjMat = Controller::GetStaticInstance()->GetRenderProjMatrix();
 		RenderCtxt.m_DeltaSeconds = DeltaSeconds;
 		RenderCtxt.m_FrameIdx = m_FrameCount++;
+		RenderCtxt.m_RenderMode = m_RenderMode;
 		for( int32 i = 0; i < m_Managers.size(); ++i )
 		{
 			m_Managers[i]->_Render( RenderCtxt );
@@ -227,6 +229,8 @@ void Engine::MainLoop()
 					// if escape is pressed, quit
 					if( Event.key.keysym.sym == SDLK_ESCAPE )
 						LoopStatus = 1; // set status to 1 to exit main loop
+					else if( Event.key.keysym.sym >= SDLK_F1 && Event.key.keysym.sym <= SDLK_F4 )
+						m_RenderMode = Event.key.keysym.sym - SDLK_F1;
 				}
 				break;
 			case SDL_MOUSEMOTION:
