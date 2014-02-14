@@ -164,6 +164,11 @@ void Engine::MainLoop()
 		glEnable( GL_DEPTH_TEST ); // enable depth-testing
 		glDepthFunc( GL_LESS ); // depth-testing interprets a smaller value as "closer"
 
+		if( m_RenderMode == 1 )
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		else
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 		TickContext TickCtxt;
 		TickCtxt.m_DeltaSeconds = DeltaSeconds;
 		TickCtxt.m_FrameIdx = m_FrameCount;

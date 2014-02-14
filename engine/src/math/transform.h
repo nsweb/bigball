@@ -26,15 +26,17 @@ template <typename T> struct /*BIGBALL_API*/ Transform
     inline BB_CONSTEXPR Transform(Quat<T> const& Rot, Vec3<T> const& Trans, T Scale) : m_Rotation(Rot), m_Translation(Trans), m_Scale(Scale) {}
 	inline BB_CONSTEXPR Transform(Vec3<T> const& Trans) : m_Rotation(1), m_Translation(Trans), m_Scale(1) {}
 
-    inline Quat<T>& GetRotation()					{ return m_Rotation;	}
-	inline Quat<T> const & GetRotation() const		{ return m_Rotation;	}
-	inline Vec3<T>& GetTranslation()				{ return m_Translation;	}
-	inline Vec3<T> const & GetTranslation()	const	{ return m_Translation;	}
-	inline T& GetScale()							{ return m_Scale;	}
-	inline T  GetScale() const						{ return m_Scale;	}
-	inline void	SetRotation( Quat<T> const& Rot )					{ m_Rotation = Rot;	}
-	inline void	SetTranslation( Vec3<T> const& Trans )				{ m_Translation = Trans; }
-	inline void Set( Quat<T> const& Rot, Vec3<T> const& Trans )		{ m_Rotation = Rot; m_Translation = Trans; }
+	inline Quat<T>& GetRotation()											{ return m_Rotation;	}
+	inline Quat<T> const & GetRotation() const								{ return m_Rotation;	}
+	inline Vec3<T>& GetTranslation()										{ return m_Translation;	}
+	inline Vec3<T> const & GetTranslation()	const							{ return m_Translation;	}
+	inline T& GetScale()													{ return m_Scale;		}
+	inline T  GetScale() const												{ return m_Scale;		}
+	inline void	SetRotation( Quat<T> const& Rot )							{ m_Rotation = Rot;		}
+	inline void	SetTranslation( Vec3<T> const& Trans )						{ m_Translation = Trans; }
+	inline void	SetScale( T Scale )											{ m_Scale = Scale;		}
+	inline void Set( Quat<T> const& Rot, Vec3<T> const& Trans )				{ m_Rotation = Rot; m_Translation = Trans; }
+	inline void Set( Quat<T> const& Rot, Vec3<T> const& Trans, T Scale )	{ m_Rotation = Rot; m_Translation = Trans; m_Scale = Scale; }
 	inline Transform<T> operator * ( Transform<T> const& B ) const
 	{
 		Transform<T> Ret;
