@@ -15,6 +15,7 @@ class BIGBALL_API Shader;
 struct BIGBALL_API RenderContext
 {
 	CameraView	m_View;
+	CameraView*	m_pFrustumView;
 	mat4		m_ProjMat;
 	float		m_DeltaSeconds;
 	uint32		m_FrameIdx;

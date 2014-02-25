@@ -16,6 +16,8 @@ namespace bigball
 
 Engine* g_pEngine = nullptr;
 
+static CameraView g_SavedFrustumView;
+
 Engine::Engine() :
 	m_MainWindow(nullptr),
 	m_FrameCount(0),
@@ -180,6 +182,7 @@ void Engine::MainLoop()
 		// Prepare rendering
 		RenderContext RenderCtxt;
 		RenderCtxt.m_View = Controller::GetStaticInstance()->GetRenderView();
+		RenderCtxt.m_pFrustumView = (m_RenderMode == 2 ? &g_SavedFrustumView : nullptr);
 		RenderCtxt.m_ProjMat = Controller::GetStaticInstance()->GetRenderProjMatrix();
 		RenderCtxt.m_DeltaSeconds = DeltaSeconds;
 		RenderCtxt.m_FrameIdx = m_FrameCount++;
@@ -235,7 +238,12 @@ void Engine::MainLoop()
 					if( Event.key.keysym.sym == SDLK_ESCAPE )
 						LoopStatus = 1; // set status to 1 to exit main loop
 					else if( Event.key.keysym.sym >= SDLK_F1 && Event.key.keysym.sym <= SDLK_F4 )
+					{
 						m_RenderMode = Event.key.keysym.sym - SDLK_F1;
+
+						if( m_RenderMode == 2 )
+							g_SavedFrustumView = Controller::GetStaticInstance()->GetRenderView();
+					}
 				}
 				break;
 			case SDL_MOUSEMOTION:

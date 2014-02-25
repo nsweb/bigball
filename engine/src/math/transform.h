@@ -77,13 +77,13 @@ template <typename T> struct /*BIGBALL_API*/ Transform
 	}
 	inline Vec3<T> TransformPosition( Vec3<T> const& V ) const
 	{
-		Vec3<T> Ret = Rotation*(V * m_Scale);
+		Vec3<T> Ret = m_Rotation*(V * m_Scale);
 		Ret += m_Translation;
 		return Ret;
 	}
 	inline Vec3<T> TransformVector( Vec3<T> const& V ) const
 	{
-		Vec3<T> Ret = Rotation*(V * m_Scale);
+		Vec3<T> Ret = m_Rotation*(V * m_Scale);
 		return Ret;
 	}
 
