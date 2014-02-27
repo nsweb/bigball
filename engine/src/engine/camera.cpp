@@ -398,7 +398,7 @@ bool CameraCtrl_Base::OnControllerInput( Camera* pCamera, ControllerInput const&
 }
 
 CameraCtrl_Fly::CameraCtrl_Fly() :
-	m_StrafeSpeed(10.0f),
+	m_StrafeSpeed(200.0f),
 	m_RotationSpeed(1000.0f)
 {
 
