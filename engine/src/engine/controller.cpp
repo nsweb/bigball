@@ -26,9 +26,9 @@ Controller::~Controller()
 void Controller::Create()
 {
 	// Create set of camera Ctrls
-	CameraCtrl_Fly* pCBH = new CameraCtrl_Fly();
-	m_CamCtrls.push_back( pCBH );
-	m_pActiveCamCtrl = pCBH;
+	//CameraCtrl_Fly* pCBH = new CameraCtrl_Fly();
+	//m_CamCtrls.push_back( pCBH );
+	//m_pActiveCamCtrl = pCBH;
 }
 void Controller::Destroy()
 {
@@ -51,6 +51,35 @@ void Controller::Tick( TickContext& TickCtxt )
 
 
 	UpdateRenderCamera( TickCtxt.m_DeltaSeconds );
+}
+
+void Controller::RegisterCameraCtrl( CameraCtrl_Base* pCamCtrl )
+{
+	m_CamCtrls.push_back( pCamCtrl );
+}
+
+void Controller::SetActiveCameraCtrl( Name const& CamCtrlName )
+{
+	for( int32 i = 0; i < m_CamCtrls.size(); ++i )
+	{
+		if( m_CamCtrls[i]->GetClassName() == CamCtrlName )
+		{
+			m_pActiveCamCtrl = m_CamCtrls[i];
+			break;
+		}
+	}
+}
+
+CameraCtrl_Base* Controller::GetCameraCtrl( Name const& CamCtrlName )
+{
+	for( int32 i = 0; i < m_CamCtrls.size(); ++i )
+	{
+		if( m_CamCtrls[i]->GetClassName() == CamCtrlName )
+		{
+			return m_CamCtrls[i];
+		}
+	}
+	return nullptr;
 }
 
 void Controller::AddCamera( Camera* pCamera )

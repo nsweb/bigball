@@ -33,6 +33,7 @@ protected:
 	virtual void	InitManagers();
 	virtual void	DestroyManagers();
 	virtual void	DeclareComponentsAndEntities();
+	virtual void	CreateGameCameras() = 0;
 };
 
 extern BIGBALL_API Engine* g_pEngine;

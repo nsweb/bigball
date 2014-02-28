@@ -54,6 +54,10 @@ public:
 	virtual void		Destroy();	
 	virtual void		Tick( struct TickContext& TickCtxt );
 
+	void				RegisterCameraCtrl( CameraCtrl_Base* pCamCtrl );
+	void				SetActiveCameraCtrl( Name const& CamCtrlName );
+	CameraCtrl_Base*	GetActiveCameraCtrl()			{ return m_pActiveCamCtrl;			}
+	CameraCtrl_Base*	GetCameraCtrl( Name const& CamCtrlName );
 	void				AddCamera( Camera* pCamera );
 	void				RemoveCamera( Camera* pCamera );
 	void				UpdateRenderCamera( float DeltaSeconds );

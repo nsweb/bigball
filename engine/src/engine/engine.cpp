@@ -96,6 +96,8 @@ bool Engine::Init( bool bCreateWindow )
 	// Declare available components and entities
 	DeclareComponentsAndEntities();
 
+	// Setup available cameractrl
+	CreateGameCameras();
 	
 	return true;
 }
@@ -146,6 +148,11 @@ void Engine::DeclareComponentsAndEntities()
 {
 	DECLARE_COMPONENT( CoPosition );
 	DECLARE_ENTITYPATTERN( Camera, Camera, (0), (0) );
+}
+
+void Engine::CreateGameCameras()
+{
+
 }
 
 //////////////////////////////////////////////////////////////////////////
