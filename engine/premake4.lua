@@ -47,7 +47,7 @@ solution "bigball_auto"
 
 		--libdirs { "../3rdparty/SDL2-2.0.1/lib/x86/$(Configuration)", "../3rdparty/glew-1.10.0/lib/release\Win32", "../3rdparty/tinyxml2/tinyxml2/bin/$(Platform)-$(Configuration)-Dll" } 
 		includedirs { "../3rdparty/SDL2-2.0.1/include", "../3rdparty/glew-1.10.0/include", "../3rdparty/tinyxml2" }
-		links { "user32", "gdi32" }
+		--links { "user32", "gdi32" }
 
 		SetTarget( "Debug", "x32" )
 		SetTarget( "Debug", "x64" )
