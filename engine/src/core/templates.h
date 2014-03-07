@@ -15,6 +15,14 @@ namespace bigball
 
 #define COUNT_OF(_Array)	(sizeof(_Array) / sizeof(_Array[0]))
 
+template< class T > 
+inline void swap( T& A, T& B )
+{
+	const T Tmp = A;
+	A = B;
+	B = Tmp;
+}
+
 #define CLASS_EQUIP_BASE_H( klass ) \
 private:\
 	static Name m_ClassName;\

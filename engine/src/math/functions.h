@@ -162,4 +162,3 @@ BB_GENERIC_FUNC_SIGNED(double)
 } /* namespace bigball */
 
 #endif // BB_MATHFUNCTIONS_H
-

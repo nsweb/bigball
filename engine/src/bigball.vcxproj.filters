@@ -110,6 +110,12 @@
     <ClInclude Include="math\frustum.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="core\radixsort.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="core\sort.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -187,6 +193,9 @@
     </ClCompile>
     <ClCompile Include="math\frustum.cpp">
       <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="core\radixsort.cpp">
+      <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
