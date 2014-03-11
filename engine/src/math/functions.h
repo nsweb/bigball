@@ -52,6 +52,9 @@ static inline float pow(float const &x, float const &y)
     return std::pow(x, y);
 }
 
+static inline double log(double const &x) { return std::log(x); }
+static inline float log(float const &x) { return std::log(x); }
+
 /* Our extensions */
 static inline void sincos(double const &x, double *s, double *c)
 {
