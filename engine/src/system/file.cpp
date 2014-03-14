@@ -280,6 +280,25 @@ size_t FileSize( char const* FileName )
 	return Size;
 }
 
+void ListFiles( char const* strSearch, Array<String>& OutFiles )
+{
+#if _WIN32 || _WIN64
+	WIN32_FIND_DATA FileInfo;
+	HANDLE hFind = FindFirstFile( strSearch, &FileInfo ) ;
+	if( hFind == INVALID_HANDLE_VALUE )
+		return;
+
+	OutFiles.push_back( FileInfo.cFileName );
+
+	while( FindNextFile( hFind, &FileInfo )  )
+	{
+		OutFiles.push_back( FileInfo.cFileName );
+	}
+
+	FindClose( hFind );
+#endif
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //void ListFiles( const LPWSTR _strSearchFile, vector<wstring>& _OutFiles )

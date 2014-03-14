@@ -51,7 +51,7 @@ private:
 /////////////////////////////////////////////////////////////////////
 BIGBALL_API bool FileExits( char const* FileName );
 BIGBALL_API size_t FileSize( char const* FileName );
-//BIGBALL_API void ListFiles( const LPWSTR _ustrSearchFile, vector<wstring>& _OutFiles );
+BIGBALL_API void ListFiles( char const* strSearch, Array<String>& OutFiles );
 
 
 #if _WIN32 || _WIN64

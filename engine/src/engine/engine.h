@@ -9,6 +9,16 @@ namespace bigball
 class BIGBALL_API BaseManager;
 //BIGBALL_TEMPLATE template class BIGBALL_API Array< BaseManager* >;
 
+struct BIGBALL_API CommandLine
+{
+	void Parse( int argc, char* argv[] );
+	bool IsCommand( String& CmdType );
+
+	Array<String> Tokens;
+	Array<String> Switches;
+};
+
+//////////////////////////////////////////////////////////////////////////
 class BIGBALL_API Engine
 {
 public:
@@ -18,12 +28,16 @@ public:
 	virtual bool	Init( bool bCreateWindow );
 	virtual void	Shutdown();
 	virtual void	MainLoop();
-	SDL_DisplayMode const& GetDisplayMode()		{ return m_DisplayMode;		}
+	virtual bool	RunCommand( String const& CmdType, Array<String> const& Switches, Array<String> const& Tokens );
+
+	SDL_DisplayMode const& GetDisplayMode()							{ return m_DisplayMode;		}
+	CommandLine&	GetCommandLine()								{ return m_CmdLine;			}
 
 protected:
 	SDL_Window*				m_MainWindow; 
 	SDL_DisplayMode			m_DisplayMode;
 	SDL_GLContext			m_GLContext; 
+	CommandLine				m_CmdLine;
 
 	Array<BaseManager*>		m_Managers;
 

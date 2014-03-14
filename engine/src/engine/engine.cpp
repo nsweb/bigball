@@ -277,4 +277,39 @@ void Engine::MainLoop()
 	}
 }
 
+bool Engine::RunCommand( String const& CmdType, Array<String> const& Switches, Array<String> const& Tokens )
+{
+	return false;
+}
+
+//////////////////////////////////////////////////////////////////////////
+void CommandLine::Parse( int argc, char* argv[] )
+{
+	String strArg;
+	for( int32 ArgIdx = 1; ArgIdx < argc; ++ArgIdx )
+	{
+		strArg = argv[ArgIdx];
+		if( strArg[0] == '-' )
+		{
+			// switch
+			Switches.push_back( strArg.c_str() + 1 );
+		}
+		else
+		{
+			// token
+			Tokens.push_back( strArg );
+		}
+	}
+}
+
+bool CommandLine::IsCommand( String& CmdType )
+{
+	if( Tokens.size() > 0 && Tokens[0].StartsWith( "cmd=" ) )
+	{
+		CmdType = Tokens[0].Sub( 4, Tokens[0].Len() - 4 );
+		return true;
+	}
+	return false;
+}
+
 }
