@@ -116,6 +116,9 @@
     <ClInclude Include="core\sort.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="core\json.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -195,6 +198,9 @@
       <Filter>math</Filter>
     </ClCompile>
     <ClCompile Include="core\radixsort.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="core\json.cpp">
       <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>

@@ -12,6 +12,11 @@ class BIGBALL_API EntityPattern;
 
 //BIGBALL_TEMPLATE template class BIGBALL_API Array<Component*>;
 
+namespace json
+{
+	class Object;
+};
+
 class BIGBALL_API Entity 
 {
 	CLASS_EQUIP_BASE_H(Entity)
@@ -32,7 +37,7 @@ public:
 
 	static Entity*	NewEntity()		{ return new Entity();	}
 
-	virtual void	Create( EntityPattern* Pattern, class tinyxml2::XMLDocument* Proto = nullptr );
+	virtual void	Create( EntityPattern* Pattern, class json::Object* Proto = nullptr );
 	virtual void	Destroy();	
 	virtual void	AddToWorld();
 	virtual void	RemoveFromWorld();

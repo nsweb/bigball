@@ -207,7 +207,7 @@ public:
         using namespace std;
         int old_count = Len();
         resize(Len() + s.Len());
-        memcpy(&(*this)[old_count], &s[0], Len() - old_count);
+        Memory::Memcpy(&(*this)[old_count], &s[0], Len() - old_count);
         return *this;
     }
 
@@ -228,7 +228,7 @@ public:
     {
         using namespace std;
         return Len() == s.Len()
-                && memcmp(c_str(), s.c_str(), Len()) == 0;
+                && Memory::Memcmp(c_str(), s.c_str(), Len()) == 0;
     }
 
     inline bool operator !=(String const &s) const
@@ -243,7 +243,7 @@ public:
         using namespace std;
         int sz_len = (int)strlen(sz);
         return Len() == sz_len
-                && memcmp(c_str(), sz, sz_len) == 0;
+                && Memory::Memcmp(c_str(), sz, sz_len) == 0;
     }
 
     inline bool operator !=(char const* sz) const

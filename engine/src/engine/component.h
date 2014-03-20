@@ -6,6 +6,11 @@
 
 namespace bigball
 {
+namespace json
+{
+	class Object;
+};
+
 class BIGBALL_API Entity;
 
 class BIGBALL_API Component 
@@ -16,7 +21,7 @@ public:
 						Component();
 	virtual				~Component();
 
-	virtual void		Create( Entity* Owner, class tinyxml2::XMLDocument* Proto = nullptr );
+	virtual void		Create( Entity* Owner, class json::Object* Proto = nullptr );
 	virtual void		Destroy();	
 	virtual void		AddToWorld();
 	virtual void		RemoveFromWorld();

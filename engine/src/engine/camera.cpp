@@ -2,6 +2,7 @@
 #include "../bigball.h"
 #include "camera.h"
 #include "controller.h"
+#include "../core/json.h"
 
 namespace bigball
 {
@@ -42,20 +43,24 @@ Camera::~Camera()
 {
 }
 
-void Camera::Create( EntityPattern* Pattern, class tinyxml2::XMLDocument* Proto )
+void Camera::Create( EntityPattern* Pattern, class json::Object* Proto )
 {
 	Super::Create( Pattern, Proto );
 
-	tinyxml2::XMLElement* RootElt = Proto->FirstChildElement();
-	tinyxml2::XMLElement* CameraElt = RootElt->FirstChildElement( "camera" );
-	if( CameraElt )
+	json::TokenIdx EntTok = Proto->GetToken( "entity", json::OBJECT );
+	json::TokenIdx CamTok = Proto->GetToken( "camera", json::OBJECT, EntTok );
+	//tinyxml2::XMLElement* RootElt = Proto->FirstChildElement();
+	//tinyxml2::XMLElement* CameraElt = RootElt->FirstChildElement( "camera" );
+	if( CamTok != INDEX_NONE )
 	{
 		char const* ParamNames[] = { "fov", "near", "far" };
 		for( int32 i = 0; i < COUNT_OF( ParamNames ); ++i )
 		{
-			tinyxml2::XMLElement* Elt = CameraElt->FirstChildElement( ParamNames[i] );
-			if( Elt )
-				Elt->QueryFloatText( &m_View.m_fParameters[i] );
+			json::TokenIdx ParamTok = Proto->GetToken( ParamNames[i], json::PRIMITIVE, CamTok );
+			//tinyxml2::XMLElement* Elt = CameraElt->FirstChildElement( ParamNames[i] );
+			if( ParamTok != INDEX_NONE )
+				m_View.m_fParameters[i] = Proto->GetFloatValue( ParamTok, m_View.m_fParameters[i] );
+				//Elt->QueryFloatText( &m_View.m_fParameters[i] );
 		}
 	}
 }

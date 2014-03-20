@@ -45,6 +45,11 @@ class BIGBALL_API Component;
 //BIGBALL_TEMPLATE template class BIGBALL_API Array<ComponentFactory>;
 //BIGBALL_TEMPLATE template class BIGBALL_API Array<EntityPattern>;
 
+namespace json
+{
+	class Object;
+};
+
 class BIGBALL_API EntityManager : public BaseManager 
 {
 	STATIC_MANAGER_H(EntityManager)
@@ -57,8 +62,8 @@ public:
 	virtual void		Destroy();	
 	virtual void		Tick( struct TickContext& TickCtxt );
 
-	Entity*				CreateEntity( char const* PatternName, class tinyxml2::XMLDocument* Proto = nullptr );
-	Entity*				CreateEntityFromXML( char const* XMLPath );
+	Entity*				CreateEntity( char const* PatternName, class json::Object* Proto = nullptr );
+	Entity*				CreateEntityFromJson( char const* JsonPath );
 
 	void				AddEntityToWorld( Entity* pEntity );
 	void				RemoveEntityFromWorld( Entity* pEntity );

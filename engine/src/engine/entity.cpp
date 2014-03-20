@@ -21,7 +21,7 @@ Entity::~Entity()
 	
 }
 
-void Entity::Create( EntityPattern* Pattern, class tinyxml2::XMLDocument* Proto )
+void Entity::Create( EntityPattern* Pattern, class json::Object* Proto )
 {
 	BB_ASSERT( m_State == Empty );
 

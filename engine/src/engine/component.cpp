@@ -17,7 +17,7 @@ Component::~Component()
 
 }
 
-void Component::Create( Entity* Owner, class tinyxml2::XMLDocument* Proto )
+void Component::Create( Entity* Owner, class json::Object* Proto )
 {
 	m_Owner = Owner;
 }

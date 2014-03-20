@@ -5,7 +5,7 @@
 #include "component.h"
 #include "entitymanager.h"
 #include "tickcontext.h"
-
+#include "../core/json.h"
 
 //DECLARE_ENTITY( PlanetId, PlanetClass, (COPLANET | CORENDER) )
 
@@ -50,7 +50,7 @@ void EntityManager::Tick( TickContext& TickCtxt )
 	}
 }
 
-Entity* EntityManager::CreateEntity( char const* PatternName, class tinyxml2::XMLDocument* Proto )
+Entity* EntityManager::CreateEntity( char const* PatternName, json::Object* Proto )
 {
 	int PatternIdx = m_EntityPatterns.FindByKey( Name(PatternName) );
 	if( PatternIdx == INDEX_NONE )
@@ -68,19 +68,29 @@ Entity* EntityManager::CreateEntity( char const* PatternName, class tinyxml2::XM
 	return NewEntity;
 }
 
-Entity* EntityManager::CreateEntityFromXML( char const* XMLPath )
+Entity* EntityManager::CreateEntityFromJson( char const* JsonPath )
 {
-	tinyxml2::XMLDocument XMLProto;
-	tinyxml2::XMLError err = XMLProto.LoadFile( XMLPath );
-	tinyxml2::XMLElement* RootElt = XMLProto.FirstChildElement();
-	String RootName( RootElt->Name() );
-	if( RootName == "entity" )
+	json::Object jsnObj;
+	if( jsnObj.ParseFile( JsonPath ) )
 	{
-		const char* PatternName = RootElt->Attribute( "pattern" );
-		return CreateEntity( PatternName, &XMLProto );
+		json::TokenIdx EntTok = jsnObj.GetToken( "entity", json::OBJECT );
+		json::TokenIdx PatTok = jsnObj.GetToken( "pattern", json::STRING, EntTok );
+		String strPattern;
+		jsnObj.GetStringValue( PatTok, strPattern );
+		return CreateEntity( strPattern.c_str(), &jsnObj );
 	}
 
-	BB_LOG( Entity, Error, "XML <%s> is not a valid entity prototype", XMLPath );
+	//tinyxml2::XMLDocument XMLProto;
+	//tinyxml2::XMLError err = XMLProto.LoadFile( XMLPath );
+	//tinyxml2::XMLElement* RootElt = XMLProto.FirstChildElement();
+	//String RootName( RootElt->Name() );
+	//if( RootName == "entity" )
+	//{
+	//	const char* PatternName = RootElt->Attribute( "pattern" );
+	//	return CreateEntity( PatternName, &XMLProto );
+	//}
+
+	BB_LOG( Entity, Error, "JSON file <%s> is not a valid entity prototype", JsonPath );
 
 	return nullptr;
 }

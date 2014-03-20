@@ -8,6 +8,11 @@
 namespace bigball
 {
 
+namespace json
+{
+	class Object;
+};
+
 enum BIGBALL_API eCameraParam
 {
 	eCP_FOV = 0,
@@ -38,7 +43,7 @@ public:
 
 	// Begin : Entity interface
 	static Entity*	NewEntity()		{ return new Camera();	}
-	virtual void	Create( EntityPattern* Pattern, class tinyxml2::XMLDocument* Proto = nullptr );
+	virtual void	Create( EntityPattern* Pattern, class json::Object* Proto = nullptr );
 	virtual void	Destroy();	
 	virtual void	AddToWorld();
 	virtual void	RemoveFromWorld();
