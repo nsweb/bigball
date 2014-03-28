@@ -49,13 +49,15 @@ public:
 			m_HashTable = (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );
 			Memory::Memset( m_HashTable, 0xFF, m_HashSize * sizeof(uint32) );
 
-			// Get some bytes for new entries
-			Pair* NewPairs	= new Pair[m_HashSize];/* (Pair*) Memory::Malloc( m_HashSize * sizeof(Pair) );*/		BB_ASSERT(NewPairs);
-			uint32* NewNext	= (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );	BB_ASSERT(NewNext);
-
-			// Copy old data if needed
+			Pair* NewPairs	= new Pair[m_HashSize];/* (Pair*) Memory::Malloc( m_HashSize * sizeof(Pair) );*/
+			// Copy old data
 			for( uint32 i = 0; i < m_NbActivePairs; ++i )
 				NewPairs[i] = m_Pairs[i];
+			BB_DELETE_ARRAY(m_Pairs);
+			m_Pairs = NewPairs;
+
+			BB_FREE(m_NextTable);
+			m_NextTable	= (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );
 
 			for( uint32 i=0; i < m_NbActivePairs; i++ )
 			{
@@ -63,14 +65,6 @@ public:
 				m_NextTable[i] = m_HashTable[HashValue];
 				m_HashTable[HashValue] = i;
 			}
-
-			// Delete old data
-			BB_FREE(m_NextTable);
-			BB_DELETE_ARRAY(m_Pairs);
-
-			// Assign new pointer
-			m_Pairs = NewPairs;
-			m_NextTable = NewNext;
 		}
 	}
 
@@ -103,7 +97,7 @@ public:
 		return &m_Pairs[Offset];
 	}
 
-	const Pair*	Add( K const& Key, V const& Value )
+	Pair* Add( K const& Key, V const& Value )
 	{
 		// Compute hash value for this key
 		uint32 HashValue = ((Hash<K> const &)*this)(Key) & m_Mask;
