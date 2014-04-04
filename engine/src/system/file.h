@@ -30,7 +30,7 @@ public:
 	bool				HasAsyncIOCompleted();
 
 	template<typename K>
-	uint32				Serialize( K& Val )			{ return Serialize( &K, sizeof(K) );		}
+	uint32				Serialize( K& Val )			{ return Serialize( &Val, sizeof(K) );		}
 	uint32				Serialize( void* pBuffer, uint32 Size );
 	uint32				SerializeString( String& BufferStr );
 	bool				SerializeAsync( void* pBuffer, uint32 Size );
