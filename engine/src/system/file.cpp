@@ -63,7 +63,7 @@ bool File::Open( char const* FileName, eAccessMode Access, bool bAsync )
 void File::Close()
 {
 #if _WIN32 || _WIN64
-	if( m_FileHandle && m_FileHandle == INVALID_HANDLE_VALUE )
+	if( m_FileHandle && m_FileHandle != INVALID_HANDLE_VALUE )
 		CloseHandle( m_FileHandle );
 #else
 	if( m_FileHandle )
