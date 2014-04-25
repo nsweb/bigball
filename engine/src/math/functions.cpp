@@ -26,5 +26,16 @@ bool IsPowerOfTwo( uint32 x )
 	return (x != 0) && ((x & (x - 1)) == 0);
 }
 
+// transforms even the sequence 0,1,2,3,... into reasonably good random numbers 
+// challenge: improve on this in speed and "randomness"!
+uint32 randhash(uint32 seed)
+{
+	uint32 i=(seed^12345391u)*2654435769u;
+	i^=(i<<6)^(i>>26);
+	i*=2654435769u;
+	i+=(i<<5)^(i>>12);
+	return i;
+}
+
 } /* namespace bigball */
 
