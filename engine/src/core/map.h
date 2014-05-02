@@ -251,6 +251,27 @@ public:
 		return true;
 	}
 
+#if 0
+	void Serialize( File* DataFile )
+	{
+		if( DataFile->IsReading() )
+		{
+			uint32 NewHashSize = 0;
+			DataFile->Serialize( NewHashSize );
+			reserve( NewHashSize );
+		}
+		else
+		{
+			DataFile->Serialize( m_HashSize );
+		}
+
+		DataFile->Serialize( m_NbActivePairs );
+		DataFile->Serialize( m_Pairs, sizeof(Pair) * m_NbActivePairs );
+		DataFile->Serialize( m_HashTable, sizeof(uint32) * m_HashSize );
+		DataFile->Serialize( m_NextTable, sizeof(uint32) * m_HashSize );
+	}
+#endif
+
 	uint32 GetPairCount()			{ return m_NbActivePairs; }
 	Pair* GetPairAt( uint32 Index )	{ BB_ASSERT(Index >= 0 && Index < m_NbActivePairs); return &m_Pairs[Index]; }
 
