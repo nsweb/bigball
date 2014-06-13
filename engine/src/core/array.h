@@ -277,7 +277,7 @@ public:
 	inline int size_reserved() const { return m_reserved; }
     inline int Bytes() const { return m_count * sizeof(Element); }
 
-	int find( const Element& Item )
+	int find( const Element& Item ) const
 	{
 		for( int i = 0; i < m_count; ++i )
 		{
@@ -288,7 +288,7 @@ public:
 	}
 
 	template <typename KeyType>
-	int FindByKey( const KeyType& Key )
+	int FindByKey( const KeyType& Key ) const
 	{
 		for( int i = 0; i < m_count; ++i )
 		{
