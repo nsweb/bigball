@@ -43,6 +43,7 @@ protected:
 
 	uint32					m_FrameCount;
 	uint32					m_RenderMode;
+	bool					m_bShowCulling;
 
 	virtual void	InitManagers();
 	virtual void	DestroyManagers();

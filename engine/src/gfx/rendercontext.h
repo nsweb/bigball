@@ -14,6 +14,14 @@ class BIGBALL_API Shader;
 
 struct BIGBALL_API RenderContext
 {
+	enum eRenderMode
+	{
+		eRM_Lit,
+		eRM_Wireframe,
+		eRM_ColorCell,
+		eRM_DataCell,
+	};
+
 	CameraView	m_View;
 	CameraView*	m_pFrustumView;
 	mat4		m_ProjMat;

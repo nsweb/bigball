@@ -21,7 +21,8 @@ static CameraView g_SavedFrustumView;
 Engine::Engine() :
 	m_MainWindow(nullptr),
 	m_FrameCount(0),
-	m_RenderMode(0)
+	m_RenderMode(RenderContext::eRM_Lit),
+	m_bShowCulling(false)
 {
 	
 }
@@ -53,7 +54,7 @@ bool Engine::Init( bool bCreateWindow )
 
     /* Create our window centered at 512x512 resolution */
     m_MainWindow = SDL_CreateWindow("GL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                  640/*1280*/, 480/*720*/, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+                                  800/*1280*/, 600/*720*/, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if( !m_MainWindow ) /* Die if creation failed */
 	{
       //  sdldie("Unable to create window");
@@ -173,7 +174,7 @@ void Engine::MainLoop()
 		glEnable( GL_DEPTH_TEST ); // enable depth-testing
 		glDepthFunc( GL_LESS ); // depth-testing interprets a smaller value as "closer"
 
-		if( m_RenderMode == 1 )
+		if( m_RenderMode == RenderContext::eRM_Wireframe )
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		else
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -189,7 +190,7 @@ void Engine::MainLoop()
 		// Prepare rendering
 		RenderContext RenderCtxt;
 		RenderCtxt.m_View = Controller::GetStaticInstance()->GetRenderView();
-		RenderCtxt.m_pFrustumView = (m_RenderMode == 2 ? &g_SavedFrustumView : nullptr);
+		RenderCtxt.m_pFrustumView = (m_bShowCulling ? &g_SavedFrustumView : nullptr);
 		RenderCtxt.m_ProjMat = Controller::GetStaticInstance()->GetRenderProjMatrix();
 		RenderCtxt.m_DeltaSeconds = DeltaSeconds;
 		RenderCtxt.m_FrameIdx = m_FrameCount++;
@@ -247,8 +248,11 @@ void Engine::MainLoop()
 					else if( Event.key.keysym.sym >= SDLK_F1 && Event.key.keysym.sym <= SDLK_F4 )
 					{
 						m_RenderMode = Event.key.keysym.sym - SDLK_F1;
-
-						if( m_RenderMode == 2 )
+					}
+					else if( Event.key.keysym.sym == SDLK_c )
+					{
+						m_bShowCulling = !m_bShowCulling;
+						if( m_bShowCulling )
 							g_SavedFrustumView = Controller::GetStaticInstance()->GetRenderView();
 					}
 				}
