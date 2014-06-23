@@ -1,0 +1,329 @@
+
+#ifndef BB_COREMAP_RH_H
+#define BB_COREMAP_RH_H
+
+#include "hash.h"
+
+namespace bigball
+{
+
+/** Implementation of robin hood hashing */
+template<typename K, typename V> 
+class MapRH : protected Hash<K>
+{
+public:
+	struct Pair
+	{
+		K Key;
+		V Value;
+	};
+
+	MapRH() :
+		m_Pairs(nullptr),
+		m_HashTable(nullptr),
+		//m_NextTable(nullptr),
+		m_HashSize(0),
+		m_Mask(0),
+		m_NbActivePairs(0)
+	{
+
+	}
+	~MapRH()
+	{
+		BB_DELETE_ARRAY(m_Pairs);
+		BB_FREE(m_HashTable);
+		//BB_FREE(m_NextTable);
+		m_HashSize = 0;
+		m_Mask = 0;
+		m_NbActivePairs = 0;
+	}
+
+	uint32 hash_key( K const& Key )
+	{			
+		uint32 HashValue = ((Hash<K> const &)*this)(Key) & m_Mask;
+ 
+		// MSB is used to indicate a deleted elem, so
+		// clear it
+		HashValue &= 0x7fffffff;
+ 
+		// Ensure that we never return 0 as a hash,
+		// since we use 0 to indicate that the elem has never
+		// been used at all.
+		HashValue |= HashValue==0;
+		return HashValue; 
+	}
+
+	static bool is_deleted( uint32 HashValue )
+	{
+		// MSB set indicates that this hash is a "tombstone"
+		return (HashValue >> 31) != 0;
+	}
+ 
+	int probe_distance(uint32 HashValue, uint32 slot_index) const
+	{	
+		return (slot_index + m_HashSize - desired_pos(HashValue)) & m_Mask;
+	}
+
+	uint32 desired_pos( uint32 HashValue ) const
+	{
+		return HashValue & m_Mask;
+	}
+ 
+	uint32& elem_hash(uint32 ix)
+	{
+		return m_HashTable[ix];
+	}
+
+	void reserve( uint32 HashSize )
+	{
+		if( HashSize > m_HashSize )
+		{
+			// Get more entries
+			m_HashSize = (bigball::IsPowerOfTwo(HashSize) ? HashSize : bigball::NextPowerOfTwo(HashSize));
+			m_Mask = m_HashSize - 1;
+
+			BB_FREE(m_HashTable);
+			m_HashTable = (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );
+			Memory::Memset( m_HashTable, 0xFF, m_HashSize * sizeof(uint32) );
+
+			Pair* NewPairs	= new Pair[m_HashSize];/* (Pair*) Memory::Malloc( m_HashSize * sizeof(Pair) );*/
+			// Copy old data
+			for( uint32 i = 0; i < m_NbActivePairs; ++i )
+				NewPairs[i] = m_Pairs[i];
+			BB_DELETE_ARRAY(m_Pairs);
+			m_Pairs = NewPairs;
+
+			//BB_FREE(m_NextTable);
+			//m_NextTable	= (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );
+
+			for( uint32 i=0; i < m_NbActivePairs; i++ )
+			{
+				uint32 HashValue = hash_key( m_Pairs[i].Key );
+				//m_NextTable[i] = m_HashTable[HashValue];
+				//m_HashTable[HashValue] = i;
+				// FIXME : copy old values
+			}
+		}
+	}
+
+	const Pair*	Find( K const& Key ) const
+	{
+		if( !m_HashTable )	return nullptr;	// Nothing has been allocated yet
+
+		// Compute hash value for this key
+		uint32 HashValue = hash_key( Key );
+		return Find( Key, HashValue );
+	}
+
+	Pair* Find( K const& Key, uint32 HashValue ) const
+	{
+		if( !m_HashTable )	return nullptr;	// Nothing has been allocated yet
+
+		// Look for it in the table
+		uint32 Offset = m_HashTable[HashValue];
+
+		while( Offset != INDEX_NONE && m_Pairs[Offset].Key != Key )
+		{
+			//BB_ASSERT(m_Pairs[Offset].mID0!=INVALID_USER_ID);
+			Offset = m_NextTable[Offset];		// Better to have a separate array for this
+		}
+		if( Offset == INDEX_NONE )	return nullptr;
+
+		BB_ASSERT( Offset < m_Pairs.size() );
+		// Match m_Pairs[Offset] => the pair is persistent
+		return &m_Pairs[Offset];
+	}
+
+	Pair* Add( K const& Key, V const& Value )
+	{
+		// Compute hash value for this key
+		uint32 HashValue = hash_key( Key );
+		Pair* P = Find(Key, HashValue);
+		if(P)
+			return P;	// Persistent pair
+
+		// This is a new pair
+		reserve( m_NbActivePairs + 1 );
+		//if( m_NbActivePairs >= m_HashSize )
+		//{
+		//	// Get more entries
+		//	m_HashSize = bigball::NextPowerOfTwo(m_NbActivePairs + 1);
+		//	m_Mask = m_HashSize - 1;
+
+		//	BB_FREE(m_HashTable);
+		//	m_HashTable = (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );
+		//	Memory::Memset( m_HashTable, 0xFF, m_HashSize * sizeof(uint32) );
+
+		//	// Get some bytes for new entries
+		//	Pair* NewPairs	= new Pair[m_HashSize];/* (Pair*) Memory::Malloc( m_HashSize * sizeof(Pair) );*/		BB_ASSERT(NewPairs);
+		//	uint32* NewNext	= (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );	BB_ASSERT(NewNext);
+
+		//	// Copy old data if needed
+		//	for( uint32 i = 0; i < m_NbActivePairs; ++i )
+		//		NewPairs[i] = m_Pairs[i];
+
+		//	for( uint32 i=0; i < m_NbActivePairs; i++ )
+		//	{
+		//		uint32 HashValue = ((Hash<K> const &)*this)(m_Pairs[i].Key) & m_Mask;
+		//		m_NextTable[i] = m_HashTable[HashValue];
+		//		m_HashTable[HashValue] = i;
+		//	}
+
+		//	// Delete old data
+		//	BB_FREE(m_NextTable);
+		//	BB_DELETE_ARRAY(m_Pairs);
+
+		//	// Assign new pointer
+		//	m_Pairs = NewPairs;
+		//	m_NextTable = NewNext;
+
+		//	// Recompute hash value with new hash size
+		//	HashValue = ((Hash<K> const &)*this)(Key) & m_Mask;
+		//}
+
+		// Recompute hash value with new hash size
+		HashValue = hash_key( Key );
+
+		Pair* p = &m_Pairs[m_NbActivePairs];
+		p->Key = Key;
+		p->Value = Value;
+
+		m_NextTable[m_NbActivePairs] = m_HashTable[HashValue];
+		m_HashTable[HashValue] = m_NbActivePairs++;
+
+		return p;
+	}
+
+	inline uint32 GetPairIndex(const Pair* pair) const
+	{
+		return ((uint32)((size_t(pair) - size_t(m_Pairs))) / sizeof(Pair));
+	}
+
+	bool Remove( K const& Key )
+	{
+		const uint32 HashValue = hash_key( Key );
+		const Pair* P = Find( Key, HashValue );
+		if(!P)	return false;
+		BB_ASSERT(P->Key==Key);
+
+		const uint32 PairIndex = GetPairIndex(P);
+
+		// Walk the hash table to fix m_NextTable
+		uint32 Offset = m_HashTable[HashValue];
+		BB_ASSERT(Offset!=INDEX_NONE);
+
+		uint32 Previous=INDEX_NONE;
+		while(Offset!=PairIndex)
+		{
+			Previous = Offset;
+			Offset = m_NextTable[Offset];
+		}
+
+		// Let us go/jump us
+		if(Previous!=INDEX_NONE)
+		{
+			BB_ASSERT(m_NextTable[Previous]==PairIndex);
+			m_NextTable[Previous] = m_NextTable[PairIndex];
+		}
+		// else we were the first
+		else 
+			m_HashTable[HashValue] = m_NextTable[PairIndex];
+		// we're now free to reuse next[pairIndex] without breaking the list
+
+#ifdef _DEBUG
+		m_NextTable[PairIndex]=INDEX_NONE;
+#endif
+
+		// Fill holes
+		if(1)
+		{
+			// 1) Remove last pair
+			const uint32 LastPairIndex = m_NbActivePairs-1;
+			if(LastPairIndex==PairIndex)
+			{
+				m_NbActivePairs--;
+				return true;
+			}
+
+			const Pair* Last = &m_Pairs[LastPairIndex];
+			const uint32 LastHashValue = hash_key( Last->Key );
+
+			// Walk the hash table to fix m_NextTable
+			uint32 Offset = m_HashTable[LastHashValue];
+			BB_ASSERT(Offset!=INDEX_NONE);
+
+			uint32 Previous=INDEX_NONE;
+			while(Offset!=LastPairIndex)
+			{
+				Previous = Offset;
+				Offset = m_NextTable[Offset];
+			}
+
+			// Let us go/jump us
+			if(Previous!=INDEX_NONE)
+			{
+				BB_ASSERT(m_NextTable[Previous]==LastPairIndex);
+				m_NextTable[Previous] = m_NextTable[LastPairIndex];
+			}
+			// else we were the first
+			else m_HashTable[LastHashValue] = m_NextTable[LastPairIndex];
+			// we're now free to reuse m_NextTable[LastPairIndex] without breaking the list
+
+#ifdef _DEBUG
+			m_NextTable[LastPairIndex]=INDEX_NONE;
+#endif
+
+			// Don't invalidate entry since we're going to shrink the array
+
+			// 2) Re-insert in free slot
+			m_Pairs[PairIndex] = m_Pairs[LastPairIndex];
+#ifdef _DEBUG
+			BB_ASSERT(m_NextTable[PairIndex]==INDEX_NONE);
+#endif
+			m_NextTable[PairIndex] = m_HashTable[LastHashValue];
+			m_HashTable[LastHashValue] = PairIndex;
+
+			m_NbActivePairs--;
+		}
+		return true;
+	}
+
+#if 0
+	void Serialize( File* DataFile )
+	{
+		if( DataFile->IsReading() )
+		{
+			uint32 NewHashSize = 0;
+			DataFile->Serialize( NewHashSize );
+			reserve( NewHashSize );
+		}
+		else
+		{
+			DataFile->Serialize( m_HashSize );
+		}
+
+		DataFile->Serialize( m_NbActivePairs );
+		DataFile->Serialize( m_Pairs, sizeof(Pair) * m_NbActivePairs );
+		DataFile->Serialize( m_HashTable, sizeof(uint32) * m_HashSize );
+		//DataFile->Serialize( m_NextTable, sizeof(uint32) * m_HashSize );
+	}
+#endif
+
+	uint32 GetPairCount()			{ return m_NbActivePairs; }
+	Pair* GetPairAt( uint32 Index )	{ BB_ASSERT(Index >= 0 && Index < m_NbActivePairs); return &m_Pairs[Index]; }
+
+public:
+	Pair*			m_Pairs;
+	uint32*			m_HashTable;
+	//uint32*			m_NextTable;
+	uint32			m_HashSize;
+	uint32			m_Mask;
+	uint32			m_NbActivePairs;
+
+};
+
+} /* namespace bigball */
+
+
+#endif // BB_COREMAP_RH_H
+
