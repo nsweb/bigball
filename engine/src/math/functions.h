@@ -82,7 +82,6 @@ BIGBALL_API uint32 NextPowerOfTwo( uint32 x );
 BIGBALL_API bool IsPowerOfTwo( uint32 x );
 BIGBALL_API uint32 randhash(uint32 seed);
 
-
 /* C++ doesn't define abs() and fmod() for all types; we add these for
  * convenience to avoid adding complexity to vector.h. */
 static inline int8_t abs(int8_t x) { return std::abs(x); }

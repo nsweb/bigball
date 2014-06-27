@@ -119,6 +119,9 @@
     <ClInclude Include="core\json.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="math\intersections.h">
+      <Filter>math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -202,6 +205,9 @@
     </ClCompile>
     <ClCompile Include="core\json.cpp">
       <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="math\intersections.cpp">
+      <Filter>math</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
