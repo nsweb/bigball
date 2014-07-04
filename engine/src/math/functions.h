@@ -139,7 +139,7 @@ static inline double ceil(double x) { return std::ceil(x); }
     static inline T fract(T x) { return x - bigball::floor(x); } \
     static inline T min(T x, T y) { return std::min(x, y); } \
     static inline T max(T x, T y) { return std::max(x, y); } \
-    static inline T clamp(T x, T y, T z) { return min(max(x, y), z); }
+    static inline T clamp(T x, T a, T b) { return min(max(x, a), b); }
 
 #define BB_GENERIC_FUNC_SIGNED(T) \
     BB_GENERIC_FUNC(T) \

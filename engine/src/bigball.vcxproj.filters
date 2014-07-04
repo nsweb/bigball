@@ -122,6 +122,21 @@
     <ClInclude Include="math\intersections.h">
       <Filter>math</Filter>
     </ClInclude>
+    <ClInclude Include="system\thread.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="system\threadingutils.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="system\workerthreadmanager.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="system\task.h">
+      <Filter>system</Filter>
+    </ClInclude>
+    <ClInclude Include="system\lockfreequeue.h">
+      <Filter>system</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -208,6 +223,21 @@
     </ClCompile>
     <ClCompile Include="math\intersections.cpp">
       <Filter>math</Filter>
+    </ClCompile>
+    <ClCompile Include="system\thread.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="system\threadingutils.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="system\workerthreadmanager.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="system\task.cpp">
+      <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="system\lockfreequeue.cpp">
+      <Filter>system</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

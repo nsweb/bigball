@@ -200,6 +200,11 @@
     <ClInclude Include="math\transform.h" />
     <ClInclude Include="math\vector.h" />
     <ClInclude Include="system\file.h" />
+    <ClInclude Include="system\lockfreequeue.h" />
+    <ClInclude Include="system\task.h" />
+    <ClInclude Include="system\thread.h" />
+    <ClInclude Include="system\threadingutils.h" />
+    <ClInclude Include="system\workerthreadmanager.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
@@ -245,6 +250,11 @@
     <ClCompile Include="math\transform.cpp" />
     <ClCompile Include="math\vector.cpp" />
     <ClCompile Include="system\file.cpp" />
+    <ClCompile Include="system\lockfreequeue.cpp" />
+    <ClCompile Include="system\task.cpp" />
+    <ClCompile Include="system\thread.cpp" />
+    <ClCompile Include="system\threadingutils.cpp" />
+    <ClCompile Include="system\workerthreadmanager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
