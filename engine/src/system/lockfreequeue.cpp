@@ -3,13 +3,14 @@
 #include "../bigball.h"
 #include "lockfreequeue.h"
 
-TaskNode LockFreeQueue::ms_oNodeNull;
+#if 0
+TaskNode LockFreeQueue::ms_NodeNull;
 
 LockFreeQueue::LockFreeQueue()
 {
-	ms_oNodeNull.m_pNextNode = NULL;
-	m_oNodeTail.m_pNode = &ms_oNodeNull;
-	m_oNodeHead.m_pNode = &ms_oNodeNull;
+	ms_NodeNull.m_pNextNode = NULL;
+	m_NodeTail.m_pNode = &ms_NodeNull;
+	m_NodeHead.m_pNode = &ms_NodeNull;
 
 }
 LockFreeQueue::~LockFreeQueue()
@@ -31,7 +32,7 @@ void LockFreeQueue::Push( TaskNode* _pItem )
 	//
 	while( 1 )
 	{
-		ThreadTools::InterlockedExchange( &oTail , *(s64*)&m_oNodeTail );
+		ThreadTools::InterlockedExchange( &oTail , *(s64*)&m_NodeTail );
 
 		// if tail next if 0 replace it with new item
 		if( ThreadTools::InterlockedCompareExchange( &oTail.m_pNode->m_pNextNode, (s32)_pItem, 0 ) != 0 ) 
@@ -40,7 +41,7 @@ void LockFreeQueue::Push( TaskNode* _pItem )
 		// else push tail back until it reaches end
 		oNewTail.m_pCASCounter = oTail.m_pCASCounter+1;
 		oNewTail.m_pNode = oTail.m_pNode->m_pNextNode;
-		ThreadTools::InterlockedCompareExchange2( &m_oNodeTail, (s32)oTail.m_pNode->m_pNextNode, oTail.m_pCASCounter+1, (s32)oTail.m_pNode, oTail.m_pCASCounter );
+		ThreadTools::InterlockedCompareExchange2( &m_NodeTail, (s32)oTail.m_pNode->m_pNextNode, oTail.m_pCASCounter+1, (s32)oTail.m_pNode, oTail.m_pCASCounter );
 
 		ThreadTools::SpinLoop();
 	}
@@ -48,7 +49,7 @@ void LockFreeQueue::Push( TaskNode* _pItem )
 	// try and change tail pointer (it is also fixed in Pop)
 	oNewTail.m_pCASCounter = oTail.m_pCASCounter+1;
 	oNewTail.m_pNode = _pItem;
-	ThreadTools::InterlockedCompareExchange2( &m_oNodeTail, (s32)_pItem, oTail.m_pCASCounter+1, (s32)oTail.m_pNode, oTail.m_pCASCounter );
+	ThreadTools::InterlockedCompareExchange2( &m_NodeTail, (s32)_pItem, oTail.m_pCASCounter+1, (s32)oTail.m_pNode, oTail.m_pCASCounter );
 }
 
 TaskNode* LockFreeQueue::Pop()
@@ -57,8 +58,8 @@ TaskNode* LockFreeQueue::Pop()
 	//
 	while( 1 )
 	{
-		ThreadTools::InterlockedExchange( &oHead , *(s64*)&m_oNodeHead );
-		ThreadTools::InterlockedExchange( &oTail , *(s64*)&m_oNodeTail );
+		ThreadTools::InterlockedExchange( &oHead , *(s64*)&m_NodeHead );
+		ThreadTools::InterlockedExchange( &oTail , *(s64*)&m_NodeTail );
 		//
 		TaskNode* pNodeNext = oHead.m_pNode->m_pNextNode;
 
@@ -70,14 +71,15 @@ TaskNode* LockFreeQueue::Pop()
 				return 0;
 
 			// or is just tail falling behind...
-			ThreadTools::InterlockedCompareExchange2( &m_oNodeTail, (s32)pNodeNext, oTail.m_pCASCounter+1 , (int)oTail.m_pNode, oTail.m_pCASCounter );
+			ThreadTools::InterlockedCompareExchange2( &m_NodeTail, (s32)pNodeNext, oTail.m_pCASCounter+1 , (int)oTail.m_pNode, oTail.m_pCASCounter );
 		}
 		else
 		{
-			if( ThreadTools::InterlockedCompareExchange2( &m_oNodeHead, (s32)pNodeNext, oHead.m_pCASCounter+1 , (int)oHead.m_pNode, oHead.m_pCASCounter ) ) 
+			if( ThreadTools::InterlockedCompareExchange2( &m_NodeHead, (s32)pNodeNext, oHead.m_pCASCounter+1 , (int)oHead.m_pNode, oHead.m_pCASCounter ) ) 
 				return pNodeNext;
 		}
 		//
 		ThreadTools::SpinLoop();
 	}
 }
+#endif

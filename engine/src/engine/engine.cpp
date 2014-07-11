@@ -7,6 +7,7 @@
 #include "entitymanager.h"
 #include "../gfx/gfxmanager.h"
 #include "../gfx/rendercontext.h"
+#include "../system/workerthreadmanager.h"
 #include "coposition.h"
 #include "camera.h"
 #include "tickcontext.h"
@@ -121,6 +122,10 @@ void Engine::InitManagers()
 	//tinyxml2::XMLError err = TestDoc.LoadFile("../data/test.xml");
 	//tinyxml2::XMLElement* FirstElt = TestDoc.FirstChildElement();
 	//tinyxml2::XMLNode* FirstChild = TestDoc.FirstChild();
+
+	WorkerThreadManager* pWorkerThreadManager = new WorkerThreadManager();
+	pWorkerThreadManager->Create();
+	m_Managers.push_back( pWorkerThreadManager );
 
 	Controller* pController = new Controller();
 	pController->Create();

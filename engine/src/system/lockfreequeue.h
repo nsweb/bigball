@@ -2,6 +2,8 @@
 #ifndef BB_LOCKFREEQUEUE_H
 #define BB_LOCKFREEQUEUE_H 
 
+#include "threadingutils.h"
+
 namespace bigball
 {
 
@@ -23,7 +25,7 @@ public:
 	}
 	~CircularQueue()
 	{
-		SAFE_DELETE_ARRAY( m_pData );
+		BB_DELETE_ARRAY( m_pData );
 	}
 
 	void Resize( int32 _nSize )
@@ -44,7 +46,7 @@ public:
 
 			// barrier cpu & compiler 
 			ThreadTools::ReadWriteBarrier();	// compiler reordering
-			ThreadTools::MemoryBarrier();		// cpu reordering
+			ThreadTools::MemBarrier();		// cpu reordering
 
 			m_iWriteOffset = iNextElement;			// atomic op
 			return true;
@@ -63,7 +65,7 @@ public:
 
 		// barrier cpu & compiler 
 		ThreadTools::ReadWriteBarrier();	// compiler reordering
-		ThreadTools::MemoryBarrier();		// cpu reordering
+		ThreadTools::MemBarrier();		// cpu reordering
 
 		m_iReadOffset = iNextElement;				// [10/5/2010 serouart] Atomic
 		return true;
@@ -85,12 +87,9 @@ private:
 	int32		m_nQueueSize;
 };
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+#if 0
 
-
+//////////////////////////////////////////////////////////////////////////
 class BIGBALL_API CACHE_ALIGN LockFreeQueue
 {
 public:
@@ -111,11 +110,13 @@ public:
 
 
 private:
-	static TaskNode	ms_oNodeNull;
-	NodeCAS			m_oNodeHead;
-	NodeCAS			m_oNodeTail;
+	static TaskNode	ms_NodeNull;
+	NodeCAS			m_NodeHead;
+	NodeCAS			m_NodeTail;
 
 };
+
+#endif
 
 
 } /*namespace bigball*/

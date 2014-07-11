@@ -1,26 +1,26 @@
 
-#include "stdafx.h"
+#include "../bigball.h"
+#include "thread.h"
 
-
-#ifndef peTThread_h
-#include "peTThread.h"
-#endif
+namespace bigball
+{
 
 #define STATIC_TASK_QUEUE		20
 #define FINISHED_TASK_QUEUE		20
 
-peTThread::peTThread()
+
+Thread::Thread()
 {
 	m_hThread = NULL;
 }
-peTThread::~peTThread()
+Thread::~Thread()
 {
 
 }
 
-bool peTThread::Create()
+bool Thread::Create()
 {
-	u32 iThreadID;
+	uint32 iThreadID;
 	m_hThread = (HANDLE)_beginthreadex( NULL, 0, s_ThreadMain, this/*&hEvent*/, 0, &iThreadID );
 	if( m_hThread == NULL ) 
 	{
@@ -28,20 +28,20 @@ bool peTThread::Create()
 	}
 	return true;
 }
-void peTThread::Destroy()
+void Thread::Destroy()
 {
 	if( m_hThread )
 		CloseHandle( m_hThread );
 }
 
-void peTThread::ThreadMain()
+void Thread::ThreadMain()
 {
 
 }
 
-u32 peTThread::s_ThreadMain( void* _pArgs )
+uint32 Thread::s_ThreadMain( void* _pArgs )
 {
-	peTThread* pThread = static_cast<peTThread*>( _pArgs );
+	Thread* pThread = static_cast<Thread*>( _pArgs );
 	pThread->ThreadMain();
 
 	return 0;
@@ -53,36 +53,36 @@ u32 peTThread::s_ThreadMain( void* _pArgs )
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-peTWorkerThread::peTWorkerThread()
+WorkerThread::WorkerThread()
 {
 	m_pCurrentTask = NULL;
-	m_pTaskProxy = NULL;
+	//m_pTaskProxy = NULL;
 }
-peTWorkerThread::~peTWorkerThread()
+WorkerThread::~WorkerThread()
 {
 
 }
 
-bool peTWorkerThread::Create()
+bool WorkerThread::Create()
 {
 	m_bRunning = 1;
 	m_bExit = 0;
 	m_oStaticTaskQueue.Resize( STATIC_TASK_QUEUE );
 	m_oFinishedTaskQueue.Resize( FINISHED_TASK_QUEUE );
 
-	bool bSuccess = peTThread::Create();
-	bSuccess &= m_oBusyEvent.Create();
+	bool bSuccess = m_oBusyEvent.Create();
+	bSuccess &= Thread::Create();
 
 	return bSuccess;
 }
-void peTWorkerThread::Destroy()
+void WorkerThread::Destroy()
 {
 	m_oBusyEvent.Destroy();
 
-	peTThread::Destroy();
+	Thread::Destroy();
 }
 
-void peTWorkerThread::ThreadMain()
+void WorkerThread::ThreadMain()
 {
 	while( !m_bExit )
 	{
@@ -97,16 +97,16 @@ void peTWorkerThread::ThreadMain()
 
 		if( !m_bExit )
 		{
-			peTTask* pTask = NULL;
+			Task* pTask = NULL;
 
 			if( !m_oFinishedTaskQueue.IsFull() )
 			{
 				// [18/5/2010 serouart] First check local task queue
 				if( !m_oStaticTaskQueue.Pop( pTask ) )
 				{
-					peTTaskProxy* pTaskProxy = m_pTaskProxy;
-					if( pTaskProxy )
-						pTask = pTaskProxy->PopTask();
+					//TaskProxy* pTaskProxy = m_pTaskProxy;
+					//if( pTaskProxy )
+					//	pTask = pTaskProxy->PopTask();
 				}
 			}
 
@@ -124,31 +124,33 @@ void peTWorkerThread::ThreadMain()
 	}
 	m_bRunning = false;
 }
-void peTWorkerThread::PushTask( peTTask* _pTask )
+void WorkerThread::PushTask( Task* _pTask )
 {
 	m_oStaticTaskQueue.Push( _pTask );
 }
-peTTask* peTWorkerThread::PopFinishedTask()
+Task* WorkerThread::PopFinishedTask()
 {
-	peTTask* pTask = NULL;
+	Task* pTask = NULL;
 	m_oFinishedTaskQueue.Pop( pTask );
 	return pTask;
 }
-void peTWorkerThread::ForceBusy()
+void WorkerThread::ForceBusy()
 {
 	m_oBusyEvent.SetEvent();
 }
-void peTWorkerThread::SetExit()
+void WorkerThread::SetExit()
 {
 	m_bExit = true;
 	m_oBusyEvent.SetEvent();
 }
 
-void peTWorkerThread::SetTaskProxy( peTTaskProxy* _pTaskProxy )
+#if 0
+void WorkerThread::SetTaskProxy( TaskProxy* _pTaskProxy )
 {	
 	m_pTaskProxy = _pTaskProxy;
 	m_oBusyEvent.SetEvent();
 }
+#endif
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -156,22 +158,22 @@ void peTWorkerThread::SetTaskProxy( peTTaskProxy* _pTaskProxy )
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-peTThreadEvent::peTThreadEvent()
+ThreadEvent::ThreadEvent()
 {
 	m_hEvent = NULL;
 }
 
-peTThreadEvent::~peTThreadEvent()
+ThreadEvent::~ThreadEvent()
 {
 
 }
 
-bool peTThreadEvent::Create()
+bool ThreadEvent::Create()
 {
 	m_hEvent = ::CreateEventA( NULL, TRUE, TRUE, "ThreadEvent" );
 	return m_hEvent ? true:false;
 }
-void peTThreadEvent::Destroy()
+void ThreadEvent::Destroy()
 {
 	if( m_hEvent )
 	{
@@ -179,7 +181,7 @@ void peTThreadEvent::Destroy()
 	}
 }
 
-void peTThreadEvent::SetEvent()  // signal the event
+void ThreadEvent::SetEvent()  // signal the event
 {
 	if( m_hEvent )
 	{
@@ -187,7 +189,7 @@ void peTThreadEvent::SetEvent()  // signal the event
 	}
 }
 
-void peTThreadEvent::ResetEvent()
+void ThreadEvent::ResetEvent()
 {
 	if( m_hEvent )
 	{
@@ -195,10 +197,12 @@ void peTThreadEvent::ResetEvent()
 	}
 }
 
-void peTThreadEvent::WaitForSingleObject( u32 _nMs )
+void ThreadEvent::WaitForSingleObject( uint32 _nMs )
 {
 	if( m_hEvent )
 	{
 		::WaitForSingleObject( m_hEvent, _nMs );
 	}
 }
+
+} /*namespace bigball*/

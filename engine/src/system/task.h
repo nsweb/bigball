@@ -6,31 +6,30 @@
 namespace bigball
 {
 
-class BIGBALL_API LockFreeQueue;
+//class BIGBALL_API LockFreeQueue;
 
 struct BIGBALL_API TaskNode
 {
 	TaskNode*	m_pNextNode;
 };
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+
+/** Task executed in one frame by a worker thread */
 class BIGBALL_API Task : public TaskNode
 {
 public:
 	Task() : 
-		m_bCancelled(false),
-		m_pUserData(0),
-		m_iUserId(0)
-	{
-	}
+	  m_bCancelled(false),
+		  m_pUserData(0),
+		  m_iUserId(0)
+	  {
+	  }
 
-	virtual void Execute()									{	}
-	void SetUserData( void* _pUserData, uint32 _iUserId )	{ m_pUserData = _pUserData; m_iUserId = _iUserId; }
-	uint32 IsCancelled() const								{ return m_bCancelled;	}
-	void Cancel()											{ m_bCancelled = true;	}
+	  virtual void Execute() = 0;
+	  void SetUserData( void* _pUserData, uint32 _iUserId )	{ m_pUserData = _pUserData; m_iUserId = _iUserId; }
+	  uint32 IsCancelled() const							{ return m_bCancelled;	}
+	  void Cancel()											{ m_bCancelled = true;	}
+	  virtual bool IsAsync()								{ return false; }
 
 protected:
 
@@ -39,9 +38,22 @@ protected:
 	uint32              m_iUserId;
 };
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
+/** Task that may take multiple frames and executed by a worker thread */
+class BIGBALL_API AsyncTask : public Task
+{
+public:
+	AsyncTask()
+	{
+	}
+	virtual bool IsAsync()									{ return true; }
+	virtual void OnFinished() = 0;
+
+protected:
+
+};
+
+
+#if 0
 //////////////////////////////////////////////////////////////////////////
 class BIGBALL_API TaskGroup
 {
@@ -52,9 +64,6 @@ public:
 	Array<Task*>	m_vTask;
 };
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 class BIGBALL_API TaskProxy
 {
@@ -72,7 +81,7 @@ public:
 private:
 	LockFreeQueue*	m_pTaskQueue;
 };
-
+#endif
 
 } /*namespace bigball*/
 

@@ -14,6 +14,8 @@ namespace bigball
 #define BB_DELETE_ARRAY(p)	{ if(p) delete[](p); (p)=nullptr; }
 
 #define COUNT_OF(_Array)	(sizeof(_Array) / sizeof(_Array[0]))
+#define CACHE_LINE			32
+#define CACHE_ALIGN			__declspec(align(CACHE_LINE))
 
 template< class T > 
 inline void swap( T& A, T& B )

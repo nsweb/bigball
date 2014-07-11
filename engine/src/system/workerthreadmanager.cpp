@@ -5,7 +5,6 @@
 #include "thread.h"
 #include "threadingutils.h"
 
-#define WORKER_THREAD_POOL		4
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -17,9 +16,11 @@ namespace bigball
 
 STATIC_MANAGER_CPP( WorkerThreadManager )
 
-WorkerThreadManager::WorkerThreadManager()
-{
+#define WORKER_THREAD_POOL		4
 
+WorkerThreadManager::WorkerThreadManager() :
+	m_NbAsyncTasks(0)
+{
 	m_pStaticInstance = this;
 }
 
@@ -56,21 +57,37 @@ void WorkerThreadManager::Destroy()
 	{
 		WorkerThread* pWorker = m_vWorkerThreadPool[i];
 		pWorker->Destroy();
-		SAFE_DELETE( pWorker );
+		BB_DELETE( pWorker );
 	}
 	m_vWorkerThreadPool.clear();
 }
 
 void WorkerThreadManager::Tick( struct TickContext& TickCtxt )
 {
+	// Check end of async
+	while( Task* pTask = m_vWorkerThreadPool.Last()->PopFinishedTask() )
+	{
+		BB_ASSERT( pTask->IsAsync() );
+		((AsyncTask*)pTask)->OnFinished();
+		m_NbAsyncTasks--;
+	}
+}
 
+bool WorkerThreadManager::PushAsyncTask( AsyncTask* pTask )
+{
+	m_NbAsyncTasks++;
+
+	// Last worker thread is for async
+	m_vWorkerThreadPool.Last()->PushTask( pTask );
+
+	return true;
 }
 
 
 void WorkerThreadManager::WaitThreadFinish()
 {
 	bool bWaitFinish = true, bStillBusy;
-	u32 j, nPool = m_vWorkerThreadPool.size();
+	int32 j, nPool = m_vWorkerThreadPool.size();
 
 	while( bWaitFinish )
 	{

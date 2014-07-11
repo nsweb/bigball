@@ -10,34 +10,28 @@ namespace bigball
 {
 
 //////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-class peTThreadEvent
+class ThreadEvent
 {
 public:
-	peTThreadEvent();
-	~peTThreadEvent();
+	ThreadEvent();
+	~ThreadEvent();
 
 	bool	Create();
 	void	Destroy();
 	void	SetEvent();
 	void	ResetEvent();
-	void	WaitForSingleObject( u32 _nMs );
+	void	WaitForSingleObject( uint32 _nMs );
 
 private:
 	HANDLE		m_hEvent;
 };
 
 //////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-class peTThread
+class Thread
 {
 public:
-	peTThread();
-	virtual ~peTThread();
+	Thread();
+	virtual ~Thread();
 
 	virtual bool	Create();
 	virtual void	Destroy();
@@ -47,50 +41,40 @@ public:
 private:
 	HANDLE	m_hThread;
 
-	static u32 __stdcall s_ThreadMain( void* _pArgs );
+	static uint32 __stdcall s_ThreadMain( void* _pArgs );
 };
 
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
 
-class CACHE_ALIGN peTWorkerThread : public peTThread
+//////////////////////////////////////////////////////////////////////////
+class CACHE_ALIGN WorkerThread : public Thread
 {
 public:
-	peTWorkerThread();
-	virtual ~peTWorkerThread();
+	WorkerThread();
+	virtual ~WorkerThread();
 
 	virtual bool	Create();
 	virtual void	Destroy();
 
 	virtual void	ThreadMain();
 
-	void			PushTask( peTTask* _pTask );
-	peTTask*		PopFinishedTask();
+	void			PushTask( Task* _pTask );
+	Task*			PopFinishedTask();
 	void			SetExit();
 	void			ForceBusy();
-	void			SetTaskProxy( peTTaskProxy* _pTaskProxy );
-	u32				IsRunning()		{ return m_bRunning;	}
+	//void			SetTaskProxy(TaskProxy* _pTaskProxy );
+	uint32			IsRunning()		{ return m_bRunning;	}
 
 
-	//SwarmJob * getFinished(void)
-	//{
-	//	SwarmJob *ret = 0;
-	//	mFinished.pop(ret);
-	//	return ret;
-	//}
 
 private:
-	u32					m_bRunning;
-	u32					m_bExit;
+	uint32					m_bRunning;
+	uint32					m_bExit;
 
-	peTTaskProxy*		m_pTaskProxy;
-	peTThreadEvent		m_oBusyEvent;
-	//JobScheduler         *mJobScheduler;    // provides new jobs to perform
-	peTTask*						m_pCurrentTask;             // current job being worked on
-	peTCircularQueue<peTTask*>		m_oStaticTaskQueue;			// jobs that have been completed and may be reported back to the application.
-	peTCircularQueue<peTTask*>		m_oFinishedTaskQueue;		// jobs that have been completed and may be reported back to the application.
+	//TaskProxy*				m_pTaskProxy;
+	ThreadEvent				m_oBusyEvent;
+	Task*					m_pCurrentTask;             // current job being worked on
+	CircularQueue<Task*>	m_oStaticTaskQueue;			// jobs that have been completed and may be reported back to the application.
+	CircularQueue<Task*>	m_oFinishedTaskQueue;		// jobs that have been completed and may be reported back to the application.
 }; 
 
 
