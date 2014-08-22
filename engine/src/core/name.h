@@ -4,13 +4,13 @@
 #ifndef BB_CORENAME_H
 #define BB_CORENAME_H
 
-#include "map.h"
+#include "map_rh.h"
 
 namespace bigball
 {
 
 typedef uint32 NameHandle;
-typedef Map<String,NameHandle> NameMap;
+typedef MapRH<String,NameHandle> NameMap;
 
 class NameManager
 {
@@ -21,7 +21,7 @@ private:
 	void Init();
 
 public:
-	Map<String,NameHandle> m_StringTable;
+	NameMap m_StringTable;
 	//uint32 m_GlobalHandle;
 
 public:

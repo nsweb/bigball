@@ -37,7 +37,7 @@ public:
 
 	static Entity*	NewEntity()		{ return new Entity();	}
 
-	virtual void	Create( EntityPattern* Pattern, class json::Object* Proto = nullptr );
+	virtual void	Create( EntityPattern* Pattern, class json::Object* Proto = nullptr, Name InName = Name() );
 	virtual void	Destroy();	
 	virtual void	AddToWorld();
 	virtual void	RemoveFromWorld();
@@ -47,10 +47,12 @@ public:
 	bool			IsInWorld()		{ return m_State == InWorld; }
 	Component*		GetComponent( Name const& ComponentName );
 	Component*		GetCompatibleComponent( Name const& ComponentName );
+	Name const&		GetName()		{ return m_Name;			}
 
 protected:
-	State				m_State;
 	EntityPattern*		m_pPattern;
+	Name				m_Name;
+	State				m_State;
 
 };
 

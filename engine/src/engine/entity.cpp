@@ -21,11 +21,12 @@ Entity::~Entity()
 	
 }
 
-void Entity::Create( EntityPattern* Pattern, class json::Object* Proto )
+void Entity::Create( EntityPattern* Pattern, class json::Object* Proto, Name InName )
 {
 	BB_ASSERT( m_State == Empty );
 
 	m_pPattern = Pattern;
+	m_Name = InName;
 
 	// Create associated components
 	EntityManager* pEntityManager = EntityManager::GetStaticInstance();

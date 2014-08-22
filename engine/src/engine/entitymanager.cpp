@@ -50,7 +50,7 @@ void EntityManager::Tick( TickContext& TickCtxt )
 	}
 }
 
-Entity* EntityManager::CreateEntity( char const* PatternName, json::Object* Proto )
+Entity* EntityManager::CreateEntity( char const* PatternName, json::Object* Proto, Name InName )
 {
 	int PatternIdx = m_EntityPatterns.FindByKey( Name(PatternName) );
 	if( PatternIdx == INDEX_NONE )
@@ -61,14 +61,14 @@ Entity* EntityManager::CreateEntity( char const* PatternName, json::Object* Prot
 
 	EntityPattern& Pattern = m_EntityPatterns[PatternIdx];
 	Entity* NewEntity = Pattern.m_CreateFunc();
-	NewEntity->Create( &Pattern, Proto );
+	NewEntity->Create( &Pattern, Proto, InName );
 
 	m_Entities.push_back( NewEntity );
 	
 	return NewEntity;
 }
 
-Entity* EntityManager::CreateEntityFromJson( char const* JsonPath )
+Entity* EntityManager::CreateEntityFromJson( char const* JsonPath, Name InName )
 {
 	json::Object jsnObj;
 	if( jsnObj.ParseFile( JsonPath ) )
@@ -77,7 +77,7 @@ Entity* EntityManager::CreateEntityFromJson( char const* JsonPath )
 		json::TokenIdx PatTok = jsnObj.GetToken( "pattern", json::STRING, EntTok );
 		String strPattern;
 		jsnObj.GetStringValue( PatTok, strPattern );
-		return CreateEntity( strPattern.c_str(), &jsnObj );
+		return CreateEntity( strPattern.c_str(), &jsnObj, InName );
 	}
 
 	//tinyxml2::XMLDocument XMLProto;
@@ -142,6 +142,17 @@ ComponentFactory* EntityManager::FindComponentFactory( Name const& ComponentName
 	if( FactoryIdx != INDEX_NONE )
 		return &m_ComponentFactories[FactoryIdx];
 
+	return nullptr;
+}
+
+Entity* EntityManager::FindEntityByName( Name InName )
+{
+	for( int i = 0; i < m_Entities.size(); ++i )
+	{
+		Entity* pEntity = m_Entities[i];
+		if( pEntity->GetName() == InName )
+			return pEntity;
+	}
 	return nullptr;
 }
 

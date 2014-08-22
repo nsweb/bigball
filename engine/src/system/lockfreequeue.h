@@ -45,8 +45,8 @@ public:
 			m_pData[m_iWriteOffset] = _rElement;
 
 			// barrier cpu & compiler 
-			ThreadTools::ReadWriteBarrier();	// compiler reordering
-			ThreadTools::MemBarrier();		// cpu reordering
+			ThreadTools::CompilerBarrier();				// compiler reordering
+			ThreadTools::CPUBarrierWriteRelease();		// cpu reordering
 
 			m_iWriteOffset = iNextElement;			// atomic op
 			return true;
@@ -64,8 +64,8 @@ public:
 		_rElement = m_pData[m_iReadOffset];
 
 		// barrier cpu & compiler 
-		ThreadTools::ReadWriteBarrier();	// compiler reordering
-		ThreadTools::MemBarrier();		// cpu reordering
+		ThreadTools::CompilerBarrier();	// compiler reordering
+		ThreadTools::CPUBarrierReadAcquire();		// cpu reordering
 
 		m_iReadOffset = iNextElement;				// [10/5/2010 serouart] Atomic
 		return true;

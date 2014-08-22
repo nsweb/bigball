@@ -38,9 +38,9 @@ public:
 		m_NbActivePairs = 0;
 	}
 
-	uint32 hash_key( K const& Key )
+	uint32 hash_key( K const& Key ) const
 	{			
-		uint32 HashValue = ((Hash<K> const &)*this)(Key) & m_Mask;
+		uint32 HashValue = ((Hash<K> const &)*this)(Key);
  
 		// MSB is used to indicate a deleted elem, so
 		// clear it
@@ -73,42 +73,50 @@ public:
 	{
 		return m_HashTable[ix];
 	}
+	uint32 elem_hash(uint32 ix) const
+	{
+		return m_HashTable[ix];
+	}
 
 	void reserve( uint32 HashSize )
 	{
 		if( HashSize > m_HashSize )
 		{
 			// Get more entries
+			uint32 OldHashSize = m_HashSize;
+			Pair* OldPairs = m_Pairs;
+			uint32* OldHashTable = m_HashTable;
+
 			m_HashSize = (bigball::IsPowerOfTwo(HashSize) ? HashSize : bigball::NextPowerOfTwo(HashSize));
 			m_Mask = m_HashSize - 1;
 
-			BB_FREE(m_HashTable);
 			m_HashTable = (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );
-			Memory::Memset( m_HashTable, 0xFF, m_HashSize * sizeof(uint32) );
+			Memory::Memset( m_HashTable, 0, m_HashSize * sizeof(uint32) );			// flag all new elems as free
 
-			Pair* NewPairs	= new Pair[m_HashSize];/* (Pair*) Memory::Malloc( m_HashSize * sizeof(Pair) );*/
-			// Copy old data
-			for( uint32 i = 0; i < m_NbActivePairs; ++i )
-				NewPairs[i] = m_Pairs[i];
-			BB_DELETE_ARRAY(m_Pairs);
-			m_Pairs = NewPairs;
+			m_Pairs	= new Pair[m_HashSize];/* (Pair*) Memory::Malloc( m_HashSize * sizeof(Pair) );*/
 
-			//BB_FREE(m_NextTable);
-			//m_NextTable	= (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );
 
-			for( uint32 i=0; i < m_NbActivePairs; i++ )
+			// Reinsert old data
+			for( uint32 i = 0; i < OldHashSize; ++i )
 			{
-				uint32 HashValue = hash_key( m_Pairs[i].Key );
-				//m_NextTable[i] = m_HashTable[HashValue];
-				//m_HashTable[HashValue] = i;
-				// FIXME : copy old values
+				auto& e = OldPairs[i];
+				uint32 HashValue = OldHashTable[i];
+
+				if( HashValue != 0 && !is_deleted(HashValue) )
+				{
+					insert_helper( std::move(e.Key), std::move(e.Value), HashValue );
+					e.~Pair();
+				}
 			}
+
+			BB_DELETE_ARRAY(OldPairs);
+			BB_FREE(OldHashTable);
 		}
 	}
 
 	const Pair*	Find( K const& Key ) const
 	{
-		if( !m_HashTable )	return nullptr;	// Nothing has been allocated yet
+		//if( !m_HashTable )	return nullptr;	// Nothing has been allocated yet
 
 		// Compute hash value for this key
 		uint32 HashValue = hash_key( Key );
@@ -117,81 +125,78 @@ public:
 
 	Pair* Find( K const& Key, uint32 HashValue ) const
 	{
-		if( !m_HashTable )	return nullptr;	// Nothing has been allocated yet
+		//if( !m_HashTable )	return nullptr;	// Nothing has been allocated yet
 
 		// Look for it in the table
-		uint32 Offset = m_HashTable[HashValue];
+		uint32 pos = desired_pos(HashValue);
+		int32 dist = 0;
+		for(;;)
+		{							
+			if( elem_hash(pos) == 0 ) 
+				return nullptr;
+			else if (dist > probe_distance(elem_hash(pos), pos)) 
+				return nullptr;
+			else if (elem_hash(pos) == HashValue && m_Pairs[pos].Key == Key) 
+				return &m_Pairs[pos];				
 
-		while( Offset != INDEX_NONE && m_Pairs[Offset].Key != Key )
-		{
-			//BB_ASSERT(m_Pairs[Offset].mID0!=INVALID_USER_ID);
-			Offset = m_NextTable[Offset];		// Better to have a separate array for this
+			pos = (pos+1) & m_Mask;
+			++dist;
 		}
-		if( Offset == INDEX_NONE )	return nullptr;
-
-		BB_ASSERT( Offset < m_Pairs.size() );
-		// Match m_Pairs[Offset] => the pair is persistent
-		return &m_Pairs[Offset];
 	}
 
-	Pair* Add( K const& Key, V const& Value )
+	Pair* Add( K Key, V Value )
 	{
-		// Compute hash value for this key
 		uint32 HashValue = hash_key( Key );
 		Pair* P = Find(Key, HashValue);
 		if(P)
 			return P;	// Persistent pair
 
+		if( ++m_NbActivePairs > (m_HashSize*9) / 10 )
+			reserve( m_HashSize + 1 );
+
+		return insert_helper( std::move(Key), std::move(Value), HashValue );
+	}
+
+	Pair* insert_helper( K&& Key, V&& Value, uint32 HashValue )
+	{
 		// This is a new pair
-		reserve( m_NbActivePairs + 1 );
-		//if( m_NbActivePairs >= m_HashSize )
-		//{
-		//	// Get more entries
-		//	m_HashSize = bigball::NextPowerOfTwo(m_NbActivePairs + 1);
-		//	m_Mask = m_HashSize - 1;
+		uint32 pos = desired_pos(HashValue);
+		int32 dist = 0;
+		for(;;)
+		{			
+			if(elem_hash(pos) == 0)
+			{			
+				m_Pairs[pos].Key = Key;
+				m_Pairs[pos].Value = Value;
+				m_HashTable[pos] = HashValue;
+				return &m_Pairs[pos];
+			}
 
-		//	BB_FREE(m_HashTable);
-		//	m_HashTable = (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );
-		//	Memory::Memset( m_HashTable, 0xFF, m_HashSize * sizeof(uint32) );
+			// If the existing elem has probed less than us, then swap places with existing
+			// elem, and keep going to find another slot for that elem.
+			int existing_elem_probe_dist = probe_distance(elem_hash(pos), pos);
+			if (existing_elem_probe_dist < dist)
+			{	
+				if(is_deleted(elem_hash(pos)))
+				{
+					m_Pairs[pos].Key = Key;
+					m_Pairs[pos].Value = Value;
+					m_HashTable[pos] = HashValue;
+					return &m_Pairs[pos];
+				}
 
-		//	// Get some bytes for new entries
-		//	Pair* NewPairs	= new Pair[m_HashSize];/* (Pair*) Memory::Malloc( m_HashSize * sizeof(Pair) );*/		BB_ASSERT(NewPairs);
-		//	uint32* NewNext	= (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );	BB_ASSERT(NewNext);
+				//uint32 hash_temp = elem_hash(pos);
+				//HashValue = hash_temp;
+				//elem_hash(pos) = hash_temp;
+				std::swap(HashValue, elem_hash(pos));
+				std::swap(Key, m_Pairs[pos].Key);
+				std::swap(Value, m_Pairs[pos].Value);
+				dist = existing_elem_probe_dist;				
+			}
 
-		//	// Copy old data if needed
-		//	for( uint32 i = 0; i < m_NbActivePairs; ++i )
-		//		NewPairs[i] = m_Pairs[i];
-
-		//	for( uint32 i=0; i < m_NbActivePairs; i++ )
-		//	{
-		//		uint32 HashValue = ((Hash<K> const &)*this)(m_Pairs[i].Key) & m_Mask;
-		//		m_NextTable[i] = m_HashTable[HashValue];
-		//		m_HashTable[HashValue] = i;
-		//	}
-
-		//	// Delete old data
-		//	BB_FREE(m_NextTable);
-		//	BB_DELETE_ARRAY(m_Pairs);
-
-		//	// Assign new pointer
-		//	m_Pairs = NewPairs;
-		//	m_NextTable = NewNext;
-
-		//	// Recompute hash value with new hash size
-		//	HashValue = ((Hash<K> const &)*this)(Key) & m_Mask;
-		//}
-
-		// Recompute hash value with new hash size
-		HashValue = hash_key( Key );
-
-		Pair* p = &m_Pairs[m_NbActivePairs];
-		p->Key = Key;
-		p->Value = Value;
-
-		m_NextTable[m_NbActivePairs] = m_HashTable[HashValue];
-		m_HashTable[HashValue] = m_NbActivePairs++;
-
-		return p;
+			pos = (pos+1) & m_Mask;
+			++dist;			
+		}
 	}
 
 	inline uint32 GetPairIndex(const Pair* pair) const
@@ -203,88 +208,15 @@ public:
 	{
 		const uint32 HashValue = hash_key( Key );
 		const Pair* P = Find( Key, HashValue );
-		if(!P)	return false;
+		if(!P)	
+			return false;
 		BB_ASSERT(P->Key==Key);
+		uint32 idx = GetPairIndex(P);
 
-		const uint32 PairIndex = GetPairIndex(P);
+		m_Pairs[idx].~Pair();
+		elem_hash(idx) |= 0x80000000; // mark as deleted
+		--m_NbActivePairs;
 
-		// Walk the hash table to fix m_NextTable
-		uint32 Offset = m_HashTable[HashValue];
-		BB_ASSERT(Offset!=INDEX_NONE);
-
-		uint32 Previous=INDEX_NONE;
-		while(Offset!=PairIndex)
-		{
-			Previous = Offset;
-			Offset = m_NextTable[Offset];
-		}
-
-		// Let us go/jump us
-		if(Previous!=INDEX_NONE)
-		{
-			BB_ASSERT(m_NextTable[Previous]==PairIndex);
-			m_NextTable[Previous] = m_NextTable[PairIndex];
-		}
-		// else we were the first
-		else 
-			m_HashTable[HashValue] = m_NextTable[PairIndex];
-		// we're now free to reuse next[pairIndex] without breaking the list
-
-#ifdef _DEBUG
-		m_NextTable[PairIndex]=INDEX_NONE;
-#endif
-
-		// Fill holes
-		if(1)
-		{
-			// 1) Remove last pair
-			const uint32 LastPairIndex = m_NbActivePairs-1;
-			if(LastPairIndex==PairIndex)
-			{
-				m_NbActivePairs--;
-				return true;
-			}
-
-			const Pair* Last = &m_Pairs[LastPairIndex];
-			const uint32 LastHashValue = hash_key( Last->Key );
-
-			// Walk the hash table to fix m_NextTable
-			uint32 Offset = m_HashTable[LastHashValue];
-			BB_ASSERT(Offset!=INDEX_NONE);
-
-			uint32 Previous=INDEX_NONE;
-			while(Offset!=LastPairIndex)
-			{
-				Previous = Offset;
-				Offset = m_NextTable[Offset];
-			}
-
-			// Let us go/jump us
-			if(Previous!=INDEX_NONE)
-			{
-				BB_ASSERT(m_NextTable[Previous]==LastPairIndex);
-				m_NextTable[Previous] = m_NextTable[LastPairIndex];
-			}
-			// else we were the first
-			else m_HashTable[LastHashValue] = m_NextTable[LastPairIndex];
-			// we're now free to reuse m_NextTable[LastPairIndex] without breaking the list
-
-#ifdef _DEBUG
-			m_NextTable[LastPairIndex]=INDEX_NONE;
-#endif
-
-			// Don't invalidate entry since we're going to shrink the array
-
-			// 2) Re-insert in free slot
-			m_Pairs[PairIndex] = m_Pairs[LastPairIndex];
-#ifdef _DEBUG
-			BB_ASSERT(m_NextTable[PairIndex]==INDEX_NONE);
-#endif
-			m_NextTable[PairIndex] = m_HashTable[LastHashValue];
-			m_HashTable[LastHashValue] = PairIndex;
-
-			m_NbActivePairs--;
-		}
 		return true;
 	}
 
@@ -310,7 +242,7 @@ public:
 #endif
 
 	uint32 GetPairCount()			{ return m_NbActivePairs; }
-	Pair* GetPairAt( uint32 Index )	{ BB_ASSERT(Index >= 0 && Index < m_NbActivePairs); return &m_Pairs[Index]; }
+	//Pair* GetPairAt( uint32 Index )	{ BB_ASSERT(Index >= 0 && Index < m_NbActivePairs); return &m_Pairs[Index]; }
 
 public:
 	Pair*			m_Pairs;

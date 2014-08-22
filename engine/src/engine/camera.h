@@ -43,7 +43,7 @@ public:
 
 	// Begin : Entity interface
 	static Entity*	NewEntity()		{ return new Camera();	}
-	virtual void	Create( EntityPattern* Pattern, class json::Object* Proto = nullptr );
+	virtual void	Create( EntityPattern* Pattern, class json::Object* Proto = nullptr, Name InName = Name() );
 	virtual void	Destroy();	
 	virtual void	AddToWorld();
 	virtual void	RemoveFromWorld();

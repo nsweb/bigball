@@ -62,12 +62,13 @@ public:
 	virtual void		Destroy();	
 	virtual void		Tick( struct TickContext& TickCtxt );
 
-	Entity*				CreateEntity( char const* PatternName, class json::Object* Proto = nullptr );
-	Entity*				CreateEntityFromJson( char const* JsonPath );
+	Entity*				CreateEntity( char const* PatternName, class json::Object* Proto = nullptr, Name InName = Name() );
+	Entity*				CreateEntityFromJson( char const* JsonPath, Name InName = Name()  );
 
 	void				AddEntityToWorld( Entity* pEntity );
 	void				RemoveEntityFromWorld( Entity* pEntity );
 	void				DestroyEntity( Entity* pEntity );
+	Entity*				FindEntityByName( Name InName );
 
 	void				RegisterFactory( ComponentFactory& Factory );
 	void				RegisterPattern( EntityPattern const& Pattern );

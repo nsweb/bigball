@@ -61,6 +61,7 @@ public:
 	void				AddCamera( Camera* pCamera );
 	void				RemoveCamera( Camera* pCamera );
 	void				UpdateRenderCamera( float DeltaSeconds );
+	Camera*				GetActiveCamera()				{ return m_pActiveCam;				}
 
 	void				OnInputX( uint32 ModifierFlags, float Delta );
 	void				OnInputY( uint32 ModifierFlags, float Delta );

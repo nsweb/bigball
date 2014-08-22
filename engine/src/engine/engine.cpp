@@ -12,6 +12,9 @@
 #include "camera.h"
 #include "tickcontext.h"
 
+// HACK
+#include "../system/file.h"
+
 namespace bigball
 {
 
@@ -178,6 +181,8 @@ void Engine::MainLoop()
 		// tell GL to only draw onto a pixel if the shape is closer to the viewer
 		glEnable( GL_DEPTH_TEST ); // enable depth-testing
 		glDepthFunc( GL_LESS ); // depth-testing interprets a smaller value as "closer"
+		glEnable( GL_CULL_FACE );
+		glCullFace( GL_FRONT );
 
 		if( m_RenderMode == RenderContext::eRM_Wireframe )
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -253,6 +258,23 @@ void Engine::MainLoop()
 					else if( Event.key.keysym.sym >= SDLK_F1 && Event.key.keysym.sym <= SDLK_F4 )
 					{
 						m_RenderMode = Event.key.keysym.sym - SDLK_F1;
+					}
+					else if( Event.key.keysym.sym == SDLK_F9 || Event.key.keysym.sym == SDLK_F10 )
+					{
+						// HACK
+						bool bWrite = Event.key.keysym.sym == SDLK_F9 ? true : false;
+
+						File outFile;
+						if( outFile.Open("../save/camera_debug.bin", bWrite ? File::Write : File::Read) )
+						{
+							Camera* pCurrentCam = Controller::GetStaticInstance()->GetActiveCamera();
+							if( pCurrentCam )
+							{
+								CameraView& CamView = pCurrentCam->GetView();
+								outFile.Serialize( &CamView.m_Transform, sizeof(CamView.m_Transform) );
+								outFile.Serialize( &CamView.m_fParameters, sizeof(CamView.m_fParameters) );
+							}
+						}
 					}
 					else if( Event.key.keysym.sym == SDLK_c )
 					{

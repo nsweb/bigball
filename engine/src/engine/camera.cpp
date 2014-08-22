@@ -43,9 +43,9 @@ Camera::~Camera()
 {
 }
 
-void Camera::Create( EntityPattern* Pattern, class json::Object* Proto )
+void Camera::Create( EntityPattern* Pattern, class json::Object* Proto, Name InName )
 {
-	Super::Create( Pattern, Proto );
+	Super::Create( Pattern, Proto, InName );
 
 	json::TokenIdx EntTok = Proto->GetToken( "entity", json::OBJECT );
 	json::TokenIdx CamTok = Proto->GetToken( "camera", json::OBJECT, EntTok );

@@ -167,6 +167,7 @@
   <ItemGroup>
     <ClInclude Include="bigball.h" />
     <ClInclude Include="core\json.h" />
+    <ClInclude Include="core\map_rh.h" />
     <ClInclude Include="core\memory.h" />
     <ClInclude Include="core\array.h" />
     <ClInclude Include="core\core.h" />

@@ -41,10 +41,12 @@ protected:
 
 	Array<BaseManager*>		m_Managers;
 
+public:
 	uint32					m_FrameCount;
 	uint32					m_RenderMode;
 	bool					m_bShowCulling;
 
+protected:
 	virtual void	InitManagers();
 	virtual void	DestroyManagers();
 	virtual void	DeclareComponentsAndEntities();

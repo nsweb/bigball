@@ -3,6 +3,7 @@
 #include "threadingutils.h"
 
 // see http://www.1024cores.net/home/lock-free-algorithms/your-arsenal
+// http://preshing.com/20120913/acquire-and-release-semantics/
 // and SDL atomics
 
 namespace bigball
@@ -25,6 +26,7 @@ void Sleep( uint32 _nMs )
 #if WIN64
 void InterlockedExchange( void *_dest, const int64 _exchange )
 {
+	
 	::InterlockedExchange64( (int64*)_dest, _exchange );
 
 //	__asm
@@ -101,16 +103,69 @@ int32 InterlockedCompareExchange2( void *_dest, const int32 _exchange1, const in
 }
 #endif
 
-void ReadWriteBarrier()
+void CompilerBarrier()
 {
-	::_ReadWriteBarrier();	// compiler reordering
-	
+	SDL_CompilerBarrier();		// prevents compiler reordering	
 }
-void MemBarrier()
+void CPUBarrierReadAcquire()
 {
-	::MemoryBarrier();		// cpu reordering
+	//::MemoryBarrier();			// prevents cpu reordering
+	SDL_MemoryBarrierAcquire();
+}
+void CPUBarrierWriteRelease()
+{
+	SDL_MemoryBarrierRelease();
+}
+
+CriticalSection::CriticalSection()
+{
+	m_Mutex = SDL_CreateMutex();
+	BB_ASSERT( m_Mutex != nullptr, "Failed to create a critical section mutex" );
+}
+
+CriticalSection::~CriticalSection()
+{
+	if( m_Mutex != nullptr )
+	{
+		SDL_DestroyMutex(m_Mutex);
+	}
+}
+
+void CriticalSection::Lock()
+{
+	if( SDL_mutexP(m_Mutex) != 0 )
+	{
+		BB_LOG( Threading, Error, "Failed to enter a critical section" );
+	}
+}
+
+void CriticalSection::Unlock()
+{
+	if( SDL_mutexV(m_Mutex) != 0 )
+	{
+		BB_LOG( Threading, Error, "Failed to leave a critical section" );
+	}
+}
+
+ScopeLock::ScopeLock( CriticalSection* SyncObject ) : m_SyncObject(SyncObject)
+{
+	BB_ASSERT( SyncObject );
+	SyncObject->Lock();
+}
+
+ScopeLock::~ScopeLock()
+{
+	BB_ASSERT( m_SyncObject );
+	m_SyncObject->Unlock();
+}
+
+ScopeLock& ScopeLock::operator=( ScopeLock& InScopeLock )
+{
+	return *this;
 }
 
 } /*namespace ThreadTools*/
 
 } /*namespace bigball*/
+
+
