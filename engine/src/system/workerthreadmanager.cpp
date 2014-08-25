@@ -43,6 +43,8 @@ void WorkerThreadManager::Create()
 		m_vWorkerThreadPool[i] = pWorker;
 	}
 
+	m_RemainingTaskCounts.resize( WORKER_THREAD_POOL, 0 );
+
 }
 
 void WorkerThreadManager::Destroy()
@@ -60,24 +62,95 @@ void WorkerThreadManager::Destroy()
 		BB_DELETE( pWorker );
 	}
 	m_vWorkerThreadPool.clear();
+	m_RemainingTaskCounts.clear();
 }
 
 void WorkerThreadManager::Tick( struct TickContext& TickCtxt )
+{
+	// Update async tasks once in a frame
+	UpdateAsyncTasks();
+}
+
+void WorkerThreadManager::UpdateAsyncTasks()
 {
 	// Check end of async
 	while( Task* pTask = m_vWorkerThreadPool.Last()->PopFinishedTask() )
 	{
 		BB_ASSERT( pTask->IsAsync() );
-		((AsyncTask*)pTask)->OnFinished();
+		pTask->OnFinished();
 		m_NbAsyncTasks--;
 	}
 }
 
-bool WorkerThreadManager::PushAsyncTask( AsyncTask* pTask )
+void WorkerThreadManager::UpdateTasks( int32& nFinishedTasks )
+{
+	// Check for tasks finished, and push new tasks to worker thread
+	uint32 i, nPool = m_vWorkerThreadPool.size();
+	for( i = 0; i < nPool - 1 /* last is for async */; i++ )
+	{
+		while( Task* pTask = m_vWorkerThreadPool[i]->PopFinishedTask() )
+		{
+			BB_ASSERT( !pTask->IsAsync() );
+			//pTask->OnFinished();
+			nFinishedTasks++;
+		}
+	}
+
+	// Push new tasks
+	// Don't push more than (nPool - 1) * 2 tasks at the same time
+	int32 SumRemainingTasks = 0;
+	for( i = 0; i < nPool - 1 /* last is for async */; i++ )
+	{
+		int32 RemainingTaskCount = m_vWorkerThreadPool[i]->GetRemainingTaskCount();
+		m_RemainingTaskCounts[i] = RemainingTaskCount;
+		SumRemainingTasks += RemainingTaskCount;
+	}
+
+	int32 TaskIdx, PushCount = bigball::min( m_PendingSyncTasks.size(), (nPool - 1) * 2 );
+	int32 SumInFlight = SumRemainingTasks + PushCount;
+
+	for( i = 0; i < nPool - 1 /* last is for async */; i++ )
+	{
+		int32 CurrentCount = m_RemainingTaskCounts[i];
+		todo
+	}
+
+
+	for( TaskIdx = 0; TaskIdx < PushCount; ++TaskIdx )
+	{
+		int32 BestWorkerIdx = 0;
+		int32 BestCurrentCount = 1000;
+		// Find thread with lowest task count
+		for( i = 0; i < nPool - 1 /* last is for async */; i++ )
+		{
+			int32 CurrentCount = m_vWorkerThreadPool[i]->GetRemainingTaskCount();
+			if( CurrentCount < BestCurrentCount )
+			{
+				BestCurrentCount = CurrentCount;
+				BestWorkerIdx = i;
+			}
+		}
+
+		m_vWorkerThreadPool[i]-
+	}
+
+
+}
+
+bool WorkerThreadManager::PushTask( Task* pTask )
+{
+	pTask->SetAsync( false );
+	m_PendingSyncTasks.push_back( pTask );
+
+	return true;
+}
+
+bool WorkerThreadManager::PushAsyncTask( Task* pTask )
 {
 	m_NbAsyncTasks++;
 
-	// Last worker thread is for async
+	// Last worker thread is reserved for async
+	pTask->SetAsync( true );
 	m_vWorkerThreadPool.Last()->PushTask( pTask );
 
 	return true;
@@ -119,5 +192,7 @@ void WorkerThreadManager::WaitThreadFinish()
 		}
 	}
 }
+
+
 
 } /*namespace bigball*/

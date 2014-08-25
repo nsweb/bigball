@@ -27,12 +27,16 @@ public:
 
 	Array<WorkerThread*> const& GetPool()		{ return m_vWorkerThreadPool; }
 
-	bool				PushAsyncTask( AsyncTask* pTask );
+	bool				PushTask( Task* pTask );
+	bool				PushAsyncTask( Task* pTask );
+	void				UpdateAsyncTasks();
+	void				UpdateTasks( int32& nFinishedTasks );
 
 private:
 	Array<WorkerThread*>	m_vWorkerThreadPool;
 
-	Array<Task*>			m_Tasks;
+	Array<Task*>			m_PendingSyncTasks;
+	Array<int32>			m_RemainingTaskCounts;
 	int32					m_NbAsyncTasks;
 
 	void				WaitThreadFinish();

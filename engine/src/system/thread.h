@@ -62,19 +62,18 @@ public:
 	void			SetExit();
 	void			ForceBusy();
 	//void			SetTaskProxy(TaskProxy* _pTaskProxy );
-	uint32			IsRunning()		{ return m_bRunning;	}
-
-
+	uint32			IsRunning()							{ return m_bRunning;	}
+	int32			GetRemainingTaskCount() const		{ return m_oStaticTaskQueue.GetElementCount();		}
 
 private:
-	uint32					m_bRunning;
-	uint32					m_bExit;
+	uint32					m_bRunning	: 1;
+	uint32					m_bExit		: 1;
 
 	//TaskProxy*				m_pTaskProxy;
 	ThreadEvent				m_oBusyEvent;
 	Task*					m_pCurrentTask;             // current job being worked on
-	CircularQueue<Task*>	m_oStaticTaskQueue;			// jobs that have been completed and may be reported back to the application.
-	CircularQueue<Task*>	m_oFinishedTaskQueue;		// jobs that have been completed and may be reported back to the application.
+	CircularQueue<Task*>	m_oStaticTaskQueue;			// jobs that need to be processed
+	CircularQueue<Task*>	m_oFinishedTaskQueue;		// jobs that have been completed and may be reported back to the application
 }; 
 
 

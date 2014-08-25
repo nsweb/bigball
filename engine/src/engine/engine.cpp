@@ -189,9 +189,7 @@ void Engine::MainLoop()
 		else
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		TickContext TickCtxt;
-		TickCtxt.m_DeltaSeconds = DeltaSeconds;
-		TickCtxt.m_FrameIdx = m_FrameCount;
+		TickContext TickCtxt( DeltaSeconds, m_FrameCount );
 		for( int32 i = 0; i < m_Managers.size(); ++i )
 		{
 			m_Managers[i]->Tick( TickCtxt );

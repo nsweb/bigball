@@ -79,6 +79,11 @@ public:
 
 		return false;
 	}
+
+	int32 GetElementCount() const
+	{
+		return (m_iWriteOffset + m_nQueueSize - m_iReadOffset) % m_nQueueSize;
+	}
 	
 private:
 	int32		m_iReadOffset;
