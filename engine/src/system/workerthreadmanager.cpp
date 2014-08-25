@@ -85,7 +85,7 @@ void WorkerThreadManager::UpdateAsyncTasks()
 void WorkerThreadManager::UpdateTasks( int32& nFinishedTasks )
 {
 	// Check for tasks finished, and push new tasks to worker thread
-	uint32 i, nPool = m_vWorkerThreadPool.size();
+	int32 i, nPool = m_vWorkerThreadPool.size();
 	for( i = 0; i < nPool - 1 /* last is for async */; i++ )
 	{
 		while( Task* pTask = m_vWorkerThreadPool[i]->PopFinishedTask() )
@@ -106,35 +106,22 @@ void WorkerThreadManager::UpdateTasks( int32& nFinishedTasks )
 		SumRemainingTasks += RemainingTaskCount;
 	}
 
-	int32 TaskIdx, PushCount = bigball::min( m_PendingSyncTasks.size(), (nPool - 1) * 2 );
-	int32 SumInFlight = SumRemainingTasks + PushCount;
-
+	int32 PushCount = bigball::min( m_PendingSyncTasks.size(), (nPool - 1) * 2 );
+	int32 InFlight = SumRemainingTasks + PushCount;
+	int32 TaskSettledIdx = 0;
+	
 	for( i = 0; i < nPool - 1 /* last is for async */; i++ )
 	{
 		int32 CurrentCount = m_RemainingTaskCounts[i];
-		todo
-	}
-
-
-	for( TaskIdx = 0; TaskIdx < PushCount; ++TaskIdx )
-	{
-		int32 BestWorkerIdx = 0;
-		int32 BestCurrentCount = 1000;
-		// Find thread with lowest task count
-		for( i = 0; i < nPool - 1 /* last is for async */; i++ )
+		int32 ToAdd = InFlight / (nPool - 1 - i) - CurrentCount;
+		InFlight -= CurrentCount;
+		for( int32 AddIdx = 0; AddIdx < ToAdd; ++AddIdx )
 		{
-			int32 CurrentCount = m_vWorkerThreadPool[i]->GetRemainingTaskCount();
-			if( CurrentCount < BestCurrentCount )
-			{
-				BestCurrentCount = CurrentCount;
-				BestWorkerIdx = i;
-			}
+			InFlight--;
+			m_vWorkerThreadPool[i]->PushTask( m_PendingSyncTasks[TaskSettledIdx++] );
 		}
-
-		m_vWorkerThreadPool[i]-
 	}
-
-
+	m_PendingSyncTasks.erase( 0, TaskSettledIdx );
 }
 
 bool WorkerThreadManager::PushTask( Task* pTask )

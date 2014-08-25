@@ -71,13 +71,13 @@ int64 InterlockedCompareExchange( void* _dest, int64 _exchange, int64 _compare )
 
 void InterlockedExchange( void *_dest, const int32 _exchange )
 {
-	::InterlockedExchange( _dest, _exchange );
+	::InterlockedExchange( (volatile LONG *) _dest, (LONG) _exchange );
 }
 
 int32 InterlockedCompareExchange( void *_dest, int32 _exchange, int32 _compare )
 {
-	return ::InterlockedCompareExchange( _dest, _exchange, _compare );
-);
+	return ::InterlockedCompareExchange( (volatile LONG *) _dest, (LONG) _exchange, (LONG) _compare );
+}
 
 #endif // WIN64
 
