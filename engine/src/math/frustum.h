@@ -7,7 +7,7 @@
 namespace bigball
 {
 
-template <typename T> struct Frustum;
+template <typename T> class Frustum;
 typedef Frustum<float> frustum;
 typedef Frustum<double> dfrustum;
 
