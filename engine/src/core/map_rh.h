@@ -241,8 +241,8 @@ public:
 	}
 #endif
 
-	uint32 GetPairCount()			{ return m_NbActivePairs; }
-	//Pair* GetPairAt( uint32 Index )	{ BB_ASSERT(Index >= 0 && Index < m_NbActivePairs); return &m_Pairs[Index]; }
+	uint32 GetPairCount() const				{ return m_NbActivePairs; }
+	Pair* GetPairAt( uint32 Index ) const 	{ BB_ASSERT(Index >= 0 && Index < m_NbActivePairs); return &m_Pairs[Index]; }
 
 public:
 	Pair*			m_Pairs;

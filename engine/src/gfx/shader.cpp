@@ -51,7 +51,7 @@ bool Shader::Create( String const& ShaderName )
 		glGetShaderiv( ShaderID, GL_COMPILE_STATUS, &CompiledStatus );
 		if ( !CompiledStatus ) 
 		{
-#ifdef _DEBUG
+#if BB_BUILD_DEBUG
 			GLsizei Len;
 			glGetShaderiv( ShaderID, GL_INFO_LOG_LENGTH, &Len );
 
@@ -59,7 +59,7 @@ bool Shader::Create( String const& ShaderName )
 			LogStr.resize( Len );
 			glGetShaderInfoLog( ShaderID, Len, &Len, LogStr.c_str() );
 			BB_LOG( Shader, Log, "Shader compilation failed: %s", LogStr.c_str() );
-#endif /* DEBUG */
+#endif /* BB_BUILD_DEBUG */
 
 			DeleteShaders();
 			return false;
@@ -81,7 +81,7 @@ bool Shader::Create( String const& ShaderName )
 	glGetProgramiv( m_ProgramID, GL_LINK_STATUS, &LinkedStatus );
 	if ( !LinkedStatus ) 
 	{
-#ifdef _DEBUG
+#if BB_BUILD_DEBUG
 		GLsizei Len;
 		glGetProgramiv( m_ProgramID, GL_INFO_LOG_LENGTH, &Len );
 
@@ -89,7 +89,7 @@ bool Shader::Create( String const& ShaderName )
 		LogStr.resize( Len );
 		glGetProgramInfoLog( m_ProgramID, Len, &Len, LogStr.c_str() );
 		BB_LOG( Shader, Log, "Shader linking failed: %s", LogStr.c_str() );
-#endif /* DEBUG */
+#endif /* BB_BUILD_DEBUG */
 
 		DeleteShaders();
 		return false;

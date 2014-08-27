@@ -193,7 +193,7 @@ public:
 			m_HashTable[HashValue] = m_NextTable[PairIndex];
 		// we're now free to reuse next[pairIndex] without breaking the list
 
-#ifdef _DEBUG
+#if BB_BUILD_DEBUG
 		m_NextTable[PairIndex]=INDEX_NONE;
 #endif
 
@@ -232,7 +232,7 @@ public:
 			else m_HashTable[LastHashValue] = m_NextTable[LastPairIndex];
 			// we're now free to reuse m_NextTable[LastPairIndex] without breaking the list
 
-#ifdef _DEBUG
+#if BB_BUILD_DEBUG
 			m_NextTable[LastPairIndex]=INDEX_NONE;
 #endif
 
@@ -240,7 +240,7 @@ public:
 
 			// 2) Re-insert in free slot
 			m_Pairs[PairIndex] = m_Pairs[LastPairIndex];
-#ifdef _DEBUG
+#if BB_BUILD_DEBUG
 			BB_ASSERT(m_NextTable[PairIndex]==INDEX_NONE);
 #endif
 			m_NextTable[PairIndex] = m_HashTable[LastHashValue];

@@ -30,6 +30,14 @@
 	#include <windows.h>
 #endif
 
+#ifdef _DEBUG
+	#define BB_BUILD_DEBUG		1
+	#define BB_BUILD_RELEASE	0
+#else
+	#define BB_BUILD_DEBUG		0
+	#define BB_BUILD_RELEASE	1
+#endif
+
 #include "core/core.h"
 #include "core/memory.h"
 #include "core/log.h"

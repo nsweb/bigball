@@ -72,42 +72,6 @@ void File::Close()
 	m_FileHandle = nullptr;
 }
 
-
-
-//---------------------------------------------------------------------------------
-//void File::Write_Link( void* pLink )
-//{
-//	DWORD nWritten = 0;
-//	WriteFile( m_hFile, &pLink, sizeof(void*), &nWritten, NULL );
-//}
-//
-////---------------------------------------------------------------------------------
-//void File::Read_Link( void* pLink )
-//{
-//	DWORD nRead = 0;
-//	void* Key = NULL;
-//	ReadFile( m_hFile, &Key, sizeof(void*), &nRead, NULL );
-//
-//	//(*m_pRegisterLink)[Key] = pLink;
-//}
-//
-////---------------------------------------------------------------------------------
-//void* File::Get_Link( void* pLink )
-//{
-//	void* pDebug = NULL;
-//
-//	//HashMapType_LT::iterator iterHM = m_pRegisterLink->find( pLink );
-//	//if( iterHM != m_pRegisterLink->end() )
-//	//	pDebug = (void*) iterHM->second;
-//
-//	if( pLink && !pDebug )
-//	{
-//		//M_ERROR( E_FAILED, ("cLinkTable::Get_Link(): Probleme de link !") );
-//	}
-//
-//	return pDebug;
-//}
-
 uint32 File::Serialize( void* pBuffer, uint32 Size )
 {
 	uint32 SerializedCount = 0;
@@ -299,188 +263,25 @@ void ListFiles( char const* strSearch, Array<String>& OutFiles )
 #endif
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////
-//void ListFiles( const LPWSTR _strSearchFile, vector<wstring>& _OutFiles )
-//{
-//	bool bFileFound = false;
-//	WIN32_FIND_DATA FileInfo;
-//	HANDLE hFind = ::FindFirstFile( _strSearchFile, &FileInfo ) ;
-//	bFileFound = ( hFind == INVALID_HANDLE_VALUE ? false:true );
-//	if( !bFileFound )
-//		return;
-//
-//	_OutFiles.push_back( FileInfo.cFileName );
-//
-//	while( FindNextFile( hFind, &FileInfo )  )
-//	{
-//	  _OutFiles.push_back( FileInfo.cFileName );
-//	}
-//
-//	::FindClose( hFind );
-//
-//	//return bFileFound;
-//}
-
-
 /////////////////////////////////////////////////////////////////////////////////////
 //
 
 //
 ////-----------------------------------------------------------------------------
-//// Internal create function (uses fopen)
-//bool File::Create(const LPWSTR _ustrFileName, const char* mode)
-//{ // this function is private, no need for multi thread protection (ie faster)
-//
-//	m_hFile = ::fopen( _ustrFileName, mode );
-//	/*if (m_hFile == NULL )
-//	{
-//		Filename = cFileFunc::BuildFilename(name);
-//		// Try again...
-//		m_hFile = ::fopen(Filename.c_str(), mode.c_str());
-//	}
-//	else
-//	{
-//		Filename = name;    // no need to call BuildFilename()
-//	}
-//
-//#if defined(_DEBUG) || defined(_RELEASE_WITH_ASSERT)
-//	m_Filename = Filename;
-//#endif//_DEBUG*/
-//
-//	bool bFileIsOpened = (m_hFile != NULL);
-//
-//	if (bFileIsOpened == false)
-//	{
-//		//M_WARNING(E_FILE_CANT_OPEN_FILE, ("can't open file %s", Filename.c_str()) );
-//		return false;
-//	}
-///*
-//#pragma MESS("right now, we only support r or w (not both)")
-//	if(mode.Find("r") != U32_ERROR)
-//	{
-//		m_eIOMode = E_IO_READ;
-//		m_eSerializeMode = E_IO_READ;
-//	}
-//	else if(mode.Find("w") != U32_ERROR)
-//	{
-//		m_eIOMode = E_IO_WRITE;
-//		m_eSerializeMode = E_IO_WRITE;
-//	}*/
-//
-//	return true;
-//}
-//
-////-----------------------------------------------------------------------------
-//bool File::IsOpen() const 
-//{ 
-//	//M_LOCK();
-//	bool bResult = (m_hFile != NULL);
-//	return bResult;
-//}
-//
-//
-////-----------------------------------------------------------------------------
-//bool File::Open(const LPWSTR _ustrFileName, const char* mode)
-//{ 
-//	if(m_hFile != NULL)
-//		Close();
-//
-//	bool bResult = Create(name, mode);
-//	return bResult;
-//}
-//
-//
-////-----------------------------------------------------------------------------
-//void File::Close(void)                                        
+//s32 File::Seek (const s32 _s32Offset, const E_MC_SEEK _eOrigin)
 //{
-//	//M_LOCK();
-//
-//	if (m_hFile == NULL)
-//		return;
-//
-///*#ifdef	_DEBUG
-//	s32 iFileIsClosed = ::fclose(m_FileHandle);
-//	BB_ASSERT(iFileIsClosed == 0, ("%s", m_Filename.c_str()) );
-//#else //_DEBUG*/
-//	fclose(m_hFile);
-////#endif//_DEBUG
-//
-//	m_hFile = NULL; // just set it to NULL so that a further open call would be OK
-//
-//	// tells cStreamIO we have closed the stream
-//	/*SetSerializeMode(E_IO_NOT_OPENED);
-//	m_eIOMode = E_IO_NOT_OPENED;*/
+//	M_LOCK();
+//	s32 iResult = ::fseek(m_FileHandle, _s32Offset, _eOrigin);
+//	return iResult;
 //}
-/*
-//-----------------------------------------------------------------------------
-size_t File::Write(void* buffer,const size_t size, const size_t nb)   
-{
-	M_LOCK();
-	size_t _SizeWritten = ::fwrite(buffer,size,nb,m_FileHandle);
-	if(_SizeWritten != nb)
-	{
-#ifdef _DEBUG
-		M_ERROR(E_FILE_CANT_WRITE, ("%s: size written = %d, size asked = %d", m_Filename.c_str(), _SizeWritten, nb) );
-#else
-		M_ERROR(E_FILE_CANT_WRITE, ("size written = %d, size asked = %d", _SizeWritten, nb) );
-#endif
-	}
-	return _SizeWritten;
-}
-
-
-//-----------------------------------------------------------------------------
-size_t File::Read(void* buffer,const size_t size,const size_t nb)          
-{
-	M_LOCK();
-
-	size_t _SizeRead = ::fread(buffer,size,nb,m_FileHandle);
-	// M_WARNING(_SizeRead == nb, ("%s: size read = %d, size asked = %d", m_Filename.c_str(), _SizeRead, nb) );
-	return _SizeRead;
-}
-
-
-//-----------------------------------------------------------------------------
-s32 File::Seek (const s32 _s32Offset, const E_MC_SEEK _eOrigin)
-{
-	M_LOCK();
-	s32 iResult = ::fseek(m_FileHandle, _s32Offset, _eOrigin);
-	return iResult;
-}
-
-//-----------------------------------------------------------------------------
-s32 File::Tell(void)
-{
-	M_LOCK();
-	s32 iResult = ::ftell(m_FileHandle);
-	return iResult;
-}
-
-
-//---------------------------------------------------
-size_t File::GetFileSize()
-{
-	if (m_FileHandle == NULL)
-		return 0;
-
-	M_LOCK();
-
-	//TODO: A vérifier si le fichier est ouvert en mode texte !
-	s32 OldPos = ::ftell(m_FileHandle);  // Saves the current file position
-
-	if ( Seek(0, E_MC_SEEK_END) != 0 )
-	{
-		Seek(OldPos, E_MC_SEEK_BEGIN);  // Restores the current file position
-		return 0;
-	}
-	s32 EndPos = ::ftell(m_FileHandle);
-	BB_ASSERT(EndPos != -1L, ("GetFileSize() error"));
-	Seek(OldPos, E_MC_SEEK_BEGIN);  // Restores the current file position
-
-	return EndPos;
-}*/
-
+//
+////-----------------------------------------------------------------------------
+//s32 File::Tell(void)
+//{
+//	M_LOCK();
+//	s32 iResult = ::ftell(m_FileHandle);
+//	return iResult;
+//}
 
 //-----------------------------------------------------------------------------
 //s32 File::fprintf(const char *format , ... )
@@ -500,63 +301,5 @@ size_t File::GetFileSize()
 //}
 
 
-
-/*mvcLinkTable::mvcLinkTable()
-{
-	m_pRegisterLink			= NULL;
-}
-
-//---------------------------------------------------------------------------------
-mvcLinkTable::~mvcLinkTable()
-{
-	Destroy();
-}
-
-//---------------------------------------------------------------------------------
-void mvcLinkTable::Write_Link( HANDLE hFile, void* pLink )
-{
-	DWORD nWritten = 0;
-	WriteFile( hFile, &pLink, sizeof(void*), &nWritten, NULL );
-}
-
-//---------------------------------------------------------------------------------
-void mvcLinkTable::Read_Link( HANDLE hFile, void* pLink )
-{
-	DWORD nRead = 0;
-	void* Key = NULL;
-	ReadFile( hFile, &Key, sizeof(void*), &nRead, NULL );
-
-	(*m_pRegisterLink)[Key] = pLink;
-}
-
-//---------------------------------------------------------------------------------
-void* mvcLinkTable::Get_Link( void* pLink )
-{
-	void* pDebug = NULL;//(void*) m_pRegisterLink->GetValueByKey( (u32) pLink );
-
-	HashMapType_LT::iterator iterHM = m_pRegisterLink->find( pLink );
-	if( iterHM != m_pRegisterLink->end() )
-		pDebug = (void*) iterHM->second;
-
-	if( pLink && !pDebug )
-	{
-		//M_ERROR( E_FAILED, ("cLinkTable::Get_Link(): Probleme de link !") );
-	}
-
-	return pDebug;
-}
-
-//---------------------------------------------------------------------------------
-void mvcLinkTable::Create()
-{
-	SAFE_DELETE( m_pRegisterLink );
-	m_pRegisterLink	= new HashMapType_LT;
-}
-
-//---------------------------------------------------------------------------------
-void mvcLinkTable::Destroy()
-{
-	SAFE_DELETE( m_pRegisterLink );
-}*/
 
 } /* namespace bigball */
