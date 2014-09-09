@@ -38,6 +38,40 @@ public:
 		m_NbActivePairs = 0;
 	}
 
+	MapRH( MapRH&& Other) : 
+		m_Pairs(Other.m_Pairs),
+		m_HashTable(Other.m_HashTable),
+		m_HashSize(Other.m_HashSize),
+		m_Mask(Other.m_Mask),
+		m_NbActivePairs(Other.m_HashSize)	{}
+
+	MapRH( MapRH const& Other) : 
+		m_HashSize(Other.m_HashSize),
+		m_Mask(Other.m_Mask),
+		m_NbActivePairs(Other.m_HashSize)	
+
+	{
+		if( Other.m_HashSize )
+		{
+			m_Pairs	= new Pair[Other.m_HashSize];
+			// Cannot memcpy here, can Pair is not necessarily POD
+			for( int32 i = 0; i < Other.m_HashSize; ++i )
+				m_Pairs[i] = Other.m_Pairs[i];
+
+			m_HashTable = (uint32*) Memory::Malloc( Other.m_HashSize * sizeof(uint32) );
+			Memory::Memcpy( m_HashTable, Other.m_HashTable, sizeof(uint32) );
+		}
+		else
+		{
+			m_Pairs = nullptr;
+			m_HashTable = nullptr;
+		}
+	}
+
+	MapRH& operator=( MapRH&& Other )		{ Pairs = MoveTemp(Other.Pairs); return *this; }
+	MapRHe& operator=( MapRH const& Other ) { Pairs =          Other.Pairs ; return *this; }
+
+
 	uint32 hash_key( K const& Key ) const
 	{			
 		uint32 HashValue = ((Hash<K> const &)*this)(Key);
