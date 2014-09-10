@@ -84,7 +84,7 @@ public:
 		{
 			m_Pairs	= new Pair[Other.m_HashSize];
 			// Cannot memcpy here, can Pair is not necessarily POD
-			for( int32 i = 0; i < Other.m_HashSize; ++i )
+			for( uint32 i = 0; i < Other.m_HashSize; ++i )
 				m_Pairs[i] = Other.m_Pairs[i];
 
 			m_HashTable = (uint32*) Memory::Malloc( Other.m_HashSize * sizeof(uint32) );
