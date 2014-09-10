@@ -43,13 +43,42 @@ public:
 		m_HashTable(Other.m_HashTable),
 		m_HashSize(Other.m_HashSize),
 		m_Mask(Other.m_Mask),
-		m_NbActivePairs(Other.m_HashSize)	{}
+		m_NbActivePairs(Other.m_NbActivePairs)	
+	{
+	}
 
 	MapRH( MapRH const& Other) : 
 		m_HashSize(Other.m_HashSize),
 		m_Mask(Other.m_Mask),
-		m_NbActivePairs(Other.m_HashSize)	
+		m_NbActivePairs(Other.m_NbActivePairs)	
 
+	{
+		CopyHashPairs( Other );
+	}
+
+	MapRH& operator=( MapRH&& Other )		
+	{ 
+		m_Pairs = Other.m_Pairs;
+		m_HashTable = Other.m_HashTable;
+		m_HashSize = Other.m_HashSize;
+		m_Mask = Other.m_Mask;
+		m_NbActivePairs = Other.m_NbActivePairs;
+		return *this; 
+	}
+
+	MapRH& operator=( MapRH const& Other ) 
+	{
+		m_HashSize = Other.m_HashSize;		
+		m_Mask = Other.m_Mask;
+		m_NbActivePairs = Other.m_NbActivePairs;
+
+		BB_DELETE_ARRAY(m_Pairs);
+		BB_FREE(m_HashTable);
+		CopyHashPairs( Other );
+		return *this; 
+	}
+
+	void CopyHashPairs( MapRH const& Other )
 	{
 		if( Other.m_HashSize )
 		{
@@ -67,10 +96,6 @@ public:
 			m_HashTable = nullptr;
 		}
 	}
-
-	MapRH& operator=( MapRH&& Other )		{ Pairs = MoveTemp(Other.Pairs); return *this; }
-	MapRHe& operator=( MapRH const& Other ) { Pairs =          Other.Pairs ; return *this; }
-
 
 	uint32 hash_key( K const& Key ) const
 	{			
