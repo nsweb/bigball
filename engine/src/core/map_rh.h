@@ -173,6 +173,16 @@ public:
 		}
 	}
 
+	/** Call this function to optimize allocated mem, when map is static and will not receive new elements */
+	void optimize()
+	{
+		uint32 OldHashSize = m_HashSize;
+		Pair* OldPairs = m_Pairs;
+		uint32* OldHashTable = m_HashTable;
+
+		m_HashSize = (m_NbActivePairs * 10) / 9;
+	}
+
 	const Pair*	Find( K const& Key ) const
 	{
 		//if( !m_HashTable )	return nullptr;	// Nothing has been allocated yet
