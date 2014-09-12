@@ -88,7 +88,7 @@ public:
 				m_Pairs[i] = Other.m_Pairs[i];
 
 			m_HashTable = (uint32*) Memory::Malloc( Other.m_HashSize * sizeof(uint32) );
-			Memory::Memcpy( m_HashTable, Other.m_HashTable, sizeof(uint32) );
+			Memory::Memcpy( m_HashTable, Other.m_HashTable, Other.m_HashSize * sizeof(uint32) );
 		}
 		else
 		{
