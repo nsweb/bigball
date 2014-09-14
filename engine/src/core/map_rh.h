@@ -248,6 +248,7 @@ public:
 			{	
 				if(is_deleted(elem_hash(pos)))
 				{
+					BB_LOG( map_rh, Log, "deleted WHAT ??" );
 					m_Pairs[pos].Key = Key;
 					m_Pairs[pos].Value = Value;
 					m_HashTable[pos] = HashValue;
