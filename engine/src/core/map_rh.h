@@ -230,6 +230,7 @@ public:
 	{
 		// This is a new pair
 		uint32 pos = desired_pos(HashValue);
+		uint32 insert_pos = INDEX_NONE;
 		int32 dist = 0;
 		for(;;)
 		{			
@@ -238,7 +239,7 @@ public:
 				m_Pairs[pos].Key = Key;
 				m_Pairs[pos].Value = Value;
 				m_HashTable[pos] = HashValue;
-				return &m_Pairs[pos];
+				return insert_pos != INDEX_NONE ? &m_Pairs[insert_pos] : &m_Pairs[pos];
 			}
 
 			// If the existing elem has probed less than us, then swap places with existing
@@ -252,7 +253,7 @@ public:
 					m_Pairs[pos].Key = Key;
 					m_Pairs[pos].Value = Value;
 					m_HashTable[pos] = HashValue;
-					return &m_Pairs[pos];
+					return insert_pos != INDEX_NONE ? &m_Pairs[insert_pos] : &m_Pairs[pos];
 				}
 
 				//uint32 hash_temp = elem_hash(pos);
@@ -261,7 +262,10 @@ public:
 				std::swap(HashValue, elem_hash(pos));
 				std::swap(Key, m_Pairs[pos].Key);
 				std::swap(Value, m_Pairs[pos].Value);
-				dist = existing_elem_probe_dist;				
+				dist = existing_elem_probe_dist;	
+
+				if( insert_pos == INDEX_NONE )
+					insert_pos = pos;
 			}
 
 			pos = (pos+1) & m_Mask;
