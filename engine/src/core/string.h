@@ -47,10 +47,23 @@ public:
         ((Super &)*this)[count] = '\0';
     }
 
-    inline String(String const &s)
+    String(String const &s)
       : Super((Super const &)s)
     {
     }
+
+	String(String&& s)
+		: Super((Array&&)s)
+	{
+	}
+
+	String& operator=( String&& that )
+	{ 
+		m_data = that.m_data;
+		m_count = that.m_count;
+		m_reserved = that.m_reserved;
+		return *this; 
+	}
 
     inline char &operator [](int n)
     {

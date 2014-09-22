@@ -40,6 +40,14 @@ public:
         m_count = that.m_count;
     }
 
+	Array(Array&& that) : 
+		m_data(that.m_data),
+		m_count(that.m_count),
+		m_reserved(that.m_reserved)	
+	{
+
+	}
+
     Array& operator=(Array const& that)
     {
         if ((uintptr_t)this != (uintptr_t)&that)
@@ -75,6 +83,14 @@ public:
         }
         return *this;
     }
+
+	Array& operator=( Array&& that )		
+	{ 
+		m_data = that.m_data;
+		m_count = that.m_count;
+		m_reserved = that.m_reserved;
+		return *this; 
+	}
 
     Array& operator+=(Array const &that)
     {

@@ -16,6 +16,7 @@ public:
 	{
 		K Key;
 		V Value;
+		Pair(K&& InKey, V&& InValue) : Key(std::move(InKey)), Value(std::move(InValue)) {}
 	};
 
 	MapRH() :
@@ -30,9 +31,14 @@ public:
 	}
 	~MapRH()
 	{
-		BB_DELETE_ARRAY(m_Pairs);
+		for( uint32 i = 0; i < m_HashSize; ++i)
+		{
+			if( elem_hash(i) != 0 )
+				m_Pairs[i].~Pair();
+		}
+		BB_FREE(m_Pairs);
 		BB_FREE(m_HashTable);
-		//BB_FREE(m_NextTable);
+
 		m_HashSize = 0;
 		m_Mask = 0;
 		m_NbActivePairs = 0;
@@ -68,12 +74,18 @@ public:
 
 	MapRH& operator=( MapRH const& Other ) 
 	{
+		for( uint32 i = 0; i < m_HashSize; ++i)
+		{
+			if( elem_hash(i) != 0 )
+				m_Pairs[i].~Pair();
+		}
+		BB_FREE(m_Pairs);
+		BB_FREE(m_HashTable);
+
 		m_HashSize = Other.m_HashSize;		
 		m_Mask = Other.m_Mask;
 		m_NbActivePairs = Other.m_NbActivePairs;
 
-		BB_DELETE_ARRAY(m_Pairs);
-		BB_FREE(m_HashTable);
 		CopyHashPairs( Other );
 		return *this; 
 	}
@@ -82,10 +94,13 @@ public:
 	{
 		if( Other.m_HashSize )
 		{
-			m_Pairs	= new Pair[Other.m_HashSize];
+			m_Pairs	= (Pair*) Memory::Malloc( Other.m_HashSize * sizeof(Pair), ALIGN_OF(Pair) );
 			// Cannot memcpy here, can Pair is not necessarily POD
 			for( uint32 i = 0; i < Other.m_HashSize; ++i )
-				m_Pairs[i] = Other.m_Pairs[i];
+			{
+				if( Other.elem_hash(i) != 0 )
+					m_Pairs[i] = Other.m_Pairs[i];
+			}
 
 			m_HashTable = (uint32*) Memory::Malloc( Other.m_HashSize * sizeof(uint32) );
 			Memory::Memcpy( m_HashTable, Other.m_HashTable, Other.m_HashSize * sizeof(uint32) );
@@ -152,8 +167,7 @@ public:
 			m_HashTable = (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );
 			Memory::Memset( m_HashTable, 0, m_HashSize * sizeof(uint32) );			// flag all new elems as free
 
-			m_Pairs	= new Pair[m_HashSize];/* (Pair*) Memory::Malloc( m_HashSize * sizeof(Pair) );*/
-
+			m_Pairs	= (Pair*) Memory::Malloc( m_HashSize * sizeof(Pair), ALIGN_OF(Pair) );
 
 			// Reinsert old data
 			for( uint32 i = 0; i < OldHashSize; ++i )
@@ -168,7 +182,7 @@ public:
 				}
 			}
 
-			BB_DELETE_ARRAY(OldPairs);
+			BB_FREE(OldPairs);
 			BB_FREE(OldHashTable);
 		}
 	}
@@ -226,6 +240,12 @@ public:
 		return insert_helper( std::move(Key), std::move(Value), HashValue );
 	}
 
+	void construct(uint32 pos, uint32 HashValue, K&& Key, V&& Value)
+	{
+		new (&m_Pairs[pos]) Pair(std::move(Key), std::move(Value));	
+		elem_hash(pos) = HashValue;
+	}
+
 	Pair* insert_helper( K&& Key, V&& Value, uint32 HashValue )
 	{
 		// This is a new pair
@@ -235,10 +255,8 @@ public:
 		for(;;)
 		{			
 			if(elem_hash(pos) == 0)
-			{			
-				m_Pairs[pos].Key = Key;
-				m_Pairs[pos].Value = Value;
-				m_HashTable[pos] = HashValue;
+			{
+				construct( pos, HashValue, std::move(Key), std::move(Value) );
 				return insert_pos != INDEX_NONE ? &m_Pairs[insert_pos] : &m_Pairs[pos];
 			}
 
@@ -250,9 +268,7 @@ public:
 				if(is_deleted(elem_hash(pos)))
 				{
 					BB_LOG( map_rh, Log, "deleted WHAT ??" );
-					m_Pairs[pos].Key = Key;
-					m_Pairs[pos].Value = Value;
-					m_HashTable[pos] = HashValue;
+					construct( pos, HashValue, std::move(Key), std::move(Value) );
 					return insert_pos != INDEX_NONE ? &m_Pairs[insert_pos] : &m_Pairs[pos];
 				}
 
