@@ -53,16 +53,17 @@ public:
     }
 
 	String(String&& s)
-		: Super((Array&&)s)
+		: Super(std::move(s))
 	{
 	}
 
 	String& operator=( String&& that )
 	{ 
-		m_data = that.m_data;
-		m_count = that.m_count;
-		m_reserved = that.m_reserved;
-		return *this; 
+		//m_data = that.m_data;
+		//m_count = that.m_count;
+		//m_reserved = that.m_reserved;
+		//return *this; 
+		return (String&) Super::operator=( std::move(that) );
 	}
 
     inline char &operator [](int n)

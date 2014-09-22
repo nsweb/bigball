@@ -31,13 +31,7 @@ public:
 	}
 	~MapRH()
 	{
-		for( uint32 i = 0; i < m_HashSize; ++i)
-		{
-			if( elem_hash(i) != 0 )
-				m_Pairs[i].~Pair();
-		}
-		BB_FREE(m_Pairs);
-		BB_FREE(m_HashTable);
+		free_buffers();
 
 		m_HashSize = 0;
 		m_Mask = 0;
@@ -51,6 +45,9 @@ public:
 		m_Mask(Other.m_Mask),
 		m_NbActivePairs(Other.m_NbActivePairs)	
 	{
+		Other.m_Pairs = nullptr;
+		Other.m_HashTable = nullptr;
+		Other.m_HashSize = 0;
 	}
 
 	MapRH( MapRH const& Other) : 
@@ -59,20 +56,32 @@ public:
 		m_NbActivePairs(Other.m_NbActivePairs)	
 
 	{
-		CopyHashPairs( Other );
+		copy_buffers( Other );
 	}
 
 	MapRH& operator=( MapRH&& Other )		
 	{ 
-		m_Pairs = Other.m_Pairs;
-		m_HashTable = Other.m_HashTable;
-		m_HashSize = Other.m_HashSize;
+		std::swap( m_Pairs, Other.m_Pairs );
+		std::swap( m_HashTable, Other.m_HashTable );
+		std::swap( m_HashSize, Other.m_HashSize );
 		m_Mask = Other.m_Mask;
 		m_NbActivePairs = Other.m_NbActivePairs;
 		return *this; 
 	}
 
 	MapRH& operator=( MapRH const& Other ) 
+	{
+		free_buffers();
+
+		m_HashSize = Other.m_HashSize;		
+		m_Mask = Other.m_Mask;
+		m_NbActivePairs = Other.m_NbActivePairs;
+
+		copy_buffers( Other );
+		return *this; 
+	}
+
+	void free_buffers()
 	{
 		for( uint32 i = 0; i < m_HashSize; ++i)
 		{
@@ -81,16 +90,9 @@ public:
 		}
 		BB_FREE(m_Pairs);
 		BB_FREE(m_HashTable);
-
-		m_HashSize = Other.m_HashSize;		
-		m_Mask = Other.m_Mask;
-		m_NbActivePairs = Other.m_NbActivePairs;
-
-		CopyHashPairs( Other );
-		return *this; 
 	}
 
-	void CopyHashPairs( MapRH const& Other )
+	void copy_buffers( MapRH const& Other )
 	{
 		if( Other.m_HashSize )
 		{
@@ -267,7 +269,6 @@ public:
 			{	
 				if(is_deleted(elem_hash(pos)))
 				{
-					BB_LOG( map_rh, Log, "deleted WHAT ??" );
 					construct( pos, HashValue, std::move(Key), std::move(Value) );
 					return insert_pos != INDEX_NONE ? &m_Pairs[insert_pos] : &m_Pairs[pos];
 				}
@@ -309,27 +310,6 @@ public:
 
 		return true;
 	}
-
-#if 0
-	void Serialize( File* DataFile )
-	{
-		if( DataFile->IsReading() )
-		{
-			uint32 NewHashSize = 0;
-			DataFile->Serialize( NewHashSize );
-			reserve( NewHashSize );
-		}
-		else
-		{
-			DataFile->Serialize( m_HashSize );
-		}
-
-		DataFile->Serialize( m_NbActivePairs );
-		DataFile->Serialize( m_Pairs, sizeof(Pair) * m_NbActivePairs );
-		DataFile->Serialize( m_HashTable, sizeof(uint32) * m_HashSize );
-		//DataFile->Serialize( m_NextTable, sizeof(uint32) * m_HashSize );
-	}
-#endif
 
 	uint32 GetReservedSize() const			{ return m_HashSize;			}
 	uint32 GetActivePairCount() const		{ return m_NbActivePairs;		}

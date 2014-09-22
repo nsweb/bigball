@@ -45,7 +45,8 @@ public:
 		m_count(that.m_count),
 		m_reserved(that.m_reserved)	
 	{
-
+		that.m_data = nullptr;
+		that.m_count = 0;
 	}
 
     Array& operator=(Array const& that)
@@ -86,9 +87,9 @@ public:
 
 	Array& operator=( Array&& that )		
 	{ 
-		m_data = that.m_data;
-		m_count = that.m_count;
-		m_reserved = that.m_reserved;
+		std::swap( m_data, that.m_data );
+		std::swap( m_count, that.m_count );
+		std::swap( m_reserved, that.m_reserved );
 		return *this; 
 	}
 
