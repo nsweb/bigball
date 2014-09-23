@@ -10,8 +10,6 @@
 #include "templates.h"
 #include "array.h"
 
-//#include <cstring>
-//#include <cstdarg>
 
 namespace bigball
 {
@@ -59,10 +57,6 @@ public:
 
 	String& operator=( String&& that )
 	{ 
-		//m_data = that.m_data;
-		//m_count = that.m_count;
-		//m_reserved = that.m_reserved;
-		//return *this; 
 		return (String&) Super::operator=( std::move(that) );
 	}
 

@@ -24,7 +24,7 @@ public:
 		m_HashTable(nullptr),
 		//m_NextTable(nullptr),
 		m_HashSize(0),
-		m_Mask(0),
+		//m_Mask(0),
 		m_NbActivePairs(0)
 	{
 
@@ -34,7 +34,7 @@ public:
 		free_buffers();
 
 		m_HashSize = 0;
-		m_Mask = 0;
+		//m_Mask = 0;
 		m_NbActivePairs = 0;
 	}
 
@@ -42,7 +42,7 @@ public:
 		m_Pairs(Other.m_Pairs),
 		m_HashTable(Other.m_HashTable),
 		m_HashSize(Other.m_HashSize),
-		m_Mask(Other.m_Mask),
+		//m_Mask(Other.m_Mask),
 		m_NbActivePairs(Other.m_NbActivePairs)	
 	{
 		Other.m_Pairs = nullptr;
@@ -52,7 +52,7 @@ public:
 
 	MapRH( MapRH const& Other) : 
 		m_HashSize(Other.m_HashSize),
-		m_Mask(Other.m_Mask),
+		//m_Mask(Other.m_Mask),
 		m_NbActivePairs(Other.m_NbActivePairs)	
 
 	{
@@ -64,7 +64,7 @@ public:
 		std::swap( m_Pairs, Other.m_Pairs );
 		std::swap( m_HashTable, Other.m_HashTable );
 		std::swap( m_HashSize, Other.m_HashSize );
-		m_Mask = Other.m_Mask;
+		//m_Mask = Other.m_Mask;
 		m_NbActivePairs = Other.m_NbActivePairs;
 		return *this; 
 	}
@@ -74,7 +74,7 @@ public:
 		free_buffers();
 
 		m_HashSize = Other.m_HashSize;		
-		m_Mask = Other.m_Mask;
+		//m_Mask = Other.m_Mask;
 		m_NbActivePairs = Other.m_NbActivePairs;
 
 		copy_buffers( Other );
@@ -137,12 +137,12 @@ public:
  
 	int probe_distance(uint32 HashValue, uint32 slot_index) const
 	{	
-		return (slot_index + m_HashSize - desired_pos(HashValue)) & m_Mask;
+		return (slot_index + m_HashSize - desired_pos(HashValue)) % m_HashSize;// & m_Mask;
 	}
 
 	uint32 desired_pos( uint32 HashValue ) const
 	{
-		return HashValue & m_Mask;
+		return HashValue % m_HashSize;//& m_Mask;
 	}
  
 	uint32& elem_hash(uint32 ix)
@@ -164,7 +164,7 @@ public:
 			uint32* OldHashTable = m_HashTable;
 
 			m_HashSize = (bigball::IsPowerOfTwo(HashSize) ? HashSize : bigball::NextPowerOfTwo(HashSize));
-			m_Mask = m_HashSize - 1;
+			//m_Mask = m_HashSize - 1;
 
 			m_HashTable = (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );
 			Memory::Memset( m_HashTable, 0, m_HashSize * sizeof(uint32) );			// flag all new elems as free
@@ -197,6 +197,28 @@ public:
 		uint32* OldHashTable = m_HashTable;
 
 		m_HashSize = (m_NbActivePairs * 10) / 9;
+
+		m_HashTable = (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );
+		Memory::Memset( m_HashTable, 0, m_HashSize * sizeof(uint32) );			// flag all new elems as free
+
+		m_Pairs	= (Pair*) Memory::Malloc( m_HashSize * sizeof(Pair), ALIGN_OF(Pair) );
+
+		// Reinsert old data
+		for( uint32 i = 0; i < OldHashSize; ++i )
+		{
+			auto& e = OldPairs[i];
+			uint32 HashValue = OldHashTable[i];
+
+			if( HashValue != 0 && !is_deleted(HashValue) )
+			{
+				Pair* inserted_pair = insert_helper( std::move(e.Key), std::move(e.Value), HashValue );
+				BB_ASSERT( inserted_pair );
+				e.~Pair();
+			}
+		}
+
+		BB_FREE(OldPairs);
+		BB_FREE(OldHashTable);
 	}
 
 	const Pair*	Find( K const& Key ) const
@@ -224,7 +246,7 @@ public:
 			else if (elem_hash(pos) == HashValue && m_Pairs[pos].Key == Key) 
 				return &m_Pairs[pos];				
 
-			pos = (pos+1) & m_Mask;
+			pos = (pos+1) % m_HashSize;// & m_Mask;
 			++dist;
 		}
 	}
@@ -285,7 +307,7 @@ public:
 					insert_pos = pos;
 			}
 
-			pos = (pos+1) & m_Mask;
+			pos = (pos+1) % m_HashSize;// & m_Mask;
 			++dist;			
 		}
 	}
@@ -326,7 +348,7 @@ public:
 	uint32*			m_HashTable;
 	//uint32*			m_NextTable;
 	uint32			m_HashSize;
-	uint32			m_Mask;
+	//uint32			m_Mask;
 	uint32			m_NbActivePairs;
 
 };
