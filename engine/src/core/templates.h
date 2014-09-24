@@ -7,7 +7,13 @@ namespace bigball
 {
 
 #define UNUSED(...)
-#define BB_ASSERT(...)
+
+#define BB_ASSERT(Format, ...) \
+{ \
+	BBLog::Print(__FILE__, __LINE__, "Assert", BBLog::Error, Format, ##__VA_ARGS__ ); \
+	__debugbreak(); \ 
+	std::abort(); \
+}
 
 #define BB_FREE(p)			{ if(p) Memory::Free(p); (p)=nullptr; }
 #define BB_DELETE(p)		{ if(p) delete(p); (p)=nullptr; }
