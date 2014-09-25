@@ -120,7 +120,7 @@ void CPUBarrierWriteRelease()
 CriticalSection::CriticalSection()
 {
 	m_Mutex = SDL_CreateMutex();
-	BB_ASSERT( m_Mutex != nullptr, "Failed to create a critical section mutex" );
+	BB_ASSERT_LOG( m_Mutex != nullptr, "Failed to create a critical section mutex" );
 }
 
 CriticalSection::~CriticalSection()

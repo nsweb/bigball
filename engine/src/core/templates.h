@@ -8,12 +8,16 @@ namespace bigball
 
 #define UNUSED(...)
 
-#define BB_ASSERT(Format, ...) \
+#define BB_ASSERT_LOG(Cond, Format, ...) \
 { \
-	BBLog::Print(__FILE__, __LINE__, "Assert", BBLog::Error, Format, ##__VA_ARGS__ ); \
-	__debugbreak(); \ 
-	std::abort(); \
+	if( !(Cond) ) \
+	{ \
+		BBLog::Print( __FILE__, __LINE__, "Assert", BBLog::Error, Format, ##__VA_ARGS__ ); \
+		__debugbreak(); \
+		std::abort(); \
+	} \
 }
+#define BB_ASSERT(Cond)		SDL_assert(Cond)
 
 #define BB_FREE(p)			{ if(p) Memory::Free(p); (p)=nullptr; }
 #define BB_DELETE(p)		{ if(p) delete(p); (p)=nullptr; }

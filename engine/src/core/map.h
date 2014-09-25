@@ -92,7 +92,7 @@ public:
 		}
 		if( Offset == INDEX_NONE )	return nullptr;
 
-		BB_ASSERT( Offset < m_Pairs.size() );
+		BB_ASSERT( Offset < m_HashSize );
 		// Match m_Pairs[Offset] => the pair is persistent
 		return &m_Pairs[Offset];
 	}

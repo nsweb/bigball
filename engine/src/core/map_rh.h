@@ -16,8 +16,11 @@ public:
 	{
 		K Key;
 		V Value;
+		Pair() {}
 		Pair(K&& InKey, V&& InValue) : Key(std::move(InKey)), Value(std::move(InValue)) {}
 	};
+
+	static const int32 LOAD_RATIO = 9;
 
 	MapRH() :
 		m_Pairs(nullptr),
@@ -101,7 +104,10 @@ public:
 			for( uint32 i = 0; i < Other.m_HashSize; ++i )
 			{
 				if( Other.elem_hash(i) != 0 )
+				{
+					new (&m_Pairs[i]) Pair();	
 					m_Pairs[i] = Other.m_Pairs[i];
+				}
 			}
 
 			m_HashTable = (uint32*) Memory::Malloc( Other.m_HashSize * sizeof(uint32) );
@@ -190,35 +196,49 @@ public:
 	}
 
 	/** Call this function to optimize allocated mem, when map is static and will not receive new elements */
-	void optimize()
+	bool optimize( int32 LoadRatio = LOAD_RATIO )
 	{
+		MapRH backup_map( *this );
+
 		uint32 OldHashSize = m_HashSize;
 		Pair* OldPairs = m_Pairs;
 		uint32* OldHashTable = m_HashTable;
 
-		m_HashSize = (m_NbActivePairs * 10) / 9;
+		m_HashSize = (m_NbActivePairs * 10) / LoadRatio;
 
 		m_HashTable = (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );
 		Memory::Memset( m_HashTable, 0, m_HashSize * sizeof(uint32) );			// flag all new elems as free
 
 		m_Pairs	= (Pair*) Memory::Malloc( m_HashSize * sizeof(Pair), ALIGN_OF(Pair) );
 
-		// Reinsert old data
-		for( uint32 i = 0; i < OldHashSize; ++i )
+		// Try to reinsert old data
+		uint32 insert_idx;
+		for( insert_idx = 0; insert_idx < OldHashSize; ++insert_idx )
 		{
-			auto& e = OldPairs[i];
-			uint32 HashValue = OldHashTable[i];
+			auto& e = OldPairs[insert_idx];
+			uint32 HashValue = OldHashTable[insert_idx];
 
 			if( HashValue != 0 && !is_deleted(HashValue) )
 			{
 				Pair* inserted_pair = insert_helper( std::move(e.Key), std::move(e.Value), HashValue );
-				BB_ASSERT( inserted_pair );
-				e.~Pair();
+				if( inserted_pair )
+					e.~Pair();
+				else
+					break;
 			}
 		}
 
 		BB_FREE(OldPairs);
 		BB_FREE(OldHashTable);
+
+		if( insert_idx != OldHashSize )
+		{
+			// Unable to reinsert old element, abort
+			*this = std::move( backup_map );
+			return false; 
+		}
+
+		return true;
 	}
 
 	const Pair*	Find( K const& Key ) const
@@ -258,7 +278,7 @@ public:
 		if(P)
 			return P;	// Persistent pair
 
-		if( ++m_NbActivePairs > (m_HashSize*9) / 10 )
+		if( ++m_NbActivePairs > (m_HashSize*LOAD_RATIO) / 10 )
 			reserve( m_HashSize + 1 );
 
 		return insert_helper( std::move(Key), std::move(Value), HashValue );
@@ -335,10 +355,10 @@ public:
 
 	uint32 GetReservedSize() const			{ return m_HashSize;			}
 	uint32 GetActivePairCount() const		{ return m_NbActivePairs;		}
-	Pair* GetPairAt( uint32 Index ) const 	{ BB_ASSERT(Index >= 0 && Index < m_NbActivePairs); return &m_Pairs[Index]; }
+	Pair* GetPairAt( uint32 Index ) const 	{ BB_ASSERT(Index >= 0 && Index < m_HashSize); return &m_Pairs[Index]; }
 	bool IsPairValid( uint32 Index ) const 	
 	{ 
-		BB_ASSERT(Index >= 0 && Index < m_NbActivePairs); 
+		BB_ASSERT(Index >= 0 && Index < m_HashSize); 
 		uint32 HashValue = m_HashTable[Index]; 
 		return ( HashValue != 0 && !is_deleted(HashValue) );
 	}
