@@ -160,7 +160,7 @@ public:
 		return m_HashTable[ix];
 	}
 
-	void reserve( uint32 HashSize )
+	void reserve( uint32 HashSize, bool bForcePowerOfTwo = true )
 	{
 		if( HashSize > m_HashSize )
 		{
@@ -169,7 +169,7 @@ public:
 			Pair* OldPairs = m_Pairs;
 			uint32* OldHashTable = m_HashTable;
 
-			m_HashSize = (bigball::IsPowerOfTwo(HashSize) ? HashSize : bigball::NextPowerOfTwo(HashSize));
+			m_HashSize = (bForcePowerOfTwo ? (bigball::IsPowerOfTwo(HashSize) ? HashSize : bigball::NextPowerOfTwo(HashSize)) : HashSize);
 			//m_Mask = m_HashSize - 1;
 
 			m_HashTable = (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );
