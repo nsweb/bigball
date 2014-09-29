@@ -34,6 +34,30 @@ namespace bigball
 			SDL_mutex* m_Mutex;
 		};
 
+		class CASLock 
+		{
+		public:
+
+            void Lock() 
+			{ 
+				while( 0 != InterlockedCompareExchange( (void*)&m_SyncObject, 1, 0 ) ) 
+					ThreadTools::SpinLoop();
+			}
+            void Unlock() 
+			{ 
+				while( 1 != InterlockedCompareExchange( (void*)&m_SyncObject, 0, 1 ) ) 
+					ThreadTools::SpinLoop();
+			}
+            bool TryLock()		{ return 0 != InterlockedCompareExchange( (void*)&m_SyncObject, 1, 0 ); }
+            bool TryUnlock()	{ return 1 != InterlockedCompareExchange( (void*)&m_SyncObject, 0, 1 ); }
+
+#if WIN64
+            volatile uint64 m_SyncObject;
+#else
+			volatile uint32 m_SyncObject;
+#endif
+        };
+
 		/** Defines a scope for the critical section */
 		class ScopeLock
 		{

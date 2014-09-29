@@ -176,7 +176,6 @@
     <ClInclude Include="core\log.h" />
     <ClInclude Include="core\map.h" />
     <ClInclude Include="core\name.h" />
-    <ClInclude Include="core\profiler.h" />
     <ClInclude Include="core\radixsort.h" />
     <ClInclude Include="core\sort.h" />
     <ClInclude Include="core\string.h" />
@@ -204,6 +203,7 @@
     <ClInclude Include="math\vector.h" />
     <ClInclude Include="system\file.h" />
     <ClInclude Include="system\lockfreequeue.h" />
+    <ClInclude Include="system\profiler.h" />
     <ClInclude Include="system\task.h" />
     <ClInclude Include="system\thread.h" />
     <ClInclude Include="system\threadingutils.h" />
@@ -216,7 +216,6 @@
     <ClCompile Include="core\hash.cpp" />
     <ClCompile Include="core\log.cpp" />
     <ClCompile Include="core\name.cpp" />
-    <ClCompile Include="core\profiler.cpp" />
     <ClCompile Include="core\radixsort.cpp" />
     <ClCompile Include="core\string.cpp" />
     <ClCompile Include="dllmain.cpp">
@@ -255,6 +254,7 @@
     <ClCompile Include="math\vector.cpp" />
     <ClCompile Include="system\file.cpp" />
     <ClCompile Include="system\lockfreequeue.cpp" />
+    <ClCompile Include="system\profiler.cpp" />
     <ClCompile Include="system\task.cpp" />
     <ClCompile Include="system\thread.cpp" />
     <ClCompile Include="system\threadingutils.cpp" />
