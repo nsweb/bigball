@@ -140,6 +140,9 @@
     <ClInclude Include="core\map_rh.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="core\profiler.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -241,6 +244,9 @@
     </ClCompile>
     <ClCompile Include="system\lockfreequeue.cpp">
       <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="core\profiler.cpp">
+      <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
