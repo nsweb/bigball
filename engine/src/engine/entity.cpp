@@ -50,7 +50,7 @@ void Entity::Create( EntityPattern* Pattern, class json::Object* Proto, Name InN
 }
 void Entity::Destroy()
 {
-	BB_ASSERT( m_State == Created );
+	BB_ASSERT( m_State == Created || m_State == InWorld );
 
 	for( int i = 0; i < m_Components.size(); ++i )
 	{

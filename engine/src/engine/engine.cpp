@@ -167,14 +167,16 @@ void Engine::CreateGameCameras()
 //////////////////////////////////////////////////////////////////////////
 void Engine::MainLoop()
 {
-	uint32 OldTime, CurrentTime = SDL_GetTicks();
+//int32 OldTime, CurrentTime = SDL_GetTicks();
+	uint64 OldTime, CurrentTime = SDL_GetPerformanceCounter();
 
 	while( 1 )
 	{
 		int32 LoopStatus = 0;
 		OldTime = CurrentTime;
-		CurrentTime = SDL_GetTicks();
-		float DeltaSeconds = (CurrentTime - OldTime) / 1000.0f;
+		CurrentTime = SDL_GetPerformanceCounter();
+
+		float DeltaSeconds = (CurrentTime - OldTime) / (float)SDL_GetPerformanceFrequency(); // / 1000.0f;
 
 
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );

@@ -9,6 +9,30 @@
 namespace bigball
 {
 
+#if BB_BUILD_DEBUG || BB_BUILD_RELEASE
+	
+	#define PROFILE_THREAD_SCOPE( static_text )		Profiler::ScopeThread TPScope__LINE__ ( static_text );
+	#define PROFILE_THREAD_START( static_text )		Profiler::ThreadEntry( static_text )
+	#define PROFILE_THREAD_STOP()					Profiler::ThreadExit();
+
+	//#define PROFILE_PAUSE()             Profiler::pause();
+	//#define PROFILE_UNPAUSE()           Profiler::unpause();
+	//#define PROFILE_PAUSE_SCOPED()      Profiler::ScopedPause profilerpause##__LINE__;
+
+	#define PROFILE_SCOPE( static_text )            Profiler::ScopeNode NPScope__LINE__ ( static_text );
+	#define PROFILE_START( static_text )            Profiler::NodeEntry( static_text );
+	#define PROFILE_STOP()							Profiler::NodeExit();
+#else
+	#define PROFILE_THREAD_SCOPE( static_text )		
+	#define PROFILE_THREAD_START( static_text )		
+	#define PROFILE_THREAD_STOP()					
+
+	#define PROFILE_SCOPE( static_text )            
+	#define PROFILE_START( static_text )            
+	#define PROFILE_STOP()							
+#endif
+
+
 namespace Profiler
 {
 	typedef uint32 NameHandle;
@@ -18,21 +42,26 @@ namespace Profiler
 
 	struct ThreadState 
 	{
-		ThreadTools::CASLock m_ThreadLock;
+		ThreadTools::CASLock m_ThreadNodeLock;
 		CallNode* m_pActiveNode;
 	};
 
 	struct CallNode
 	{
-		CallNode( const char* szName, CallNode* pParent = nullptr ) : m_Name(szName), m_pParent(pParent)	{}
+		CallNode( const char* szName, CallNode* pParent = nullptr ) : m_Name(szName), m_pParent(pParent), m_StartTime(0), m_CallCount(0), m_fTimeSpent(0)	{}
 
-		void Start()	{}
-		void Stop()		{}
-		void SetActive( bool bActive )	{}
+		void Start();
+		void Stop();
+		void SetActive( bool bActive );
+		void Reset()	{ m_StartTime = 0; m_CallCount = 0; m_fTimeSpent = 0;	}
+		CallNode* FindOrCreateChildNode( const char* szName );
 
-		const char* m_Name;
-		CallNode* m_pParent;
-		Array<CallNode*> m_ChildrenArray;
+		const char*			m_Name;
+		CallNode*			m_pParent;
+		uint64				m_StartTime;
+		uint32				m_CallCount;
+		float				m_fTimeSpent;
+		Array<CallNode*>	m_ChildrenArray;
 
 		static __declspec(thread) ThreadState m_ThreadState;
 	};
@@ -53,6 +82,8 @@ namespace Profiler
 
 	void ThreadEntry( const char* szName );
 	void ThreadExit();
+	void NodeEntry( const char* szName );
+	void NodeExit();
 
 	/** Defines a scope for thread */
 	class ScopeThread
@@ -60,6 +91,14 @@ namespace Profiler
 	public:
 		ScopeThread( const char* szName )	{ ThreadEntry( szName );	}
 		~ScopeThread()						{ ThreadExit();				}
+	};
+
+	/** Defines a scope for call nodes */
+	class ScopeNode
+	{
+	public:
+		ScopeNode( const char* szName )		{ NodeEntry( szName );	}
+		~ScopeNode()						{ NodeExit();				}
 	};
 
 	/** Start profiling on all threads */
