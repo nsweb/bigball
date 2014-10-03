@@ -209,6 +209,7 @@
     <ClInclude Include="system\threadingutils.h" />
     <ClInclude Include="system\workerthreadmanager.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="ui\uimanager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="core\json.cpp" />
@@ -259,6 +260,7 @@
     <ClCompile Include="system\thread.cpp" />
     <ClCompile Include="system\threadingutils.cpp" />
     <ClCompile Include="system\workerthreadmanager.cpp" />
+    <ClCompile Include="ui\uimanager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

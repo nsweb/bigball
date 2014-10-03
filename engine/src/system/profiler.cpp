@@ -25,9 +25,19 @@ void Stop()
 {
 
 }
-void Reset()
+void FrameReset()
 {
+	g_ProfilerData.m_ThreadLock.Lock();
 
+	for( int32 RootIdx = 0; RootIdx < g_ProfilerData.m_ThreadRoots.size(); ++RootIdx )
+	{
+		CallRoot& TRoot = g_ProfilerData.m_ThreadRoots[RootIdx];
+		//if( TRoot.m_pThreadState->m_pActiveNode )
+		{
+			TRoot.m_pRoot->FrameReset();
+		}
+	}
+	g_ProfilerData.m_ThreadLock.Unlock();	
 }
 
 void ThreadEntry( const char* szName )
@@ -107,15 +117,40 @@ void CallNode::Start()
 void CallNode::Stop()
 {
 	uint64 StopTime = SDL_GetPerformanceCounter();
-	m_fTimeSpent = (StopTime - m_StartTime) / (float)SDL_GetPerformanceFrequency();
+	float fTimeSpent = (StopTime - m_StartTime) / (float)SDL_GetPerformanceFrequency();
+	m_fTimeSpent += fTimeSpent;
+	m_fMaxTimeSpent = bigball::max( m_fTimeSpent, m_fMaxTimeSpent );
 
-	BB_LOG( Profiler, Log, "Sum time spent in %s = %f seconds", m_Name, m_fTimeSpent );
+	BB_LOG( Profiler, Log, "[STAT] %s = %f ms - Max = %f ms", m_Name, m_fTimeSpent*100.0f, m_fMaxTimeSpent*100.0f );
 }
 
 void CallNode::SetActive( bool bActive )
 {
 
 }
+
+void CallNode::FrameReset()
+{
+	m_StartTime = 0; 
+	m_CallCount = 0; 
+	m_fTimeSpent = 0;
+
+	// Recursively call each child node
+	for( int32 ChildIdx = 0; ChildIdx < m_ChildrenArray.size(); ++ChildIdx )
+	{
+		m_ChildrenArray[ChildIdx]->FrameReset();
+	}
+}
+
+void CallNode::HardReset()
+{
+	m_StartTime = 0; 
+	m_CallCount = 0; 
+	m_fTimeSpent = 0; 
+	m_fMaxTimeSpent = 0;
+}
+
+
 
 
 

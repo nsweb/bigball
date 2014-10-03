@@ -14,6 +14,7 @@ namespace bigball
 	#define PROFILE_THREAD_SCOPE( static_text )		Profiler::ScopeThread TPScope__LINE__ ( static_text );
 	#define PROFILE_THREAD_START( static_text )		Profiler::ThreadEntry( static_text )
 	#define PROFILE_THREAD_STOP()					Profiler::ThreadExit();
+	#define PROFILE_THREAD_FRAMERESET()				Profiler::FrameReset();
 
 	//#define PROFILE_PAUSE()             Profiler::pause();
 	//#define PROFILE_UNPAUSE()           Profiler::unpause();
@@ -48,12 +49,13 @@ namespace Profiler
 
 	struct CallNode
 	{
-		CallNode( const char* szName, CallNode* pParent = nullptr ) : m_Name(szName), m_pParent(pParent), m_StartTime(0), m_CallCount(0), m_fTimeSpent(0)	{}
+		CallNode( const char* szName, CallNode* pParent = nullptr ) : m_Name(szName), m_pParent(pParent), m_StartTime(0), m_CallCount(0), m_fTimeSpent(0), m_fMaxTimeSpent(0)	{}
 
 		void Start();
 		void Stop();
 		void SetActive( bool bActive );
-		void Reset()	{ m_StartTime = 0; m_CallCount = 0; m_fTimeSpent = 0;	}
+		void FrameReset();
+		void HardReset();
 		CallNode* FindOrCreateChildNode( const char* szName );
 
 		const char*			m_Name;
@@ -61,6 +63,7 @@ namespace Profiler
 		uint64				m_StartTime;
 		uint32				m_CallCount;
 		float				m_fTimeSpent;
+		float				m_fMaxTimeSpent;
 		Array<CallNode*>	m_ChildrenArray;
 
 		static __declspec(thread) ThreadState m_ThreadState;
@@ -104,7 +107,9 @@ namespace Profiler
 	/** Start profiling on all threads */
 	void Start();
 	void Stop();
-	void Reset();
+	/** Should be called at the end of each frame, to reset stats */
+	void FrameReset();
+	void HardReset();
 
 
 } /* namespace Profiler */

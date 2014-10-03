@@ -16,6 +16,9 @@
     <Filter Include="gfx">
       <UniqueIdentifier>{674fbe42-e369-4427-9cb8-efc8a5d3969b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{a541b713-9990-4e6b-8419-a48fc4e1201a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h" />
@@ -143,6 +146,9 @@
     <ClInclude Include="system\profiler.h">
       <Filter>system</Filter>
     </ClInclude>
+    <ClInclude Include="ui\uimanager.h">
+      <Filter>ui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -247,6 +253,9 @@
     </ClCompile>
     <ClCompile Include="system\profiler.cpp">
       <Filter>system</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\uimanager.cpp">
+      <Filter>ui</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

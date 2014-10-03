@@ -8,6 +8,7 @@
 #include "../gfx/gfxmanager.h"
 #include "../gfx/rendercontext.h"
 #include "../system/workerthreadmanager.h"
+#include "../system/profiler.h"
 #include "coposition.h"
 #include "camera.h"
 #include "tickcontext.h"
@@ -302,6 +303,9 @@ void Engine::MainLoop()
 				break;
 			}
 		}
+
+		// Reset profiler data for next frame
+		PROFILE_THREAD_FRAMERESET()
 
 		if( LoopStatus == 1 ) // if received instruction to quit
 			break;
