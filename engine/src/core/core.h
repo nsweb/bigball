@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <tinyxml2.h>
 #include <jsmn.h>
+#include <imgui.h>
 #include "types.h"
 #include <cmath>
 #include <algorithm>

@@ -46,11 +46,14 @@ public:
 	uint32					m_RenderMode;
 	bool					m_bShowCulling;
 
+	GLuint					m_DebugFontTexId;
+
 protected:
 	virtual void	InitManagers();
 	virtual void	DestroyManagers();
 	virtual void	DeclareComponentsAndEntities();
 	virtual void	CreateGameCameras() = 0;
+	void			InitImGui();
 };
 
 extern BIGBALL_API Engine* g_pEngine;

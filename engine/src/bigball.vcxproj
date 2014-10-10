@@ -61,28 +61,28 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\bin\$(Platform)_$(Configuration)\</OutDir>
-    <IncludePath>..\..\3rdparty\SDL2-2.0.1\include;..\..\3rdparty\glew-1.10.0\include;..\..\3rdparty\tinyxml2;..\..\3rdparty\jsmn;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\3rdparty\SDL2-2.0.1\lib\x86\$(Configuration);..\..\3rdparty\glew-1.10.0\lib\release\Win32;..\..\3rdparty\tinyxml2\tinyxml2\bin\$(Platform)-$(Configuration)-Dll;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\3rdparty\SDL2-2.0.1\include;..\..\3rdparty\glew-1.10.0\include;..\..\3rdparty\tinyxml2;..\..\3rdparty\jsmn;..\..\3rdparty\imgui;..\..\3rdparty;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\3rdparty\SDL2-2.0.1\lib\x86\$(Configuration);..\..\3rdparty\glew-1.10.0\lib\release\Win32;..\..\3rdparty\tinyxml2\tinyxml2\bin\$(Platform)-$(Configuration)-Dll;..\..\3rdparty\imgui\bin\$(Platform)-$(Configuration)-Dll;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IntDir>..\intermediate\$(Platform)_$(Configuration)\</IntDir>
     <OutDir>..\bin\$(Platform)_$(Configuration)\</OutDir>
-    <IncludePath>..\..\3rdparty\SDL2-2.0.1\include;..\..\3rdparty\glew-1.10.0\include;..\..\3rdparty\tinyxml2;..\..\3rdparty\jsmn;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\3rdparty\SDL2-2.0.1\lib\x64\$(Configuration);..\..\3rdparty\glew-1.10.0\lib\release\x64;..\..\3rdparty\tinyxml2\tinyxml2\bin\$(Platform)-$(Configuration)-Dll;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\3rdparty\SDL2-2.0.1\include;..\..\3rdparty\glew-1.10.0\include;..\..\3rdparty\tinyxml2;..\..\3rdparty\jsmn;..\..\3rdparty\imgui;..\..\3rdparty;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\3rdparty\SDL2-2.0.1\lib\x64\$(Configuration);..\..\3rdparty\glew-1.10.0\lib\release\x64;..\..\3rdparty\tinyxml2\tinyxml2\bin\$(Platform)-$(Configuration)-Dll;..\..\3rdparty\imgui\bin\$(Platform)-$(Configuration)-Dll;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\bin\$(Platform)_$(Configuration)\</OutDir>
-    <IncludePath>..\..\3rdparty\SDL2-2.0.1\include;..\..\3rdparty\glew-1.10.0\include;..\..\3rdparty\tinyxml2;..\..\3rdparty\jsmn;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\3rdparty\SDL2-2.0.1\lib\x86\$(Configuration);..\..\3rdparty\glew-1.10.0\lib\release\Win32;..\..\3rdparty\tinyxml2\tinyxml2\bin\$(Platform)-$(Configuration)-Dll;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\3rdparty\SDL2-2.0.1\include;..\..\3rdparty\glew-1.10.0\include;..\..\3rdparty\tinyxml2;..\..\3rdparty\jsmn;..\..\3rdparty\imgui;..\..\3rdparty;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\3rdparty\SDL2-2.0.1\lib\x86\$(Configuration);..\..\3rdparty\glew-1.10.0\lib\release\Win32;..\..\3rdparty\tinyxml2\tinyxml2\bin\$(Platform)-$(Configuration)-Dll;..\..\3rdparty\imgui\bin\$(Platform)-$(Configuration)-Dll;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\bin\$(Platform)_$(Configuration)\</OutDir>
     <IntDir>..\intermediate\$(Platform)_$(Configuration)\</IntDir>
-    <IncludePath>..\..\3rdparty\SDL2-2.0.1\include;..\..\3rdparty\glew-1.10.0\include;..\..\3rdparty\tinyxml2;..\..\3rdparty\jsmn;$(IncludePath)</IncludePath>
-    <LibraryPath>..\..\3rdparty\SDL2-2.0.1\lib\x64\$(Configuration);..\..\3rdparty\glew-1.10.0\lib\release\x64;..\..\3rdparty\tinyxml2\tinyxml2\bin\$(Platform)-$(Configuration)-Dll;$(LibraryPath)</LibraryPath>
+    <IncludePath>..\..\3rdparty\SDL2-2.0.1\include;..\..\3rdparty\glew-1.10.0\include;..\..\3rdparty\tinyxml2;..\..\3rdparty\jsmn;..\..\3rdparty\imgui;..\..\3rdparty;$(IncludePath)</IncludePath>
+    <LibraryPath>..\..\3rdparty\SDL2-2.0.1\lib\x64\$(Configuration);..\..\3rdparty\glew-1.10.0\lib\release\x64;..\..\3rdparty\tinyxml2\tinyxml2\bin\$(Platform)-$(Configuration)-Dll;..\..\3rdparty\imgui\bin\$(Platform)-$(Configuration)-Dll;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
