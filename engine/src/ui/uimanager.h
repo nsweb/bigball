@@ -4,7 +4,7 @@
 #ifndef BB_UIMANAGER_H
 #define BB_UIMANAGER_H
 
-#include "../engine/basemanager.h"
+//#include "../engine/basemanager.h"
 
 namespace bigball
 {
@@ -70,9 +70,8 @@ namespace bigball
 //}
 
 //////////////////////////////////////////////////////////////////////////
-class BIGBALL_API UIManager : public BaseManager 
+class BIGBALL_API UIManager
 {
-	STATIC_MANAGER_H(UIManager)
 
 public:
 
@@ -83,11 +82,13 @@ public:
 	virtual void		Destroy();	
 	virtual void		Tick( struct TickContext& TickCtxt );
 	virtual void		_Render( struct RenderContext& RenderCtxt );
-
+	static UIManager*	GetStaticInstance()		{ return m_pStaticInstance; }
 
 protected:
+	void				InitImGui();
 
-
+private:
+	static UIManager* m_pStaticInstance;
 };
 
 } /* namespace bigball */
