@@ -3,7 +3,7 @@
 #include "../bigball.h"
 #include "shader.h"
 #include "gfxmanager.h"
-
+#include "bufferlock.h"
 
 namespace bigball
 {
@@ -23,7 +23,8 @@ GfxManager::~GfxManager()
 
 void GfxManager::Create()
 {
-
+	// Create lock manager
+	BufferLockManager* pLockManager = new BufferLockManager( true );
 }
 void GfxManager::Destroy()
 {
@@ -33,6 +34,9 @@ void GfxManager::Destroy()
 		auto pPair = m_Shaders.GetPairAt( i );
 		BB_DELETE( pPair->Value );
 	}
+
+	// Destroy lock manager
+	delete BufferLockManager::GetStaticInstance();
 }
 
 void GfxManager::Tick( TickContext& TickCtxt )

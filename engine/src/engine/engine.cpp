@@ -14,9 +14,6 @@
 #include "camera.h"
 #include "tickcontext.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb/stb_image.h"
-
 // HACK
 #include "../system/file.h"
 
@@ -31,8 +28,7 @@ Engine::Engine() :
 	m_MainWindow(nullptr),
 	m_FrameCount(0),
 	m_RenderMode(RenderContext::eRM_Lit),
-	m_bShowCulling(false),
-	m_DebugFontTexId(0)
+	m_bShowCulling(false)
 {
 	
 }

@@ -2,11 +2,73 @@
 
 #include "../bigball.h"
 #include "uimanager.h"
-//#include "camera.h"
-//#include "engine.h"
 #include "../gfx/rendercontext.h"
+#include "../gfx/bufferlock.h"
 
-// 
+// Needed for loading png
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb/stb_image.h"
+
+//
+//struct UIId
+//{
+//	uint32 Owner;
+//	uint32 Item;
+//	uint32 Index;
+//};
+//
+//struct UIContext
+//{
+//	UIId Hovered;		// about to be interacting (mouse hovering, highlight etc.)
+//	UIId Active;	// actually interacting
+//
+//	//ActiveContext;	// specific data for widget when active
+//};
+//
+///** Page, menu etc. (important for draw order) */
+//class UILayer
+//{
+//
+//};
+//
+///** Reurns true if the button was clicked */
+//bool DoButton( UIContext& Ctx, UIId& ButtonID, const char* Text );
+//{
+//	if( Ctx.Active == ButtonID )
+//	{
+//		if( mousewentup )
+//		{
+//			if( hot)
+//				result=true;
+//			Setnotactive;
+//		}
+//	}
+//	else if( Ctx.Hovered == ButtonID )
+//	{
+//		if( mousewentdown )
+//		{
+//			Setactive;
+//		}
+//	}
+//
+//	if( Inside )
+//		Sethot;
+//
+//	// Display the button
+//}
+//
+//void MainUpdateLoop()
+//{
+//	// Affichage en lua par ex
+//	for( menus )
+//	{
+//		for( items )
+//			DoItems;
+//	}
+//	for( popups )
+//
+//	for( 3delt )
+//}
 
 
 namespace bigball
@@ -14,7 +76,9 @@ namespace bigball
 
 UIManager* UIManager::m_pStaticInstance = NULL;
 
-UIManager::UIManager()
+UIManager::UIManager() :
+	m_DebugFontTexId(0),
+	m_UI_VAO(0)
 {
 	m_pStaticInstance = this;
 }
@@ -26,48 +90,30 @@ UIManager::~UIManager()
 
 void UIManager::Create()
 {
-	// Create set of camera Ctrls
-	//CameraCtrl_Fly* pCBH = new CameraCtrl_Fly();
-	//m_CamCtrls.push_back( pCBH );
-	//m_pActiveCamCtrl = pCBH;
+	InitImGui();
 
-	GLbitfield MapFlags = GL_MAP_WRITE_BIT 
-							| GL_MAP_PERSISTENT_BIT // keeped mapped while drawing
-							| GL_MAP_COHERENT_BIT;	// writes automatically visible to GPU
-	GLbitfield CreateFlags = MapFlags | GL_DYNAMIC_STORAGE_BIT;
+	glGenVertexArrays( 1, &m_UI_VAO);
+	glBindVertexArray( m_UI_VAO);
 
-	m_DestHead = 0;
-	m_BufferSize = 3*MaxVerts * VertexSizeBytes;	// Triple buffering
-	glBindBuffer( GL_ARRAY_BUFFER, VertexBufferID );
-	glBufferStorage( GL_ARRAY_BUFFER, m_BufferSize, nullptr, CreateFlags );	// Create data store for immutable buffer object
-	m_VertexDataPtr = glMapBufferRange( GL_ARRAY_BUFFER, 0, m_BufferSize, MapFlags );	// Mapped forever 
+	const uint32 MaxUIVertex = 10000;
+	m_UI_VBO.Init( MaxUIVertex, sizeof(UIVertex) );
 
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, sizeof(UIVertex) /*stride*/, (void*)0 /*offset*/	);
+	glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, sizeof(UIVertex) /*stride*/, (void*)8 /*offset*/	);
+	glVertexAttribPointer( 2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(UIVertex) /*stride*/, (void*)16 /*offset*/	);
 
-
-
-	mBufferLockManager.WaitForLockedRange(m_DestHead, vertSizeBytes); 
-	for (int i = 0; i < particleCount; ++i) 
-	{ 
-		const int vertexOffset = i * kVertsPerParticle; 
-		const int thisDstOffset = m_DestHead + (i * kParticleSizeBytes); 
-		void* dst = (unsigned char*) m_VertexDataPtr + thisDstOffset; 
-		memcpy(dst, &_vertices[vertexOffset], kParticleSizeBytes); 
-		DrawArrays(TRIANGLES, kStartIndex + vertexOffset, kVertsPerParticle); 
-	} 
-	mBufferLockManager.LockRange(m_DestHead, vertSizeBytes); 
-	m_DestHead = (m_DestHead + vertSizeBytes) % m_BufferSize;
-
-
-	// glFenceSync() / glClientWaitSync() ?
-	WriteGeometry( data, ... );
-	data += dataSize;
-
+	glBindVertexArray(0);
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
 }
 void UIManager::Destroy()
 {
-	//for( int32 i = 0; i < m_CamCtrls.size(); ++i )
-	//	BB_DELETE( m_CamCtrls[i] );
-	//m_CamCtrls.clear();
+	m_UI_VBO.Cleanup();
+	glDeleteVertexArrays( 1, &m_UI_VAO );
 
 	ImGui::Shutdown();
 }
@@ -82,6 +128,12 @@ void UIManager::Destroy()
 // - try adjusting ImGui::GetIO().PixelCenterOffset to 0.5f or 0.375f
 static void ImImpl_RenderDrawLists(ImDrawList** const cmd_lists, int cmd_lists_count)
 {
+	UIManager* pManager = UIManager::GetStaticInstance();
+	pManager->RenderDrawLists( cmd_lists, cmd_lists_count );
+}
+
+void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lists_count)
+{
 	if (cmd_lists_count == 0)
 		return;
 
@@ -93,45 +145,87 @@ static void ImImpl_RenderDrawLists(ImDrawList** const cmd_lists, int cmd_lists_c
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_SCISSOR_TEST);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
+	//glEnableClientState(GL_VERTEX_ARRAY);
+	//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	//glEnableClientState(GL_COLOR_ARRAY);
 
 	// Setup texture
-	glBindTexture(GL_TEXTURE_2D, g_pEngine->m_DebugFontTexId);
+	glBindTexture(GL_TEXTURE_2D, m_DebugFontTexId);
 	glEnable(GL_TEXTURE_2D);
 
 	// Setup orthographic projection matrix
-	const float width = ImGui::GetIO().DisplaySize.x;
-	const float height = ImGui::GetIO().DisplaySize.y;
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0.0f, width, height, 0.0f, -1.0f, +1.0f);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+	//const float width = ImGui::GetIO().DisplaySize.x;
+	//const float height = ImGui::GetIO().DisplaySize.y;
+	//glMatrixMode(GL_PROJECTION);
+	//glLoadIdentity();
+	//glOrtho(0.0f, width, height, 0.0f, -1.0f, +1.0f);
+	//glMatrixMode(GL_MODELVIEW);
+	//glLoadIdentity();
+
+
+	glBindVertexArray( m_UI_VAO );
+
+
 
 	// Render command lists
+	//for (int n = 0; n < cmd_lists_count; n++)
+	//{
+	//	const ImDrawList* cmd_list = cmd_lists[n];
+	//	const unsigned char* vtx_buffer = (const unsigned char*)cmd_list->vtx_buffer.begin();
+	//	glVertexPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer));
+	//	glTexCoordPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer+8));
+	//	glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(ImDrawVert), (void*)(vtx_buffer+16));
+
+	//	int vtx_offset = 0;
+	//	const ImDrawCmd* pcmd_end = cmd_list->commands.end();
+	//	for (const ImDrawCmd* pcmd = cmd_list->commands.begin(); pcmd != pcmd_end; pcmd++)
+	//	{
+	//		glScissor((int)pcmd->clip_rect.x, (int)(height - pcmd->clip_rect.w), (int)(pcmd->clip_rect.z - pcmd->clip_rect.x), (int)(pcmd->clip_rect.w - pcmd->clip_rect.y));
+	//		glDrawArrays(GL_TRIANGLES, vtx_offset, pcmd->vtx_count);
+	//		vtx_offset += pcmd->vtx_count;
+	//	}
+	//}
+
+	// Count the size we need to lock
+	uint32 sum_vtx_count = 0;
 	for (int n = 0; n < cmd_lists_count; n++)
 	{
 		const ImDrawList* cmd_list = cmd_lists[n];
-		const unsigned char* vtx_buffer = (const unsigned char*)cmd_list->vtx_buffer.begin();
-		glVertexPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer));
-		glTexCoordPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer+8));
-		glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(ImDrawVert), (void*)(vtx_buffer+16));
-
-		int vtx_offset = 0;
+		
 		const ImDrawCmd* pcmd_end = cmd_list->commands.end();
 		for (const ImDrawCmd* pcmd = cmd_list->commands.begin(); pcmd != pcmd_end; pcmd++)
 		{
-			glScissor((int)pcmd->clip_rect.x, (int)(height - pcmd->clip_rect.w), (int)(pcmd->clip_rect.z - pcmd->clip_rect.x), (int)(pcmd->clip_rect.w - pcmd->clip_rect.y));
-			glDrawArrays(GL_TRIANGLES, vtx_offset, pcmd->vtx_count);
-			vtx_offset += pcmd->vtx_count;
+			sum_vtx_count += pcmd->vtx_count;
 		}
 	}
+
+	BufferLockManager::GetStaticInstance()->WaitForLockedRange( m_UI_VBO.m_DestHead, sum_vtx_count*sizeof(UIVertex) ); 
+	for (int i = 0; i < particleCount; ++i) 
+	{ 
+		const int vertexOffset = i * kVertsPerParticle; 
+		const int thisDstOffset = m_UI_VBO.m_DestHead + (i * kParticleSizeBytes); 
+		void* dst = (unsigned char*) m_UI_VBO.m_VertexDataPtr + thisDstOffset; 
+		Memory::Memcpy(dst, &_vertices[vertexOffset], kParticleSizeBytes); 
+		//DrawArrays(TRIANGLES, kStartIndex + vertexOffset, kVertsPerParticle); 
+
+		glScissor((int)pcmd->clip_rect.x, (int)(height - pcmd->clip_rect.w), (int)(pcmd->clip_rect.z - pcmd->clip_rect.x), (int)(pcmd->clip_rect.w - pcmd->clip_rect.y));
+		glDrawArrays( GL_TRIANGLES, kStartIndex + vertexOffset, kVertsPerParticle );
+	} 
+	BufferLockManager::GetStaticInstance()->LockRange(m_UI_VBO.m_DestHead, vertSizeBytes); 
+	m_UI_VBO.m_DestHead = (m_UI_VBO.m_DestHead + vertSizeBytes) % m_UI_VBO.m_BufferSize;
+
+
+
+	glBindVertexArray(0);
+
+	// glFenceSync() / glClientWaitSync() ?
+	//WriteGeometry( data, ... );
+	//data += dataSize;
+
 	glDisable(GL_SCISSOR_TEST);
-	glDisableClientState(GL_COLOR_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY);
+	//glDisableClientState(GL_COLOR_ARRAY);
+	//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	//glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 // NB: ImGui already provide OS clipboard support for Windows so this isn't needed if you are using Windows only.
@@ -164,9 +258,9 @@ static void ImImpl_ImeSetInputScreenPosFn(int x, int y)
 void UIManager::InitImGui()
 {
 	int wx, wy;
-	SDL_GetWindowSize( m_MainWindow, &wx, &wy );
-	float mousePosScalex = (float)m_DisplayMode.w / wx;                  // Some screens e.g. Retina display have framebuffer size != from window size, and mouse inputs are given in window/screen coordinates.
-	float mousePosScaley = (float)m_DisplayMode.h / wy;
+	SDL_GetWindowSize( g_pEngine->GetDisplayWindow(), &wx, &wy );
+	float mousePosScalex = (float)g_pEngine->GetDisplayMode().w / wx;                  // Some screens e.g. Retina display have framebuffer size != from window size, and mouse inputs are given in window/screen coordinates.
+	float mousePosScaley = (float)g_pEngine->GetDisplayMode().h / wy;
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.DisplaySize = ImVec2((float)m_DisplayMode.w, (float)m_DisplayMode.h);  // Display size, in pixels. For clamping windows positions.

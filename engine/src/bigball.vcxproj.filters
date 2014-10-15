@@ -149,6 +149,12 @@
     <ClInclude Include="ui\uimanager.h">
       <Filter>ui</Filter>
     </ClInclude>
+    <ClInclude Include="gfx\dynamicvb.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="gfx\bufferlock.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp" />
@@ -256,6 +262,12 @@
     </ClCompile>
     <ClCompile Include="ui\uimanager.cpp">
       <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\dynamicvb.cpp">
+      <Filter>gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="gfx\bufferlock.cpp">
+      <Filter>gfx</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -30,8 +30,9 @@ public:
 	virtual void	MainLoop();
 	virtual bool	RunCommand( String const& CmdType, Array<String> const& Switches, Array<String> const& Tokens );
 
-	SDL_DisplayMode const& GetDisplayMode()							{ return m_DisplayMode;		}
-	CommandLine&	GetCommandLine()								{ return m_CmdLine;			}
+	SDL_DisplayMode const&	GetDisplayMode()							{ return m_DisplayMode;		}
+	SDL_Window*				GetDisplayWindow()							{ return m_MainWindow;		}
+	CommandLine&			GetCommandLine()							{ return m_CmdLine;			}
 
 protected:
 	SDL_Window*				m_MainWindow; 
@@ -45,8 +46,6 @@ public:
 	uint32					m_FrameCount;
 	uint32					m_RenderMode;
 	bool					m_bShowCulling;
-
-	GLuint					m_DebugFontTexId;
 
 protected:
 	virtual void	InitManagers();
