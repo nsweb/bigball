@@ -41,7 +41,7 @@ protected:
 
 public:
 	GLuint					m_DebugFontTexId;
-
+	Shader*					m_UIShader;
 	/** Dynamic VB used to render ui elements */
 	GLuint					m_UI_VAO;
 	PersistentMappedVBO		m_UI_VBO;

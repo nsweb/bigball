@@ -78,6 +78,7 @@ UIManager* UIManager::m_pStaticInstance = NULL;
 
 UIManager::UIManager() :
 	m_DebugFontTexId(0),
+	m_UIShader(nullptr),
 	m_UI_VAO(0)
 {
 	m_pStaticInstance = this;
@@ -91,6 +92,8 @@ UIManager::~UIManager()
 void UIManager::Create()
 {
 	InitImGui();
+
+	m_UIShader = GfxManager::GetStaticInstance()->LoadShader( "ui" );//"test" );//"block" );
 
 	glGenVertexArrays( 1, &m_UI_VAO);
 	glBindVertexArray( m_UI_VAO);
@@ -112,6 +115,8 @@ void UIManager::Create()
 }
 void UIManager::Destroy()
 {
+	m_UIShader = nullptr;
+
 	m_UI_VBO.Cleanup();
 	glDeleteVertexArrays( 1, &m_UI_VAO );
 
