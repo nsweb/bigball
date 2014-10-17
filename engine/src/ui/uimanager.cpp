@@ -2,8 +2,12 @@
 
 #include "../bigball.h"
 #include "uimanager.h"
+#include "../engine/engine.h"
+#include "../gfx/gfxmanager.h"
+#include "../gfx/shader.h"
 #include "../gfx/rendercontext.h"
 #include "../gfx/bufferlock.h"
+
 
 // Needed for loading png
 #define STB_IMAGE_IMPLEMENTATION
@@ -98,12 +102,22 @@ void UIManager::Create()
 	glGenVertexArrays( 1, &m_UI_VAO);
 	glBindVertexArray( m_UI_VAO);
 
-	const uint32 MaxUIVertex = 10000;
-	m_UI_VBO.Init( MaxUIVertex, sizeof(UIVertex) );
+	//const uint32 MaxUIVertex = 10000;
+	//m_UI_VBO.Init( MaxUIVertex, sizeof(UIVertex) );
+	//glEnableVertexAttribArray(0);
+	//glEnableVertexAttribArray(1);
+	//glEnableVertexAttribArray(2);
+	UIVertex Vertices[6] = { { vec2(10,10), vec2(0,0), u8vec4(0,0,0,0) },
+							 { vec2(200,10), vec2(0,0), u8vec4(0,0,0,0) },
+							 { vec2(10,200), vec2(0,0), u8vec4(0,0,0,0) },
+							 { vec2(10,200), vec2(0,0), u8vec4(0,0,0,0) },
+							 { vec2(200,200), vec2(0,0), u8vec4(0,0,0,0) },
+							 { vec2(200,10), vec2(0,0), u8vec4(0,0,0,0) } };
 
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
+	glGenBuffers( 1, &m_UI_VB_TEMP);
+	glBindBuffer( GL_ARRAY_BUFFER, m_UI_VB_TEMP);
+	glBufferData( GL_ARRAY_BUFFER, 6 * sizeof(UIVertex), &Vertices[0], GL_STATIC_DRAW );
+
 	glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, sizeof(UIVertex) /*stride*/, (void*)0 /*offset*/	);
 	glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, sizeof(UIVertex) /*stride*/, (void*)8 /*offset*/	);
 	glVertexAttribPointer( 2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(UIVertex) /*stride*/, (void*)16 /*offset*/	);
@@ -140,7 +154,7 @@ static void ImImpl_RenderDrawLists(ImDrawList** const cmd_lists, int cmd_lists_c
 void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lists_count)
 {
 	if (cmd_lists_count == 0)
-		return;
+		return;	
 
 	// We are using the OpenGL fixed pipeline to make the example code simpler to read!
 	// A probable faster way to render would be to collate all vertices from all cmd_lists into a single vertex buffer.
@@ -149,18 +163,34 @@ void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lis
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_SCISSOR_TEST);
+	//glEnable(GL_SCISSOR_TEST);
 	//glEnableClientState(GL_VERTEX_ARRAY);
 	//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	//glEnableClientState(GL_COLOR_ARRAY);
 
 	// Setup texture
-	glBindTexture(GL_TEXTURE_2D, m_DebugFontTexId);
+	//glBindTexture(GL_TEXTURE_2D, m_DebugFontTexId);
 	glEnable(GL_TEXTURE_2D);
+	
+	
+	//glBindSampler(0, uiSampler);
 
 	// Setup orthographic projection matrix
-	//const float width = ImGui::GetIO().DisplaySize.x;
-	//const float height = ImGui::GetIO().DisplaySize.y;
+	const float width = ImGui::GetIO().DisplaySize.x;
+	const float height = ImGui::GetIO().DisplaySize.y;
+	mat4 UIProjMatrix = mat4::ortho( width, height, -1.f, 1.f );
+
+	m_UIShader->Bind();
+
+	ShaderUniform UniProj = m_UIShader->GetUniformLocation("proj_mat");
+	ShaderUniform UniSampler0 =  m_UIShader->GetUniformLocation("textureUnit0");
+	m_UIShader->SetUniform( UniSampler0, 0 );
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_DebugFontTexId);
+
+	m_UIShader->SetUniform( UniProj, UIProjMatrix );
+	
+
 	//glMatrixMode(GL_PROJECTION);
 	//glLoadIdentity();
 	//glOrtho(0.0f, width, height, 0.0f, -1.0f, +1.0f);
@@ -169,6 +199,9 @@ void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lis
 
 
 	glBindVertexArray( m_UI_VAO );
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
 
 
 
@@ -191,34 +224,65 @@ void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lis
 	//	}
 	//}
 
-	// Count the size we need to lock
-	uint32 sum_vtx_count = 0;
-	for (int n = 0; n < cmd_lists_count; n++)
+	glDrawArrays( GL_TRIANGLES, 0, 6 );
+
+	if(0)
 	{
-		const ImDrawList* cmd_list = cmd_lists[n];
-		
-		const ImDrawCmd* pcmd_end = cmd_list->commands.end();
-		for (const ImDrawCmd* pcmd = cmd_list->commands.begin(); pcmd != pcmd_end; pcmd++)
+		// Count the size we need to lock
+		uint32 sum_vtx_count = 0;
+		for (int n = 0; n < cmd_lists_count; n++)
 		{
-			sum_vtx_count += pcmd->vtx_count;
+			const ImDrawList* cmd_list = cmd_lists[n];
+
+			const ImDrawCmd* pcmd_end = cmd_list->commands.end();
+			for (const ImDrawCmd* pcmd = cmd_list->commands.begin(); pcmd != pcmd_end; pcmd++)
+			{
+				sum_vtx_count += pcmd->vtx_count;
+			}
 		}
+
+		uint32 StartIndex = m_UI_VBO.m_DestHead / sizeof(UIVertex);
+
+		BufferLockManager::GetStaticInstance()->WaitForLockedRange( m_UI_VBO.m_DestHead, sum_vtx_count*sizeof(UIVertex) ); 
+
+		uint32 vbo_byte_offset = 0;
+		uint32 vbo_vtx_offset = 0;
+		for (int n = 0; n < cmd_lists_count; n++)
+		{
+			const ImDrawList* cmd_list = cmd_lists[n];
+			const uint8* vtx_buffer = (const uint8*)cmd_list->vtx_buffer.begin();
+			uint32 byte_offset = 0;
+			uint32 vtx_offset = 0;
+
+			const ImDrawCmd* pcmd_end = cmd_list->commands.end();
+			for( const ImDrawCmd* pcmd = cmd_list->commands.begin(); pcmd != pcmd_end; pcmd++ )
+			{
+				Memory::Memcpy( m_UI_VBO.m_VertexDataPtr + vbo_byte_offset, vtx_buffer + byte_offset, pcmd->vtx_count * sizeof(UIVertex) );
+				//glScissor((int)pcmd->clip_rect.x, (int)(height - pcmd->clip_rect.w), (int)(pcmd->clip_rect.z - pcmd->clip_rect.x), (int)(pcmd->clip_rect.w - pcmd->clip_rect.y));
+				glDrawArrays( GL_TRIANGLES, StartIndex + vbo_vtx_offset, pcmd->vtx_count );
+
+				vtx_offset += pcmd->vtx_count;
+				vbo_vtx_offset += pcmd->vtx_count;
+				byte_offset += pcmd->vtx_count * sizeof(UIVertex); 
+				vbo_byte_offset += pcmd->vtx_count * sizeof(UIVertex); 
+			}
+		}
+
+		//for (int i = 0; i < particleCount; ++i) 
+		//{ 
+		//	const int vertexOffset = i * kVertsPerParticle; 
+		//	const int thisDstOffset = m_UI_VBO.m_DestHead + (i * kParticleSizeBytes); 
+		//	void* dst = (unsigned char*) m_UI_VBO.m_VertexDataPtr + thisDstOffset; 
+		//	Memory::Memcpy(dst, &_vertices[vertexOffset], kParticleSizeBytes); 
+		//	//DrawArrays(TRIANGLES, kStartIndex + vertexOffset, kVertsPerParticle); 
+
+		//	glScissor((int)pcmd->clip_rect.x, (int)(height - pcmd->clip_rect.w), (int)(pcmd->clip_rect.z - pcmd->clip_rect.x), (int)(pcmd->clip_rect.w - pcmd->clip_rect.y));
+		//	glDrawArrays( GL_TRIANGLES, kStartIndex + vertexOffset, kVertsPerParticle );
+		//} 
+
+		BufferLockManager::GetStaticInstance()->LockRange(m_UI_VBO.m_DestHead, sum_vtx_count*sizeof(UIVertex) ); 
+		m_UI_VBO.m_DestHead = (m_UI_VBO.m_DestHead + sum_vtx_count*sizeof(UIVertex) ) % m_UI_VBO.m_BufferSize;
 	}
-
-	BufferLockManager::GetStaticInstance()->WaitForLockedRange( m_UI_VBO.m_DestHead, sum_vtx_count*sizeof(UIVertex) ); 
-	for (int i = 0; i < particleCount; ++i) 
-	{ 
-		const int vertexOffset = i * kVertsPerParticle; 
-		const int thisDstOffset = m_UI_VBO.m_DestHead + (i * kParticleSizeBytes); 
-		void* dst = (unsigned char*) m_UI_VBO.m_VertexDataPtr + thisDstOffset; 
-		Memory::Memcpy(dst, &_vertices[vertexOffset], kParticleSizeBytes); 
-		//DrawArrays(TRIANGLES, kStartIndex + vertexOffset, kVertsPerParticle); 
-
-		glScissor((int)pcmd->clip_rect.x, (int)(height - pcmd->clip_rect.w), (int)(pcmd->clip_rect.z - pcmd->clip_rect.x), (int)(pcmd->clip_rect.w - pcmd->clip_rect.y));
-		glDrawArrays( GL_TRIANGLES, kStartIndex + vertexOffset, kVertsPerParticle );
-	} 
-	BufferLockManager::GetStaticInstance()->LockRange(m_UI_VBO.m_DestHead, vertSizeBytes); 
-	m_UI_VBO.m_DestHead = (m_UI_VBO.m_DestHead + vertSizeBytes) % m_UI_VBO.m_BufferSize;
-
 
 
 	glBindVertexArray(0);
@@ -231,6 +295,8 @@ void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lis
 	//glDisableClientState(GL_COLOR_ARRAY);
 	//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	//glDisableClientState(GL_VERTEX_ARRAY);
+
+	m_UIShader->Unbind();
 }
 
 // NB: ImGui already provide OS clipboard support for Windows so this isn't needed if you are using Windows only.
@@ -268,7 +334,7 @@ void UIManager::InitImGui()
 	float mousePosScaley = (float)g_pEngine->GetDisplayMode().h / wy;
 
 	ImGuiIO& io = ImGui::GetIO();
-	io.DisplaySize = ImVec2((float)m_DisplayMode.w, (float)m_DisplayMode.h);  // Display size, in pixels. For clamping windows positions.
+	io.DisplaySize = ImVec2((float)g_pEngine->GetDisplayMode().w, (float)g_pEngine->GetDisplayMode().h);  // Display size, in pixels. For clamping windows positions.
 	io.DeltaTime = 1.0f/60.0f;                          // Time elapsed since last frame, in seconds (in this sample app we'll override this every frame because our timestep is variable)
 	io.PixelCenterOffset = 0.0f;                        // Align OpenGL texels
 	io.KeyMap[ImGuiKey_Tab] = SDL_SCANCODE_TAB;// GLFW_KEY_TAB;             // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.

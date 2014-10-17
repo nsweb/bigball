@@ -97,9 +97,6 @@ bool Engine::Init( bool bCreateWindow )
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	SDL_SetWindowGrab( m_MainWindow, SDL_TRUE );
 
-	// Prepare ImGui
-	InitImGui();
-
 	// Ready to init our managers
 	InitManagers();
 

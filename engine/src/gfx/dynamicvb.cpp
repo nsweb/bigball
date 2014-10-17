@@ -36,7 +36,7 @@ void PersistentMappedVBO::Init( uint32 MaxVertex, uint32 VertSizeInBytes )
 	glGenBuffers( 1, &m_VB_ID);
 	glBindBuffer( GL_ARRAY_BUFFER, m_VB_ID );
 	glBufferStorage( GL_ARRAY_BUFFER, m_BufferSize, nullptr, CreateFlags );				// Create data store for immutable buffer object
-	m_VertexDataPtr = glMapBufferRange( GL_ARRAY_BUFFER, 0, m_BufferSize, MapFlags );	// Mapped forever 
+	m_VertexDataPtr = (uint8*) glMapBufferRange( GL_ARRAY_BUFFER, 0, m_BufferSize, MapFlags );	// Mapped forever 
 }
 
 void PersistentMappedVBO::Cleanup()

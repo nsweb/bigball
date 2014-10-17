@@ -29,7 +29,7 @@ public:
 	GLuint		m_VB_ID;
 	uint32		m_DestHead;
 	uint32		m_BufferSize;
-	void*		m_VertexDataPtr;
+	uint8*		m_VertexDataPtr;
 };
 
 

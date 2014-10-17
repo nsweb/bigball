@@ -9,6 +9,8 @@
 namespace bigball
 {
 
+class BIGBALL_API Shader;
+
 struct UIVertex
 {
 	vec2	Pos;
@@ -44,6 +46,7 @@ public:
 	Shader*					m_UIShader;
 	/** Dynamic VB used to render ui elements */
 	GLuint					m_UI_VAO;
+	GLuint					m_UI_VB_TEMP;
 	PersistentMappedVBO		m_UI_VBO;
 };
 
