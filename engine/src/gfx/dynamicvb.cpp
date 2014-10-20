@@ -7,7 +7,50 @@
 namespace bigball
 {
 
+UnsynchronizedVBO::UnsynchronizedVBO() : 
+	m_LockManager(true),
+	m_VB_ID(0),
+	m_DestHead(0),
+	m_BufferSize(0)//,
+	//m_VertexDataPtr(nullptr)
+{
+
+}
+
+
+UnsynchronizedVBO::~UnsynchronizedVBO()
+{
+
+}
+
+
+void UnsynchronizedVBO::Init( uint32 MaxVertex, uint32 VertSizeInBytes )
+{
+	m_DestHead = 0;
+	m_BufferSize = 3 * MaxVertex * VertSizeInBytes;
+
+	glGenBuffers( 1, &m_VB_ID);
+	glBindBuffer( GL_ARRAY_BUFFER, m_VB_ID );
+	glBufferData( GL_ARRAY_BUFFER, m_BufferSize, nullptr, GL_DYNAMIC_DRAW );
+}
+
+void UnsynchronizedVBO::Cleanup()
+{
+	glBindBuffer( GL_ARRAY_BUFFER, m_VB_ID);
+	glUnmapBuffer( GL_ARRAY_BUFFER );
+	glDeleteBuffers( 1, &m_VB_ID );
+
+	m_DestHead = 0;
+	m_BufferSize = 0;
+	//m_VertexDataPtr = nullptr;
+
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 PersistentMappedVBO::PersistentMappedVBO() : 
+	m_LockManager(true),
 	m_VB_ID(0),
 	m_DestHead(0),
 	m_BufferSize(0),

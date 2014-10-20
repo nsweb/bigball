@@ -6,7 +6,7 @@
 #include "../gfx/gfxmanager.h"
 #include "../gfx/shader.h"
 #include "../gfx/rendercontext.h"
-#include "../gfx/bufferlock.h"
+//#include "../gfx/bufferlock.h"
 
 
 // Needed for loading png
@@ -102,21 +102,21 @@ void UIManager::Create()
 	glGenVertexArrays( 1, &m_UI_VAO);
 	glBindVertexArray( m_UI_VAO);
 
-	//const uint32 MaxUIVertex = 10000;
-	//m_UI_VBO.Init( MaxUIVertex, sizeof(UIVertex) );
-	//glEnableVertexAttribArray(0);
-	//glEnableVertexAttribArray(1);
-	//glEnableVertexAttribArray(2);
-	UIVertex Vertices[6] = { { vec2(10,10), vec2(0,0), u8vec4(0,0,0,0) },
-							 { vec2(200,10), vec2(0,0), u8vec4(0,0,0,0) },
-							 { vec2(10,200), vec2(0,0), u8vec4(0,0,0,0) },
-							 { vec2(10,200), vec2(0,0), u8vec4(0,0,0,0) },
-							 { vec2(200,200), vec2(0,0), u8vec4(0,0,0,0) },
-							 { vec2(200,10), vec2(0,0), u8vec4(0,0,0,0) } };
+	const uint32 MaxUIVertex = 10000;
+	m_UI_VBO.Init( MaxUIVertex, sizeof(UIVertex) );
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	//UIVertex Vertices[6] = { { vec2(10,10), vec2(0,0), u8vec4(0,0,0,0) },
+	//						 { vec2(200,10), vec2(0,0), u8vec4(0,0,0,0) },
+	//						 { vec2(10,200), vec2(0,0), u8vec4(0,0,0,0) },
+	//						 { vec2(10,200), vec2(0,0), u8vec4(0,0,0,0) },
+	//						 { vec2(200,200), vec2(0,0), u8vec4(0,0,0,0) },
+	//						 { vec2(200,10), vec2(0,0), u8vec4(0,0,0,0) } };
 
-	glGenBuffers( 1, &m_UI_VB_TEMP);
-	glBindBuffer( GL_ARRAY_BUFFER, m_UI_VB_TEMP);
-	glBufferData( GL_ARRAY_BUFFER, 6 * sizeof(UIVertex), &Vertices[0], GL_STATIC_DRAW );
+	//glGenBuffers( 1, &m_UI_VB_TEMP);
+	//glBindBuffer( GL_ARRAY_BUFFER, m_UI_VB_TEMP);
+	//glBufferData( GL_ARRAY_BUFFER, 6 * sizeof(UIVertex), &Vertices[0], GL_STATIC_DRAW );
 
 	glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, sizeof(UIVertex) /*stride*/, (void*)0 /*offset*/	);
 	glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, sizeof(UIVertex) /*stride*/, (void*)8 /*offset*/	);
@@ -178,7 +178,8 @@ void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lis
 	// Setup orthographic projection matrix
 	const float width = ImGui::GetIO().DisplaySize.x;
 	const float height = ImGui::GetIO().DisplaySize.y;
-	mat4 UIProjMatrix = mat4::ortho( width, height, -1.f, 1.f );
+	mat4 UIProjMatrix = mat4::ortho( 0.f, width, height, 0.f, 0.f, 1.f );
+						//ortho( width, height, 0.f, 1.f );
 
 	m_UIShader->Bind();
 
@@ -224,9 +225,9 @@ void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lis
 	//	}
 	//}
 
-	glDrawArrays( GL_TRIANGLES, 0, 6 );
+	//glDrawArrays( GL_TRIANGLES, 0, 6 );
 
-	if(0)
+	if(1)
 	{
 		// Count the size we need to lock
 		uint32 sum_vtx_count = 0;
@@ -243,7 +244,7 @@ void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lis
 
 		uint32 StartIndex = m_UI_VBO.m_DestHead / sizeof(UIVertex);
 
-		BufferLockManager::GetStaticInstance()->WaitForLockedRange( m_UI_VBO.m_DestHead, sum_vtx_count*sizeof(UIVertex) ); 
+		m_UI_VBO.m_LockManager.WaitForLockedRange( m_UI_VBO.m_DestHead, sum_vtx_count*sizeof(UIVertex) ); 
 
 		uint32 vbo_byte_offset = 0;
 		uint32 vbo_vtx_offset = 0;
@@ -280,7 +281,7 @@ void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lis
 		//	glDrawArrays( GL_TRIANGLES, kStartIndex + vertexOffset, kVertsPerParticle );
 		//} 
 
-		BufferLockManager::GetStaticInstance()->LockRange(m_UI_VBO.m_DestHead, sum_vtx_count*sizeof(UIVertex) ); 
+		m_UI_VBO.m_LockManager.LockRange(m_UI_VBO.m_DestHead, sum_vtx_count*sizeof(UIVertex) ); 
 		m_UI_VBO.m_DestHead = (m_UI_VBO.m_DestHead + sum_vtx_count*sizeof(UIVertex) ) % m_UI_VBO.m_BufferSize;
 	}
 

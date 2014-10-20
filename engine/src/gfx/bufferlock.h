@@ -20,28 +20,26 @@ struct BufferRange
 	}
 };
 
-struct BufferLock
+struct BufferLockRange
 {
 	BufferRange m_Range;
 	GLsync m_SyncObj;
 };
 
-class BufferLockManager
+class BufferLock
 {
 public:
-	BufferLockManager( bool bCPUUpdates );
-	~BufferLockManager();
+	BufferLock( bool bCPUUpdates );
+	~BufferLock();
 
-	static BufferLockManager*	GetStaticInstance()		{ return m_pStaticInstance; }
 	void WaitForLockedRange(uint32 _lockBeginBytes, uint32 _lockLength);
 	void LockRange(uint32 _lockBeginBytes, uint32 _lockLength);
 
 private:
 	void wait(GLsync* _syncObj);
-	void cleanup(BufferLock* _bufferLock);
+	void cleanup(BufferLockRange* _bufferLock);
 
-	static BufferLockManager*	m_pStaticInstance;
-	Array<BufferLock>			m_BufferLocks;
+	Array<BufferLockRange>		m_BufferLocks;
 	/** Whether it's the CPU (true) that updates, or the GPU (false) */
 	bool						m_bCPUUpdates;
 };

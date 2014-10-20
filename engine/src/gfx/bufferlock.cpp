@@ -7,15 +7,13 @@
 namespace bigball
 {
 
-BufferLockManager* BufferLockManager::m_pStaticInstance = NULL;
-
-BufferLockManager::BufferLockManager(bool bCPUUpdates) :
+BufferLock::BufferLock(bool bCPUUpdates) :
 	m_bCPUUpdates(bCPUUpdates)
 {
-	m_pStaticInstance = this;
+
 }
 
-BufferLockManager::~BufferLockManager()
+BufferLock::~BufferLock()
 {
 	for( int i = 0; i < m_BufferLocks.size(); ++i) 
 	{
@@ -23,14 +21,12 @@ BufferLockManager::~BufferLockManager()
 	}
 
 	m_BufferLocks.clear();
-
-	m_pStaticInstance = nullptr;
 }
 
-void BufferLockManager::WaitForLockedRange(uint32 _lockBeginBytes, uint32 _lockLength)
+void BufferLock::WaitForLockedRange(uint32 _lockBeginBytes, uint32 _lockLength)
 {
 	BufferRange testRange = { _lockBeginBytes, _lockLength };
-	Array<BufferLock> swapLocks;
+	Array<BufferLockRange> swapLocks;
 	for( int i = 0; i < m_BufferLocks.size(); ++i) 
 	{
 		if( testRange.Overlaps( m_BufferLocks[i].m_Range ) ) 
@@ -47,16 +43,16 @@ void BufferLockManager::WaitForLockedRange(uint32 _lockBeginBytes, uint32 _lockL
 	m_BufferLocks = swapLocks;
 }
 
-void BufferLockManager::LockRange(uint32 _lockBeginBytes, uint32 _lockLength)
+void BufferLock::LockRange(uint32 _lockBeginBytes, uint32 _lockLength)
 {
 	BufferRange newRange = { _lockBeginBytes, _lockLength };
 	GLsync syncName = glFenceSync( GL_SYNC_GPU_COMMANDS_COMPLETE, 0 );
-	BufferLock newLock = { newRange, syncName };
+	BufferLockRange newLock = { newRange, syncName };
 
 	m_BufferLocks.push_back(newLock);
 }
 
-void BufferLockManager::wait(GLsync* _syncObj)
+void BufferLock::wait(GLsync* _syncObj)
 {
 	const GLuint64 kOneSecondInNanoSeconds = 1000000000;
 	if( m_bCPUUpdates ) 
@@ -87,7 +83,7 @@ void BufferLockManager::wait(GLsync* _syncObj)
 	}
 }
 
-void BufferLockManager::cleanup(BufferLock* _bufferLock)
+void BufferLock::cleanup(BufferLockRange* _bufferLock)
 {
 	glDeleteSync(_bufferLock->m_SyncObj);
 }
