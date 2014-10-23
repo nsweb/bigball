@@ -93,7 +93,7 @@ bool Engine::Init( bool bCreateWindow )
 	SDL_GetWindowDisplayMode( m_MainWindow, &m_DisplayMode );
 
 	// Allow FPS style mouse movement
-	SDL_SetRelativeMouseMode(SDL_FALSE);
+	//SDL_SetRelativeMouseMode(SDL_FALSE);
 	SDL_SetRelativeMouseMode(SDL_TRUE);
 	SDL_SetWindowGrab( m_MainWindow, SDL_TRUE );
 
@@ -269,6 +269,10 @@ void Engine::MainLoop()
 					else if( Event.key.keysym.sym >= SDLK_F1 && Event.key.keysym.sym <= SDLK_F4 )
 					{
 						m_RenderMode = Event.key.keysym.sym - SDLK_F1;
+					}
+					else if( Event.key.keysym.sym == SDLK_F5 )
+					{
+						UIManager::GetStaticInstance()->ToggleDebugMenu();
 					}
 					else if( Event.key.keysym.sym == SDLK_F9 || Event.key.keysym.sym == SDLK_F10 )
 					{

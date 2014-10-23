@@ -34,10 +34,12 @@ public:
 	static UIManager*	GetStaticInstance()		{ return m_pStaticInstance; }
 
 	void				RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lists_count);
+	void				ToggleDebugMenu();
 
 protected:
 	void				InitImGui();
-
+	void				DrawDebugMenu();
+	void				DrawProfiler();
 
 	static UIManager*		m_pStaticInstance;
 
@@ -46,8 +48,11 @@ public:
 	Shader*					m_UIShader;
 	/** Dynamic VB used to render ui elements */
 	GLuint					m_UI_VAO;
-	GLuint					m_UI_VB_TEMP;
-	PersistentMappedVBO		m_UI_VBO;
+	//GLuint					m_UI_VB_TEMP;
+	UnsynchronizedVBO		m_UI_VBO;
+
+	bool					m_bShowDebugMenu;
+	bool					m_bShowProfiler;
 };
 
 } /* namespace bigball */

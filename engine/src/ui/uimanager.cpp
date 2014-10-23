@@ -83,7 +83,9 @@ UIManager* UIManager::m_pStaticInstance = NULL;
 UIManager::UIManager() :
 	m_DebugFontTexId(0),
 	m_UIShader(nullptr),
-	m_UI_VAO(0)
+	m_UI_VAO(0),
+	m_bShowDebugMenu(false),
+	m_bShowProfiler(false)
 {
 	m_pStaticInstance = this;
 }
@@ -120,7 +122,7 @@ void UIManager::Create()
 
 	glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, sizeof(UIVertex) /*stride*/, (void*)0 /*offset*/	);
 	glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, sizeof(UIVertex) /*stride*/, (void*)8 /*offset*/	);
-	glVertexAttribPointer( 2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(UIVertex) /*stride*/, (void*)16 /*offset*/	);
+	glVertexAttribPointer( 2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(UIVertex) /*stride*/, (void*)16 /*offset*/	);
 
 	glBindVertexArray(0);
 	glDisableVertexAttribArray(0);
@@ -163,23 +165,12 @@ void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lis
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
-	//glEnable(GL_SCISSOR_TEST);
-	//glEnableClientState(GL_VERTEX_ARRAY);
-	//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	//glEnableClientState(GL_COLOR_ARRAY);
-
-	// Setup texture
-	//glBindTexture(GL_TEXTURE_2D, m_DebugFontTexId);
-	glEnable(GL_TEXTURE_2D);
-	
-	
-	//glBindSampler(0, uiSampler);
+	//glEnable(GL_TEXTURE_2D);
 
 	// Setup orthographic projection matrix
 	const float width = ImGui::GetIO().DisplaySize.x;
 	const float height = ImGui::GetIO().DisplaySize.y;
 	mat4 UIProjMatrix = mat4::ortho( 0.f, width, height, 0.f, 0.f, 1.f );
-						//ortho( width, height, 0.f, 1.f );
 
 	m_UIShader->Bind();
 
@@ -190,42 +181,12 @@ void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lis
 	glBindTexture(GL_TEXTURE_2D, m_DebugFontTexId);
 
 	m_UIShader->SetUniform( UniProj, UIProjMatrix );
-	
-
-	//glMatrixMode(GL_PROJECTION);
-	//glLoadIdentity();
-	//glOrtho(0.0f, width, height, 0.0f, -1.0f, +1.0f);
-	//glMatrixMode(GL_MODELVIEW);
-	//glLoadIdentity();
-
 
 	glBindVertexArray( m_UI_VAO );
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 
-
-
-	// Render command lists
-	//for (int n = 0; n < cmd_lists_count; n++)
-	//{
-	//	const ImDrawList* cmd_list = cmd_lists[n];
-	//	const unsigned char* vtx_buffer = (const unsigned char*)cmd_list->vtx_buffer.begin();
-	//	glVertexPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer));
-	//	glTexCoordPointer(2, GL_FLOAT, sizeof(ImDrawVert), (void*)(vtx_buffer+8));
-	//	glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(ImDrawVert), (void*)(vtx_buffer+16));
-
-	//	int vtx_offset = 0;
-	//	const ImDrawCmd* pcmd_end = cmd_list->commands.end();
-	//	for (const ImDrawCmd* pcmd = cmd_list->commands.begin(); pcmd != pcmd_end; pcmd++)
-	//	{
-	//		glScissor((int)pcmd->clip_rect.x, (int)(height - pcmd->clip_rect.w), (int)(pcmd->clip_rect.z - pcmd->clip_rect.x), (int)(pcmd->clip_rect.w - pcmd->clip_rect.y));
-	//		glDrawArrays(GL_TRIANGLES, vtx_offset, pcmd->vtx_count);
-	//		vtx_offset += pcmd->vtx_count;
-	//	}
-	//}
-
-	//glDrawArrays( GL_TRIANGLES, 0, 6 );
 
 	if(1)
 	{
@@ -244,7 +205,9 @@ void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lis
 
 		uint32 StartIndex = m_UI_VBO.m_DestHead / sizeof(UIVertex);
 
-		m_UI_VBO.m_LockManager.WaitForLockedRange( m_UI_VBO.m_DestHead, sum_vtx_count*sizeof(UIVertex) ); 
+		glBindBuffer( GL_ARRAY_BUFFER, m_UI_VBO.m_VB_ID );
+
+		//--m_UI_VBO.m_LockManager.WaitForLockedRange( m_UI_VBO.m_DestHead, sum_vtx_count*sizeof(UIVertex) ); 
 
 		uint32 vbo_byte_offset = 0;
 		uint32 vbo_vtx_offset = 0;
@@ -258,7 +221,11 @@ void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lis
 			const ImDrawCmd* pcmd_end = cmd_list->commands.end();
 			for( const ImDrawCmd* pcmd = cmd_list->commands.begin(); pcmd != pcmd_end; pcmd++ )
 			{
-				Memory::Memcpy( m_UI_VBO.m_VertexDataPtr + vbo_byte_offset, vtx_buffer + byte_offset, pcmd->vtx_count * sizeof(UIVertex) );
+				void* Dst = glMapBufferRange( GL_ARRAY_BUFFER, vbo_byte_offset, pcmd->vtx_count * sizeof(UIVertex), GL_MAP_UNSYNCHRONIZED_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_WRITE_BIT );
+				Memory::Memcpy( Dst, vtx_buffer + byte_offset, pcmd->vtx_count * sizeof(UIVertex) );
+				glUnmapBuffer( GL_ARRAY_BUFFER );
+
+				//--Memory::Memcpy( m_UI_VBO.m_VertexDataPtr + vbo_byte_offset, vtx_buffer + byte_offset, pcmd->vtx_count * sizeof(UIVertex) );
 				//glScissor((int)pcmd->clip_rect.x, (int)(height - pcmd->clip_rect.w), (int)(pcmd->clip_rect.z - pcmd->clip_rect.x), (int)(pcmd->clip_rect.w - pcmd->clip_rect.y));
 				glDrawArrays( GL_TRIANGLES, StartIndex + vbo_vtx_offset, pcmd->vtx_count );
 
@@ -269,20 +236,6 @@ void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lis
 			}
 		}
 
-		//for (int i = 0; i < particleCount; ++i) 
-		//{ 
-		//	const int vertexOffset = i * kVertsPerParticle; 
-		//	const int thisDstOffset = m_UI_VBO.m_DestHead + (i * kParticleSizeBytes); 
-		//	void* dst = (unsigned char*) m_UI_VBO.m_VertexDataPtr + thisDstOffset; 
-		//	Memory::Memcpy(dst, &_vertices[vertexOffset], kParticleSizeBytes); 
-		//	//DrawArrays(TRIANGLES, kStartIndex + vertexOffset, kVertsPerParticle); 
-
-		//	glScissor((int)pcmd->clip_rect.x, (int)(height - pcmd->clip_rect.w), (int)(pcmd->clip_rect.z - pcmd->clip_rect.x), (int)(pcmd->clip_rect.w - pcmd->clip_rect.y));
-		//	glDrawArrays( GL_TRIANGLES, kStartIndex + vertexOffset, kVertsPerParticle );
-		//} 
-
-		m_UI_VBO.m_LockManager.LockRange(m_UI_VBO.m_DestHead, sum_vtx_count*sizeof(UIVertex) ); 
-		m_UI_VBO.m_DestHead = (m_UI_VBO.m_DestHead + sum_vtx_count*sizeof(UIVertex) ) % m_UI_VBO.m_BufferSize;
 	}
 
 
@@ -292,7 +245,7 @@ void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lis
 	//WriteGeometry( data, ... );
 	//data += dataSize;
 
-	glDisable(GL_SCISSOR_TEST);
+
 	//glDisableClientState(GL_COLOR_ARRAY);
 	//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	//glDisableClientState(GL_VERTEX_ARRAY);
@@ -478,54 +431,115 @@ void UIManager::_Render( struct RenderContext& RenderCtxt )
 	// (we already got mouse wheel, keyboard keys & characters from glfw callbacks polled in glfwPollEvents())
 	//double mouse_x, mouse_y;
 	//glfwGetCursorPos(window, &mouse_x, &mouse_y);
-	io.MousePos = ImVec2(0,0);//(float)mouse_x * mousePosScale.x, (float)mouse_y * mousePosScale.y);      // Mouse position, in pixels (set to -1,-1 if no mouse / on another screen, etc.)
-	io.MouseDown[0] = 0;//mousePressed[0] || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) != 0;  // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
-	io.MouseDown[1] = 0;//mousePressed[1] || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) != 0;
+	int MouseX, MouseY;
+	uint32 MouseState = SDL_GetMouseState( &MouseX, &MouseY );
+
+	io.MousePos = ImVec2(MouseX,MouseY);//(float)mouse_x * mousePosScale.x, (float)mouse_y * mousePosScale.y);      // Mouse position, in pixels (set to -1,-1 if no mouse / on another screen, etc.)
+	io.MouseDown[0] = MouseState & SDL_BUTTON_LMASK ? true : false;//mousePressed[0] || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) != 0;  // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
+	io.MouseDown[1] = MouseState & SDL_BUTTON_RMASK ? true : false;//mousePressed[1] || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) != 0;
 
 	// Start the frame
 	ImGui::NewFrame();
 
+	if( m_bShowDebugMenu )
+		DrawDebugMenu();
 
-	static bool show_test_window = true;
-	static bool show_another_window = false;
+	if( m_bShowProfiler )
+		DrawProfiler();
+	//static bool show_test_window = false;//true;
+	//static bool show_another_window = true;
 
-	// 1. Show a simple window
-	// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
-	{
-		static float f;
-		ImGui::Text("Hello, world!");
-		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-		show_test_window ^= ImGui::Button("Test Window");
-		show_another_window ^= ImGui::Button("Another Window");
+	//// 1. Show a simple window
+	//// Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets appears in a window automatically called "Debug"
+	//{
+	//	static float f;
+	//	ImGui::Text("Hello, world!");
+	//	ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+	//	show_test_window ^= ImGui::Button("Test Window");
+	//	show_another_window ^= ImGui::Button("Another Window");
 
-		// Calculate and show framerate
-		static float ms_per_frame[120] = { 0 };
-		static int ms_per_frame_idx = 0;
-		static float ms_per_frame_accum = 0.0f;
-		ms_per_frame_accum -= ms_per_frame[ms_per_frame_idx];
-		ms_per_frame[ms_per_frame_idx] = ImGui::GetIO().DeltaTime * 1000.0f;
-		ms_per_frame_accum += ms_per_frame[ms_per_frame_idx];
-		ms_per_frame_idx = (ms_per_frame_idx + 1) % 120;
-		const float ms_per_frame_avg = ms_per_frame_accum / 120;
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", ms_per_frame_avg, 1000.0f / ms_per_frame_avg);
-	}
+	//	// Calculate and show framerate
+	//	static float ms_per_frame[120] = { 0 };
+	//	static int ms_per_frame_idx = 0;
+	//	static float ms_per_frame_accum = 0.0f;
+	//	ms_per_frame_accum -= ms_per_frame[ms_per_frame_idx];
+	//	ms_per_frame[ms_per_frame_idx] = ImGui::GetIO().DeltaTime * 1000.0f;
+	//	ms_per_frame_accum += ms_per_frame[ms_per_frame_idx];
+	//	ms_per_frame_idx = (ms_per_frame_idx + 1) % 120;
+	//	const float ms_per_frame_avg = ms_per_frame_accum / 120;
+	//	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", ms_per_frame_avg, 1000.0f / ms_per_frame_avg);
+	//}
 
-	// 2. Show another simple window, this time using an explicit Begin/End pair
-	if (show_another_window)
-	{
-		ImGui::Begin("Another Window", &show_another_window, ImVec2(200,100));
-		ImGui::Text("Hello");
-		ImGui::End();
-	}
+	//// 2. Show another simple window, this time using an explicit Begin/End pair
+	//if (show_another_window)
+	//{
+	//	ImGui::Begin("Another Window", &show_another_window, ImVec2(200,100));
+	//	ImGui::Text("Hello");
+	//	ImGui::End();
+	//}
 
-	// 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
-	if (show_test_window)
-	{
-		ImGui::SetNewWindowDefaultPos(ImVec2(650, 20));        // Normally user code doesn't need/want to call this, because positions are saved in .ini file. Here we just want to make the demo initial state a bit more friendly!
-		ImGui::ShowTestWindow(&show_test_window);
-	}
+	//// 3. Show the ImGui test window. Most of the sample code is in ImGui::ShowTestWindow()
+	//if (show_test_window)
+	//{
+	//	ImGui::SetNewWindowDefaultPos(ImVec2(650, 20));        // Normally user code doesn't need/want to call this, because positions are saved in .ini file. Here we just want to make the demo initial state a bit more friendly!
+	//	ImGui::ShowTestWindow(&show_test_window);
+	//}
 
 	ImGui::Render();
+}
+
+void UIManager::DrawDebugMenu()
+{
+	ImGui::Begin("Debug menu", &m_bShowDebugMenu, ImVec2(10,10));
+	ImGui::Text("Hello");
+	if (ImGui::CollapsingHeader("Profiling"))
+	{
+		ImGui::Checkbox("enable profiling", &m_bShowProfiler); ImGui::SameLine(150);
+		//ImGui::Checkbox("no border", &no_border); ImGui::SameLine(300);
+		//ImGui::Checkbox("no resize", &no_resize); 
+		//ImGui::Checkbox("no move", &no_move); ImGui::SameLine(150);
+		//ImGui::Checkbox("no scrollbar", &no_scrollbar);
+		//ImGui::SliderFloat("fill alpha", &fill_alpha, 0.0f, 1.0f);
+		if (ImGui::TreeNode("Style Editor"))
+		{
+			ImGui::ShowStyleEditor();
+			ImGui::TreePop();
+		}
+
+		if (ImGui::TreeNode("Logging"))
+		{
+			ImGui::LogButtons();
+			ImGui::TreePop();
+		}
+	}
+	ImGui::End();
+}
+
+void UIManager::DrawProfiler()
+{
+	ImGui::Begin("Profiler", &m_bShowDebugMenu, ImVec2(200,10));
+	ImGui::Text("Hello");
+	ImGui::End();
+}
+
+void UIManager::ToggleDebugMenu()
+{
+	bool bNewShowDebugMenu = !m_bShowDebugMenu;
+
+	if( bNewShowDebugMenu )
+	{
+		// Allow menu interaction
+		SDL_SetRelativeMouseMode(SDL_FALSE);
+		SDL_SetWindowGrab( g_pEngine->GetDisplayWindow(), SDL_FALSE );
+	}
+	else
+	{
+		// Allow FPS style mouse movement
+		SDL_SetRelativeMouseMode(SDL_TRUE);
+		SDL_SetWindowGrab( g_pEngine->GetDisplayWindow(), SDL_TRUE );
+	}
+
+	m_bShowDebugMenu = bNewShowDebugMenu;
 }
 
 
