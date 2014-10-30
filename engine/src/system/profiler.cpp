@@ -91,6 +91,25 @@ void NodeExit()
 	CallNode::m_ThreadState.m_pActiveNode = pActive->m_pParent;
 }
 
+void BuildGui()
+{
+	g_ProfilerData.m_ThreadLock.Lock();
+
+	for( int32 RootIdx = 0; RootIdx < g_ProfilerData.m_ThreadRoots.size(); ++RootIdx )
+	{
+		CallRoot& TRoot = g_ProfilerData.m_ThreadRoots[RootIdx];
+		//if( ImGui::TreeNode(TRoot.m_pRoot->m_Name) )
+		{
+			TRoot.m_pRoot->BuildGui();
+			//ImGui::TreePop();
+		}
+	}
+	g_ProfilerData.m_ThreadLock.Unlock();
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 CallNode* CallNode::FindOrCreateChildNode( const char* szName ) 
 {
 	for( int32 i = 0; i < m_ChildrenArray.size(); ++i )
@@ -120,8 +139,9 @@ void CallNode::Stop()
 	float fTimeSpent = (StopTime - m_StartTime) / (float)SDL_GetPerformanceFrequency();
 	m_fTimeSpent += fTimeSpent;
 	m_fMaxTimeSpent = bigball::max( m_fTimeSpent, m_fMaxTimeSpent );
+	m_MaxCallCount = bigball::max( m_CallCount, m_MaxCallCount );
 
-	BB_LOG( Profiler, Log, "[STAT] %s = %f ms - Max = %f ms", m_Name, m_fTimeSpent*100.0f, m_fMaxTimeSpent*100.0f );
+	//BB_LOG( Profiler, Log, "[STAT] %s = %f ms - Max = %f ms", m_Name, m_fTimeSpent*100.0f, m_fMaxTimeSpent*100.0f );
 }
 
 void CallNode::SetActive( bool bActive )
@@ -132,7 +152,9 @@ void CallNode::SetActive( bool bActive )
 void CallNode::FrameReset()
 {
 	m_StartTime = 0; 
+	m_LastCallCount = m_CallCount;
 	m_CallCount = 0; 
+	m_fLastTimeSpent = m_fTimeSpent;
 	m_fTimeSpent = 0;
 
 	// Recursively call each child node
@@ -146,10 +168,26 @@ void CallNode::HardReset()
 {
 	m_StartTime = 0; 
 	m_CallCount = 0; 
+	m_MaxCallCount = 0;
 	m_fTimeSpent = 0; 
 	m_fMaxTimeSpent = 0;
 }
 
+void CallNode::BuildGui()
+{
+	bool bTreeNode = ImGui::TreeNode(m_Name);
+	ImGui::SameLine(0, 100);
+	ImGui::Text( "[%d / %d] %.2f / %.2f ms", m_LastCallCount, m_MaxCallCount, m_fLastTimeSpent*100.0f, m_fMaxTimeSpent*100.0f );
+
+	if( bTreeNode )
+	{
+		for( int32 ChildIdx = 0; ChildIdx < m_ChildrenArray.size(); ++ChildIdx )
+		{
+			m_ChildrenArray[ChildIdx]->BuildGui();
+		}
+		ImGui::TreePop();
+	}
+}
 
 
 

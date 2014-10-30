@@ -7,6 +7,7 @@
 #include "../gfx/shader.h"
 #include "../gfx/rendercontext.h"
 //#include "../gfx/bufferlock.h"
+#include "../system/profiler.h"
 
 
 // Needed for loading png
@@ -155,6 +156,8 @@ static void ImImpl_RenderDrawLists(ImDrawList** const cmd_lists, int cmd_lists_c
 
 void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lists_count)
 {
+	PROFILE_SCOPE( __FUNCTION__ );
+
 	if (cmd_lists_count == 0)
 		return;	
 
@@ -288,6 +291,8 @@ void UIManager::InitImGui()
 	float mousePosScaley = (float)g_pEngine->GetDisplayMode().h / wy;
 
 	ImGuiIO& io = ImGui::GetIO();
+	io.IniFilename = "../data/imgui.ini";
+	io.LogFilename = "../data/log/imgui.log";
 	io.DisplaySize = ImVec2((float)g_pEngine->GetDisplayMode().w, (float)g_pEngine->GetDisplayMode().h);  // Display size, in pixels. For clamping windows positions.
 	io.DeltaTime = 1.0f/60.0f;                          // Time elapsed since last frame, in seconds (in this sample app we'll override this every frame because our timestep is variable)
 	io.PixelCenterOffset = 0.0f;                        // Align OpenGL texels
@@ -434,7 +439,7 @@ void UIManager::_Render( struct RenderContext& RenderCtxt )
 	int MouseX, MouseY;
 	uint32 MouseState = SDL_GetMouseState( &MouseX, &MouseY );
 
-	io.MousePos = ImVec2(MouseX,MouseY);//(float)mouse_x * mousePosScale.x, (float)mouse_y * mousePosScale.y);      // Mouse position, in pixels (set to -1,-1 if no mouse / on another screen, etc.)
+	io.MousePos = ImVec2((float)MouseX,(float)MouseY);//(float)mouse_x * mousePosScale.x, (float)mouse_y * mousePosScale.y);      // Mouse position, in pixels (set to -1,-1 if no mouse / on another screen, etc.)
 	io.MouseDown[0] = MouseState & SDL_BUTTON_LMASK ? true : false;//mousePressed[0] || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) != 0;  // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
 	io.MouseDown[1] = MouseState & SDL_BUTTON_RMASK ? true : false;//mousePressed[1] || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) != 0;
 
@@ -490,35 +495,34 @@ void UIManager::_Render( struct RenderContext& RenderCtxt )
 
 void UIManager::DrawDebugMenu()
 {
-	ImGui::Begin("Debug menu", &m_bShowDebugMenu, ImVec2(10,10));
+	bool bShowDebugMenu = m_bShowDebugMenu;
+
+	ImGui::Begin("Debug menu", &bShowDebugMenu, ImVec2(10,10));
 	ImGui::Text("Hello");
 	if (ImGui::CollapsingHeader("Profiling"))
 	{
-		ImGui::Checkbox("enable profiling", &m_bShowProfiler); ImGui::SameLine(150);
-		//ImGui::Checkbox("no border", &no_border); ImGui::SameLine(300);
-		//ImGui::Checkbox("no resize", &no_resize); 
-		//ImGui::Checkbox("no move", &no_move); ImGui::SameLine(150);
-		//ImGui::Checkbox("no scrollbar", &no_scrollbar);
-		//ImGui::SliderFloat("fill alpha", &fill_alpha, 0.0f, 1.0f);
-		if (ImGui::TreeNode("Style Editor"))
-		{
-			ImGui::ShowStyleEditor();
-			ImGui::TreePop();
-		}
+		ImGui::Checkbox("enable profiling", &m_bShowProfiler);
+	}
+	if (ImGui::CollapsingHeader("Style Editor"))
+	{
+		ImGui::ShowStyleEditor();
+	}
 
-		if (ImGui::TreeNode("Logging"))
-		{
-			ImGui::LogButtons();
-			ImGui::TreePop();
-		}
+	if (ImGui::CollapsingHeader("Logging"))
+	{
+		ImGui::LogButtons();
 	}
 	ImGui::End();
+
+	// Release mouse if window was closed
+	if( bShowDebugMenu != m_bShowDebugMenu )
+		ToggleDebugMenu();
 }
 
 void UIManager::DrawProfiler()
 {
-	ImGui::Begin("Profiler", &m_bShowDebugMenu, ImVec2(200,10));
-	ImGui::Text("Hello");
+	ImGui::Begin("Profiler", &m_bShowDebugMenu, ImVec2(200,400), -1.f, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar );
+	Profiler::BuildGui();	
 	ImGui::End();
 }
 

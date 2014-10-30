@@ -60,7 +60,7 @@ bool Engine::Init( bool bCreateWindow )
 
     /* Create our window centered at 512x512 resolution */
     m_MainWindow = SDL_CreateWindow("GL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                  800/*1280*/, 600/*720*/, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+                                  1280, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if( !m_MainWindow ) /* Die if creation failed */
 	{
       //  sdldie("Unable to create window");
@@ -301,11 +301,14 @@ void Engine::MainLoop()
 				break;
 			case SDL_MOUSEMOTION:
 				{
-					vec3 MouseDelta(	-(float)Event.motion.xrel / (float)m_DisplayMode.w, 
-										-(float)Event.motion.yrel / (float)m_DisplayMode.h,
-										0.f );
-					//BB_LOG( Inputs, Log, "MouseDelta x=%f y=%f Mouse x=%d y=%d xrel=%d yrel=%d mod=%d", MouseDelta.x, MouseDelta.y, Event.motion.x, Event.motion.y, Event.motion.xrel, Event.motion.yrel, Event.key.keysym.mod );
-					Controller::GetStaticInstance()->OnMouseMove( Modifiers, MouseDelta * DeltaSeconds );
+					if( !UIManager::GetStaticInstance()->m_bShowDebugMenu )
+					{
+						vec3 MouseDelta(	-(float)Event.motion.xrel / (float)m_DisplayMode.w, 
+							-(float)Event.motion.yrel / (float)m_DisplayMode.h,
+							0.f );
+						//BB_LOG( Inputs, Log, "MouseDelta x=%f y=%f Mouse x=%d y=%d xrel=%d yrel=%d mod=%d", MouseDelta.x, MouseDelta.y, Event.motion.x, Event.motion.y, Event.motion.xrel, Event.motion.yrel, Event.key.keysym.mod );
+						Controller::GetStaticInstance()->OnMouseMove( Modifiers, MouseDelta * DeltaSeconds );
+					}
 				}
 				break;
 			case SDL_MOUSEBUTTONDOWN:

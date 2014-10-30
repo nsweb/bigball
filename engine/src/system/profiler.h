@@ -8,10 +8,12 @@
 
 namespace bigball
 {
+#define TOKENPASTE(x, y) x ## y
+#define TOKENPASTE2(x, y) TOKENPASTE(x, y)
 
 #if BB_BUILD_DEBUG || BB_BUILD_RELEASE
 	
-	#define PROFILE_THREAD_SCOPE( static_text )		Profiler::ScopeThread TPScope__LINE__ ( static_text );
+	#define PROFILE_THREAD_SCOPE( static_text )		Profiler::ScopeThread TOKENPASTE2(TPScope,__LINE__) ( static_text );
 	#define PROFILE_THREAD_START( static_text )		Profiler::ThreadEntry( static_text )
 	#define PROFILE_THREAD_STOP()					Profiler::ThreadExit();
 	#define PROFILE_THREAD_FRAMERESET()				Profiler::FrameReset();
@@ -20,7 +22,7 @@ namespace bigball
 	//#define PROFILE_UNPAUSE()           Profiler::unpause();
 	//#define PROFILE_PAUSE_SCOPED()      Profiler::ScopedPause profilerpause##__LINE__;
 
-	#define PROFILE_SCOPE( static_text )            Profiler::ScopeNode NPScope__LINE__ ( static_text );
+	#define PROFILE_SCOPE( static_text )            Profiler::ScopeNode TOKENPASTE2(TPScope,__LINE__) ( static_text );
 	#define PROFILE_START( static_text )            Profiler::NodeEntry( static_text );
 	#define PROFILE_STOP()							Profiler::NodeExit();
 #else
@@ -49,20 +51,33 @@ namespace Profiler
 
 	struct CallNode
 	{
-		CallNode( const char* szName, CallNode* pParent = nullptr ) : m_Name(szName), m_pParent(pParent), m_StartTime(0), m_CallCount(0), m_fTimeSpent(0), m_fMaxTimeSpent(0)	{}
+		CallNode( const char* szName, CallNode* pParent = nullptr ) : 
+			m_Name(szName), 
+			m_pParent(pParent), 
+			m_StartTime(0), 
+			m_CallCount(0), 
+			m_LastCallCount(0), 
+			m_MaxCallCount(0),
+			m_fTimeSpent(0), 
+			m_fLastTimeSpent(0), 
+			m_fMaxTimeSpent(0)	{}
 
 		void Start();
 		void Stop();
 		void SetActive( bool bActive );
 		void FrameReset();
 		void HardReset();
+		void BuildGui();
 		CallNode* FindOrCreateChildNode( const char* szName );
 
 		const char*			m_Name;
 		CallNode*			m_pParent;
 		uint64				m_StartTime;
 		uint32				m_CallCount;
+		uint32				m_LastCallCount;
+		uint32				m_MaxCallCount;
 		float				m_fTimeSpent;
+		float				m_fLastTimeSpent;
 		float				m_fMaxTimeSpent;
 		Array<CallNode*>	m_ChildrenArray;
 
@@ -110,6 +125,8 @@ namespace Profiler
 	/** Should be called at the end of each frame, to reset stats */
 	void FrameReset();
 	void HardReset();
+
+	void BuildGui();
 
 
 } /* namespace Profiler */
