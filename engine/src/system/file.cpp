@@ -6,7 +6,6 @@ namespace bigball
 {
 
 File::File() :
-	m_AccessMode(Read),
 	m_FileHandle(nullptr),
 	m_bAsync(false)
 {
@@ -30,9 +29,11 @@ bool File::IsValidHandle()
 #endif
 }
 
-bool File::Open( char const* FileName, eAccessMode Access, bool bAsync )
+bool File::Open( char const* FileName, bool bWriteAccess, bool bAsync )
 {
-	m_AccessMode = Access;
+	m_Flags |= bWriteAccess ? ArchiveFlag_Write : ArchiveFlag_Read;
+	m_Flags &= bWriteAccess ? ~ArchiveFlag_Read : ~ArchiveFlag_Write;
+
 	m_bAsync = bAsync;
 
 #if _WIN32 || _WIN64
@@ -72,9 +73,34 @@ void File::Close()
 	m_FileHandle = nullptr;
 }
 
+void File::Seek( uint32 Offset )
+{
+#if _WIN32 || _WIN64
+	// Try to move hFile file pointer some distance  
+	DWORD dwPtr = SetFilePointer( m_FileHandle, Offset,	NULL, FILE_BEGIN ); 
+	if( dwPtr == INVALID_SET_FILE_POINTER )
+	{ 
+		// Obtain the error code. 
+		DWORD dwError = GetLastError() ; 
+	}
+#else
+	fseek( m_FileHandle, Offset, SEEK_SET );
+#endif
+}
+
+uint32 File::Tell()
+{
+#if _WIN32 || _WIN64
+	// Crappy, but there is no GetFilePointer in Win32 API
+	return SetFilePointer( m_FileHandle, 0, NULL, FILE_CURRENT );
+#else
+	return ftell( m_FileHandle );
+#endif
+}
+
 uint32 File::Serialize( void* pBuffer, uint32 Size )
 {
-	uint32 SerializedCount = 0;
+	int SerializedCount = 0;
 	if( IsReading() )
 	{
 #if _WIN32 || _WIN64
@@ -86,7 +112,21 @@ uint32 File::Serialize( void* pBuffer, uint32 Size )
 	else
 	{
 #if _WIN32 || _WIN64
-		WriteFile( m_FileHandle, pBuffer, Size, (LPDWORD)&SerializedCount, nullptr );
+		if( !WriteFile( m_FileHandle, pBuffer, Size, (LPDWORD)&SerializedCount, nullptr ) )
+		{
+			LPVOID lpMsgBuf;
+			DWORD dw = GetLastError(); 
+
+			FormatMessage(
+				FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+				FORMAT_MESSAGE_FROM_SYSTEM |
+				FORMAT_MESSAGE_IGNORE_INSERTS,
+				NULL,
+				dw,
+				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+				(LPTSTR) &lpMsgBuf,
+				0, NULL );
+		}
 #else
 		SerializedCount = fwrite( pBuffer, Size, 1, m_FileHandle );
 #endif

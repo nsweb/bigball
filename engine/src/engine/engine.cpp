@@ -280,7 +280,7 @@ void Engine::MainLoop()
 						bool bWrite = Event.key.keysym.sym == SDLK_F9 ? true : false;
 
 						File outFile;
-						if( outFile.Open("../save/camera_debug.bin", bWrite ? File::Write : File::Read) )
+						if( outFile.Open("../save/camera_debug.bin", bWrite) )
 						{
 							Camera* pCurrentCam = Controller::GetStaticInstance()->GetActiveCamera();
 							if( pCurrentCam )

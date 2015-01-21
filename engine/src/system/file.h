@@ -3,40 +3,122 @@
 #define BB_SYSTEMFILE_H 
 
 
-/////////////////////////////////////////////////////////////////////
-//typedef /*std::*/hash_map<void*, void*> HashMapType_LT;
-
 namespace bigball
 {
 
-class File
+#define ArchiveFlag_Read		(0x00000001)
+#define ArchiveFlag_Write		(0x00000002)
+#define ArchiveFlag_Compressed  (0x00000004)
+
+
+/////////////////////////////////////////////////////////////////////
+class Archive
+{
+public:
+						Archive() : m_Flags(0)  {}
+						~Archive() {}
+
+	template<typename K>
+	uint32				SerializeRaw( K& Val )			{ return Serialize( &Val, sizeof(K) );		}
+	virtual uint32		Serialize( void* pBuffer, uint32 Size ) = 0;
+	uint32				IsReading()		{ return m_Flags & ArchiveFlag_Read; }
+	uint32				IsWriting() 	{ return m_Flags & ArchiveFlag_Write; }
+	virtual void		Seek( uint32 Offset ) = 0;
+	virtual uint32		Tell() = 0;
+
+	uint32			m_Flags;
+};
+
+/////////////////////////////////////////////////////////////////////
+class MemoryArchive : public Archive
+{
+public:
+	MemoryArchive()  {}
+	~MemoryArchive() {}
+
+	void	ResizeData( uint32 Size)	{ m_Data.resize(Size);	}
+	BYTE*	Data()						
+	{ 
+		BB_ASSERT( m_Data.size() > 0 ); 
+		return m_Data.Data();	
+	}
+	virtual void		Seek( uint32 Offset )	
+	{ 
+		BB_ASSERT( Offset <= (uint32)m_Data.size() ); 
+		m_Offset = Offset; 
+	}
+	virtual uint32		Tell()			{ return m_Offset;		}
+	uint32	Size()						{ return (uint32)m_Data.size();	}
+
+protected:
+	Array<BYTE>		m_Data;
+	uint32			m_Offset;
+};
+
+/////////////////////////////////////////////////////////////////////
+class MemoryReader : public MemoryArchive
+{
+public:
+						MemoryReader()  { m_Flags |= ArchiveFlag_Read; }
+						~MemoryReader() {}
+
+	virtual uint32		Serialize( void* pBuffer, uint32 Size )
+	{
+		// Ensure we have enough data
+		if( m_Offset + Size <= (uint32)m_Data.size() )
+		{
+			Memory::Memcpy( pBuffer, &m_Data[m_Offset], Size );
+			m_Offset += Size;
+			return Size;
+		}
+
+		return 0;
+	}
+};
+
+/////////////////////////////////////////////////////////////////////
+class MemoryWriter : public MemoryArchive
+{
+public:
+						MemoryWriter()  { m_Flags |= ArchiveFlag_Write; }
+						~MemoryWriter() {}
+
+	virtual uint32		Serialize( void* pBuffer, uint32 Size )
+	{
+		uint32 SizeNeeded = m_Offset + Size;
+		if( SizeNeeded > (uint32)m_Data.size() )
+		{
+			m_Data.resize(SizeNeeded );
+		}
+		if( Size )
+		{
+			Memory::Memcpy( &m_Data[m_Offset], pBuffer, Size );
+			m_Offset += Size;
+		}
+		return Size;
+	}
+};
+
+/////////////////////////////////////////////////////////////////////
+class File : public Archive
 {
 public:
 						File();
 						~File();
 
-	enum eAccessMode
-	{
-		Read = 0,
-		Write,
-	};
-
-	bool				Open( char const* FileName, eAccessMode Access, bool bAsync = false );
+	bool				Open( char const* FileName, bool bWriteAccess, bool bAsync = false );
 	void				Close();
 	size_t				GetFileSize();
-	inline bool			IsReading()					{ return m_AccessMode == Read ? true:false;		}
-	inline bool			IsWriting()					{ return m_AccessMode == Write ? true:false;	}
 	bool				IsValidHandle();
 	bool				HasAsyncIOCompleted();
 
-	template<typename K>
-	uint32				Serialize( K& Val )			{ return Serialize( &Val, sizeof(K) );		}
-	uint32				Serialize( void* pBuffer, uint32 Size );
+	virtual uint32		Serialize( void* pBuffer, uint32 Size );
 	uint32				SerializeString( String& BufferStr );
 	bool				SerializeAsync( void* pBuffer, uint32 Size );
+	virtual void		Seek( uint32 Offset );
+	virtual uint32		Tell();
 
 private:
-	eAccessMode		m_AccessMode;
 	bool			m_bAsync;
 
 #if _WIN32 || _WIN64
@@ -45,7 +127,6 @@ private:
 #else
 	FILE*			m_FileHandle;
 #endif
-	//HashMapType_LT*	m_pRegisterLink;
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -77,7 +158,6 @@ struct TgaFileHeader
 	uint8	descriptor;         // image descriptor bits (vh flip bits)
 
 	// pixel data follows header
-
 };
 
 struct BGRColor
@@ -98,28 +178,9 @@ struct BGRColor
 #pragma pack(pop)
 #endif
 
-	//wstring vswprintf(const wchar_t* format, va_list args);
-	//wstring swprintf(const wchar_t* format, ...);
+
 
 }  /* namespace bigball */
 
-
-/*class mvcLinkTable
-{
-public:
-					mvcLinkTable();
-					~mvcLinkTable();
-
-	void			Create();
-	void			Destroy();
-
-	void			Read_Link( HANDLE _hFile, void* _pLink );
-	void			Write_Link( HANDLE _hFile, void* _pLink );
-	void*			Get_Link( void* _pLink );
-
-private:
-	HashMapType_LT*	m_pRegisterLink;
-
-};*/
 
 #endif // BB_SYSTEMFILE_H

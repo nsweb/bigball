@@ -250,7 +250,7 @@ public:
     void resize(int count, Element e = Element())
     {
         BB_ASSERT(count >= 0);
-        reserve(count);
+		reserve( count, true );
 
         /* Too many elements? Remove them. */
         for (int i = count; i < m_count; ++i)
@@ -268,10 +268,13 @@ public:
         erase(0, m_count);
     }
 
-    void reserve(int toreserve)
+    void reserve(int toreserve, bool nextpoweroftwo = false)
     {
         if (toreserve <= (int)m_reserved)
             return;
+
+		if( nextpoweroftwo && !IsPowerOfTwo(toreserve) )
+			toreserve = NextPowerOfTwo(toreserve);
 
         /* This cast is not very nice, because we kill any alignment
          * information we could have. But until C++ gives us the proper

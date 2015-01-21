@@ -34,7 +34,7 @@ bool Shader::Create( String const& ShaderName )
 	for( int32 i = 0; i < Shader::MAX; ++i )
 	{
 		ShaderFileName = String::Printf( "../data/shader/%s.%s.glsl", ShaderName.c_str(), ShaderExts[i] );
-		if( !ShaderFile.Open( ShaderFileName.c_str(), File::Read ) )
+		if( !ShaderFile.Open( ShaderFileName.c_str(), false /*bWrite*/) )
 			continue;
 
 		ShaderFile.SerializeString( ShaderSrc );

@@ -53,4 +53,3 @@ String String::Printf(char const *format, va_list ap)
 }
 
 } /* namespace bigball */
-

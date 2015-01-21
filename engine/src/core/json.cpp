@@ -33,7 +33,7 @@ namespace json
 bool Object::ParseFile( char const* Path )
 {
 	File jsFile;
-	if( jsFile.Open( Path, File::Read, false ) )
+	if( jsFile.Open( Path, false /*bWrite*/, false ) )
 	{
 		String FileBuffer;
 		jsFile.SerializeString( FileBuffer );
