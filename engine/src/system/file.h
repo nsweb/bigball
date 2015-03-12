@@ -33,8 +33,8 @@ public:
 class MemoryArchive : public Archive
 {
 public:
-	MemoryArchive()  {}
-	~MemoryArchive() {}
+	MemoryArchive() : m_Offset(0)		{}
+	~MemoryArchive()					{}
 
 	void	ResizeData( uint32 Size)	{ m_Data.resize(Size);	}
 	BYTE*	Data()						
@@ -59,21 +59,10 @@ protected:
 class MemoryReader : public MemoryArchive
 {
 public:
-						MemoryReader()  { m_Flags |= ArchiveFlag_Read; }
-						~MemoryReader() {}
+	MemoryReader()						{ m_Flags |= ArchiveFlag_Read; }
+	~MemoryReader()						{}
 
-	virtual uint32		Serialize( void* pBuffer, uint32 Size )
-	{
-		// Ensure we have enough data
-		if( m_Offset + Size <= (uint32)m_Data.size() )
-		{
-			Memory::Memcpy( pBuffer, &m_Data[m_Offset], Size );
-			m_Offset += Size;
-			return Size;
-		}
-
-		return 0;
-	}
+	virtual uint32		Serialize( void* pBuffer, uint32 Size );
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -83,20 +72,7 @@ public:
 						MemoryWriter()  { m_Flags |= ArchiveFlag_Write; }
 						~MemoryWriter() {}
 
-	virtual uint32		Serialize( void* pBuffer, uint32 Size )
-	{
-		uint32 SizeNeeded = m_Offset + Size;
-		if( SizeNeeded > (uint32)m_Data.size() )
-		{
-			m_Data.resize(SizeNeeded );
-		}
-		if( Size )
-		{
-			Memory::Memcpy( &m_Data[m_Offset], pBuffer, Size );
-			m_Offset += Size;
-		}
-		return Size;
-	}
+	virtual uint32		Serialize( void* pBuffer, uint32 Size );
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -171,6 +147,19 @@ struct BGRColor
 			uint8 r;
 		};
 		uint16 gr;
+	};
+};
+struct RGBColor
+{
+	uint8 r;
+	union
+	{
+		struct 
+		{
+			uint8 g;
+			uint8 b;
+		};
+		uint16 gb;
 	};
 };
 

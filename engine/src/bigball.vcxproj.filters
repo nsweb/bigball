@@ -272,5 +272,8 @@
     <ClCompile Include="gfx\bufferlock.cpp">
       <Filter>gfx</Filter>
     </ClCompile>
+    <ClCompile Include="core\compress.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

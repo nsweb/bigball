@@ -303,43 +303,38 @@ void ListFiles( char const* strSearch, Array<String>& OutFiles )
 #endif
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
-//
-
-//
-////-----------------------------------------------------------------------------
-//s32 File::Seek (const s32 _s32Offset, const E_MC_SEEK _eOrigin)
-//{
-//	M_LOCK();
-//	s32 iResult = ::fseek(m_FileHandle, _s32Offset, _eOrigin);
-//	return iResult;
-//}
-//
-////-----------------------------------------------------------------------------
-//s32 File::Tell(void)
-//{
-//	M_LOCK();
-//	s32 iResult = ::ftell(m_FileHandle);
-//	return iResult;
-//}
-
-//-----------------------------------------------------------------------------
-//s32 File::fprintf(const char *format , ... )
-//{
-//	s32 SizeWritten = 0;
-//	if(format)
-//	{
-//		va_list marker;
-//
-//		va_start( marker, format ); 
-//		//M_LOCK();
-//		SizeWritten = vfprintf(m_hFile, format, marker);
-//		//BB_ASSERT(SizeWritten>=0, ("%s: problem on fprintf", m_Filename.c_str()) );
-//		va_end( marker );
-//	}
-//	return SizeWritten;
-//}
 
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+uint32 MemoryReader::Serialize( void* pBuffer, uint32 Size )
+{
+	// Ensure we have enough data
+	if( m_Offset + Size <= (uint32)m_Data.size() )
+	{
+		Memory::Memcpy( pBuffer, &m_Data[m_Offset], Size );
+		m_Offset += Size;
+		return Size;
+	}
+
+	return 0;
+}
+
+
+uint32 MemoryWriter::Serialize( void* pBuffer, uint32 Size )
+{
+	uint32 SizeNeeded = m_Offset + Size;
+	if( SizeNeeded > (uint32)m_Data.size() )
+	{
+		m_Data.resize(SizeNeeded );
+	}
+	if( Size )
+	{
+		Memory::Memcpy( &m_Data[m_Offset], pBuffer, Size );
+		m_Offset += Size;
+	}
+	return Size;
+}
 
 } /* namespace bigball */

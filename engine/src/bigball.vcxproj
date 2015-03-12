@@ -215,6 +215,7 @@
     <ClInclude Include="ui\uimanager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="core\compress.cpp" />
     <ClCompile Include="core\json.cpp" />
     <ClCompile Include="core\memory.cpp" />
     <ClCompile Include="core\hash.cpp" />

@@ -175,7 +175,9 @@ public:
 			m_HashTable = (uint32*) Memory::Malloc( m_HashSize * sizeof(uint32) );
 			Memory::Memset( m_HashTable, 0, m_HashSize * sizeof(uint32) );			// flag all new elems as free
 
-			m_Pairs	= (Pair*) Memory::Malloc( m_HashSize * sizeof(Pair), ALIGN_OF(Pair) );
+			uint32 Alignment = ALIGN_OF(Pair);
+			uint32 SizePair = m_HashSize * sizeof(Pair);
+			m_Pairs	= (Pair*) Memory::Malloc( SizePair, Alignment );
 
 			// Reinsert old data
 			for( uint32 i = 0; i < OldHashSize; ++i )
