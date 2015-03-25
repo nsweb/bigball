@@ -68,6 +68,7 @@ namespace Profiler
 		void FrameReset();
 		void HardReset();
 		void BuildGui();
+		void BuildLog( int indent_level = 0 );
 		CallNode* FindOrCreateChildNode( const char* szName );
 
 		const char*			m_Name;
@@ -127,6 +128,7 @@ namespace Profiler
 	void HardReset();
 
 	void BuildGui();
+	void BuildLog();
 
 
 } /* namespace Profiler */

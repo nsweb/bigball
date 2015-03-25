@@ -107,6 +107,22 @@ void BuildGui()
 	g_ProfilerData.m_ThreadLock.Unlock();
 }
 
+void BuildLog()
+{
+	g_ProfilerData.m_ThreadLock.Lock();
+
+	for( int32 RootIdx = 0; RootIdx < g_ProfilerData.m_ThreadRoots.size(); ++RootIdx )
+	{
+		CallRoot& TRoot = g_ProfilerData.m_ThreadRoots[RootIdx];
+		//if( ImGui::TreeNode(TRoot.m_pRoot->m_Name) )
+		{
+			TRoot.m_pRoot->BuildLog();
+			//ImGui::TreePop();
+		}
+	}
+	g_ProfilerData.m_ThreadLock.Unlock();
+}
+
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
@@ -189,6 +205,34 @@ void CallNode::BuildGui()
 	}
 }
 
+void CallNode::BuildLog( int indent_level )
+{
+	//bool bTreeNode = ImGui::TreeNode(m_Name);
+	//ImGui::SameLine(0, 100);
+	String strIndent;
+	for( int i = 0; i < indent_level; i++ )
+	{
+		if( i == indent_level-1 )
+		{
+			strIndent += " ";
+			strIndent += (char)192;
+			strIndent += (char)196;
+		}
+		else
+			strIndent += "  ";
+	}
+	
+	BB_LOG( Profiler, Log, "%s%s (%d) - %.2f ms", strIndent.c_str(), m_Name, m_MaxCallCount, m_fMaxTimeSpent*100.0f );
+
+	//if( bTreeNode )
+	{
+		for( int32 ChildIdx = 0; ChildIdx < m_ChildrenArray.size(); ++ChildIdx )
+		{
+			m_ChildrenArray[ChildIdx]->BuildLog( indent_level+1 );
+		}
+		//ImGui::TreePop();
+	}
+}
 
 
 
