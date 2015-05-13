@@ -12,7 +12,7 @@ namespace bigball
 { \
 	if( !(Cond) ) \
 	{ \
-		BBLog::Print( __FILE__, __LINE__, "Assert", BBLog::Error, Format, ##__VA_ARGS__ ); \
+		BBLog::Print( __FILE__, __LINE__, "Assert", BBLog::Error, false, Format, ##__VA_ARGS__ ); \
 		__debugbreak(); \
 		std::abort(); \
 	} \

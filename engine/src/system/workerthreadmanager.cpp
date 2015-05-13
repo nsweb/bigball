@@ -16,7 +16,7 @@ namespace bigball
 
 STATIC_MANAGER_CPP( WorkerThreadManager )
 
-#define WORKER_THREAD_POOL		4
+#define WORKER_THREAD_POOL		6
 
 WorkerThreadManager::WorkerThreadManager() :
 	m_NbAsyncTasks(0)
