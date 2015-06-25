@@ -12,6 +12,7 @@
 
 // Needed for loading png
 #define STB_IMAGE_IMPLEMENTATION
+#define STBI_NO_HDR
 #include "stb/stb_image.h"
 
 //
