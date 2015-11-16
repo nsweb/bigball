@@ -1,6 +1,6 @@
 
 //#include "./zlib/Inc/zlib.h"
-#include "./zlib/zlib.h"
+#include "zlib.h"
 
 namespace Compression
 {
