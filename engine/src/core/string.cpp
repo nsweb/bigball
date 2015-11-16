@@ -32,12 +32,12 @@ String String::Printf(char const *format, va_list ap)
     String ret;
 
     va_list ap2;
-//#if !defined _MSC_VER
-//    /* Visual Studio 2010 does not support va_copy. */
-//    va_copy(ap2, ap);
-//#else
+#if !defined _MSC_VER
+    /* Visual Studio 2010 does not support va_copy. */
+    va_copy(ap2, ap);
+#else
     ap2 = ap;
-//#endif
+#endif
 
     /* vsnprintf() tells us how many character we need, and we need to
      * add one for the terminating null byte. */

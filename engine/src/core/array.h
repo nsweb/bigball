@@ -273,7 +273,7 @@ public:
         if (toreserve <= (int)m_reserved)
             return;
 
-		if( nextpoweroftwo && !IsPowerOfTwo(toreserve) )
+        if( nextpoweroftwo && !IsPowerOfTwo(toreserve) )
 			toreserve = NextPowerOfTwo(toreserve);
 
         /* This cast is not very nice, because we kill any alignment

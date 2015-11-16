@@ -12,7 +12,7 @@ bool CompressZLIB( void* CompressedBuffer, uint32& CompressedSize, const void* U
 	unsigned long ZCompressedSize = CompressedSize;
 	unsigned long ZUncompressedSize	= UncompressedSize;
 	// Compress data
-	bool bOperationSucceeded = compress( (BYTE*) CompressedBuffer, &ZCompressedSize, (const BYTE*) UncompressedBuffer, ZUncompressedSize ) == Z_OK ? true : false;
+	bool bOperationSucceeded = compress( (uint8*) CompressedBuffer, &ZCompressedSize, (const uint8*) UncompressedBuffer, ZUncompressedSize ) == Z_OK ? true : false;
 	CompressedSize = ZCompressedSize;
 
 	return bOperationSucceeded;
@@ -26,7 +26,7 @@ bool UncompressZLIB( void* UncompressedBuffer, uint32 UncompressedSize, const vo
 	unsigned long ZUncompressedSize	= UncompressedSize;
 	
 	// Uncompress data.
-	bool bOperationSucceeded = uncompress( (BYTE*) UncompressedBuffer, &ZUncompressedSize, (const BYTE*) CompressedBuffer, ZCompressedSize ) == Z_OK ? true : false;
+	bool bOperationSucceeded = uncompress( (uint8*) UncompressedBuffer, &ZUncompressedSize, (const uint8*) CompressedBuffer, ZCompressedSize ) == Z_OK ? true : false;
 
 	// Sanity check to make sure we uncompressed as much data as we expected to.
 	BB_ASSERT( UncompressedSize == ZUncompressedSize );

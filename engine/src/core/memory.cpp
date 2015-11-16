@@ -21,3 +21,23 @@ void Memory::Free( void* Original )
 
 } /* namespace bigball */
 
+// Operator new / delete overload
+
+inline void* operator new( size_t Size ) throw(std::bad_alloc)
+{
+    return bigball::Memory::Malloc( Size );
+}
+inline void operator delete( void* Ptr ) throw()
+{
+    bigball::Memory::Free( Ptr );
+}
+
+inline void* operator new[]( size_t Size ) throw(std::bad_alloc)
+{
+    return bigball::Memory::Malloc( Size );
+}
+inline void operator delete[]( void* Ptr ) throw()
+{
+    bigball::Memory::Free( Ptr );
+}
+

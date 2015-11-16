@@ -32,13 +32,13 @@ bool Intersect<T>::RayAABB( Vec3<T> const& minB, Vec3<T> const& maxB, Vec3<T> co
 		{
 			Quadrant[i] = LEFT;
 			candidatePlane[i] = minB[i];
-			bInside = FALSE;
+			bInside = false;
 		}
 		else if (origin[i] > maxB[i]) 
 		{
 			Quadrant[i] = RIGHT;
 			candidatePlane[i] = maxB[i];
-			bInside = FALSE;
+			bInside = false;
 		}
 		else	
 		{

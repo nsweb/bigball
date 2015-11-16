@@ -42,12 +42,12 @@
 #include "core/memory.h"
 #include "core/log.h"
 #include "core/templates.h"
+#include "math/functions.h"
 #include "core/array.h"
 #include "core/string.h"
 #include "core/name.h"
 #include "core/map.h"
 #include "math/constants.h"
-#include "math/functions.h"
 #include "math/vector.h"
 #include "math/transform.h"
 

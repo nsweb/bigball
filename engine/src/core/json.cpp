@@ -56,8 +56,8 @@ bool Object::ParseString( char const* sz )
 		m_Tokens.resize( MaxToken );
 
 		jsmn_init(&p);
-		jsmnerr_t r = jsmn_parse(&p, sz, m_Tokens.Data(), MaxToken);
-		if( r == JSMN_SUCCESS )
+		int r = jsmn_parse(&p, sz, m_Str.Len(), m_Tokens.Data(), MaxToken);
+		if( r >= 0 )
 			break;
 		else if( r == JSMN_ERROR_NOMEM )
 			continue;

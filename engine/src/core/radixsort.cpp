@@ -41,7 +41,7 @@ namespace bigball
 
 #define CREATE_HISTOGRAMS(type, buffer)														\
 	/* Clear counters/histograms */															\
-	ZeroMemory(Histogram, 256*4*sizeof(uint32));											\
+    Memory::Memzero(Histogram, 256*4*sizeof(uint32));											\
 																							\
 	/* Prepare to count */																	\
 	const unsigned char* p = (const unsigned char*)input;													\

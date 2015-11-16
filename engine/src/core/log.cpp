@@ -20,7 +20,7 @@
 namespace bigball
 {
 
-void BBLog::Print( char const* File, int Line, char const* Category, Type type, bool bCarriageReturn, char const* Format, ... )
+void BBLog::Print( char const* File, int Line, char const* Category, Type type, char const* Format, ... )
 {
     va_list ap;
     va_start( ap, Format );
@@ -35,7 +35,7 @@ void BBLog::Print( char const* File, int Line, char const* Category, Type type, 
 #if defined _WIN32 || _WIN64
 
 	String TmpString = String::Printf( Format, ap );
-	TmpString += bCarriageReturn ? "\r" : "\n";
+	TmpString += "\n";
 
 	String BufferString = String::Printf( "%s(%d) [%s] %s : %s", File, Line, LogPrefix[type], Category, TmpString.c_str() );
 
@@ -43,7 +43,7 @@ void BBLog::Print( char const* File, int Line, char const* Category, Type type, 
 	printf( TmpString.c_str() ); 
 #else
 	fprintf( stderr, "%s: ", LogPrefix[type] );
-	vfprintf( stderr, format, ap );
+	vfprintf( stderr, Format, ap );
 #endif
 
     va_end(ap);

@@ -105,25 +105,5 @@ struct BIGBALL_API Memory
 } /* namespace bigball */
 
 
-// Operator new / delete overload
-
-inline void* operator new( size_t Size )
-{
-	return bigball::Memory::Malloc( Size );
-}
-inline void operator delete( void* Ptr )
-{
-	bigball::Memory::Free( Ptr );
-}
-
-inline void* operator new[]( size_t Size )
-{
-	return bigball::Memory::Malloc( Size );
-}
-inline void operator delete[]( void* Ptr )
-{
-	bigball::Memory::Free( Ptr );
-}
-
 #endif // BB_COREMEMORY_H
 

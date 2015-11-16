@@ -79,7 +79,7 @@ bool Engine::Init( bool bCreateWindow )
 	const char* RendererId = (const char*)glGetString (GL_RENDERER);	// get renderer string
 	const char* VersionId = (const char*)glGetString (GL_VERSION);		// version as a string
 	BB_LOG( EngineInit, Log, "Renderer: %s", RendererId );
-	BB_LOG( EngineInit, Log, ("OpenGL version supported %s", VersionId) );
+	BB_LOG( EngineInit, Log, "OpenGL version supported %s", VersionId );
 
     /* This makes our buffer swap syncronized with the monitor's vertical refresh */
     SDL_GL_SetSwapInterval(1);
@@ -256,7 +256,7 @@ void Engine::MainLoop()
 			{
 			case SDL_KEYDOWN:
 				{
-					SDL_Keycode keyPressed = Event.key.keysym.sym;
+					//SDL_Keycode keyPressed = Event.key.keysym.sym;
 					//if( keyPressed == SDLK_LEFT )
 					//	Controller::GetStaticInstance()->OnInputX( Event.key.keysym.mod, -DeltaSeconds );
 				}

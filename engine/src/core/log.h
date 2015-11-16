@@ -11,12 +11,7 @@ namespace bigball
 
 #define BB_LOG(CategoryName, Verbosity, Format, ...) \
 { \
-	BBLog::Print(__FILE__, __LINE__, #CategoryName, BBLog::Verbosity, false, Format, ##__VA_ARGS__ ); \
-}
-
-#define BB_LOG_CR(CategoryName, Verbosity, Format, ...) \
-{ \
-	BBLog::Print(__FILE__, __LINE__, #CategoryName, BBLog::Verbosity, true, Format, ##__VA_ARGS__ ); \
+	BBLog::Print(__FILE__, __LINE__, #CategoryName, BBLog::Verbosity, Format, ##__VA_ARGS__ ); \
 }
 
 
@@ -31,7 +26,7 @@ public:
 		Error,
 	};
 
-    static void Print( char const* File, int Line, char const* Category, Type type, bool bCarriageReturn, char const* Format, ... );
+    static void Print( char const* File, int Line, char const* Category, Type type, char const* Format, ... );
 
 };
 

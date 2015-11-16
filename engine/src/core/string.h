@@ -59,6 +59,7 @@ public:
 	{ 
 		return (String&) Super::operator=( std::move(that) );
 	}
+    //const volatile String&& operator=(String&) volatile const && = delete;
 
     inline char &operator [](int n)
     {
@@ -203,32 +204,6 @@ public:
         return Len() >= s.Len()
                 && memcmp(c_str() + Len() - s.Len(), s.c_str(), s.Len()) == 0;
     }
-
-	void ExtractPathExt( String& Path, String& Base, String& Ext )
-	{
-		int ExtIdx = LastIndexOf( "." );
-		if( ExtIdx > 0 )
-			Ext = Sub( ExtIdx + 1, Len() - (ExtIdx + 1) );
-		else
-		{
-			ExtIdx = Len();
-			Ext = "";
-		}
-
-		int SeparatorIdx = LastIndexOf( "\\" );
-		if( SeparatorIdx < 0 )
-			SeparatorIdx = LastIndexOf( "/" );
-		if( SeparatorIdx < 0 )
-		{
-			Base = Sub( 0, ExtIdx );
-			Path = "";
-		}
-		else
-		{
-			Base = Sub( SeparatorIdx + 1, ExtIdx - (SeparatorIdx + 1) );
-			Path = Sub( 0, SeparatorIdx + 1 );
-		}
-	}
 
     inline String operator +(String const &s) const
     {

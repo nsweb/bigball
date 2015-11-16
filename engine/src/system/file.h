@@ -37,7 +37,7 @@ public:
 	~MemoryArchive()					{}
 
 	void	ResizeData( uint32 Size)	{ m_Data.resize(Size);	}
-	BYTE*	Data()						
+	uint8*	Data()
 	{ 
 		BB_ASSERT( m_Data.size() > 0 ); 
 		return m_Data.Data();	
@@ -51,7 +51,7 @@ public:
 	uint32	Size()						{ return (uint32)m_Data.size();	}
 
 protected:
-	Array<BYTE>		m_Data;
+	Array<uint8>		m_Data;
 	uint32			m_Offset;
 };
 
