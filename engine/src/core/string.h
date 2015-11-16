@@ -59,6 +59,10 @@ public:
 	{ 
 		return (String&) Super::operator=( std::move(that) );
 	}
+    String& operator=( String const& that )
+    {
+        return (String&) Super::operator=( that );
+    }
     //const volatile String&& operator=(String&) volatile const && = delete;
 
     inline char &operator [](int n)
