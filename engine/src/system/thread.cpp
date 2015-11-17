@@ -11,7 +11,7 @@ namespace bigball
 
 Thread::Thread()
 {
-	m_hThread = NULL;
+	//m_hThread = NULL;
 }
 Thread::~Thread()
 {
@@ -21,17 +21,17 @@ Thread::~Thread()
 bool Thread::Create()
 {
 	uint32 iThreadID;
-	m_hThread = (HANDLE)_beginthreadex( NULL, 0, s_ThreadMain, this/*&hEvent*/, 0, &iThreadID );
-	if( m_hThread == NULL ) 
-	{
-		return false;
-	}
+    m_hThread = std::thread(s_ThreadMain, this, iThreadID);//(HANDLE)_beginthreadex( NULL, 0, s_ThreadMain, this/*&hEvent*/, 0, &iThreadID );
+	//if( m_hThread == NULL )
+	//{
+	//	return false;
+	//}
 	return true;
 }
 void Thread::Destroy()
 {
-	if( m_hThread )
-		CloseHandle( m_hThread );
+	//if( m_hThread )
+	//	CloseHandle( m_hThread );
 }
 
 void Thread::ThreadMain()
@@ -160,7 +160,7 @@ void WorkerThread::SetTaskProxy( TaskProxy* _pTaskProxy )
 
 ThreadEvent::ThreadEvent()
 {
-	m_hEvent = NULL;
+	//m_hEvent = NULL;
 }
 
 ThreadEvent::~ThreadEvent()

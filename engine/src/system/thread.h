@@ -23,7 +23,8 @@ public:
 	void	WaitForSingleObject( uint32 _nMs );
 
 private:
-	HANDLE		m_hEvent;
+    std::mutex  m_hEvent;
+	//HANDLE		m_hEvent;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -34,14 +35,15 @@ public:
 	virtual ~Thread();
 
 	virtual bool	Create();
-	virtual void	Destroy();
+	#include <thread>virtual void	Destroy();
 
 	virtual void	ThreadMain();
 
 private:
-	HANDLE	m_hThread;
+	//HANDLE	m_hThread;
+    std::thread m_hThread;
 
-	static uint32 __stdcall s_ThreadMain( void* _pArgs );
+    static uint32 /*__stdcall*/ s_ThreadMain( void* _pArgs );
 };
 
 
