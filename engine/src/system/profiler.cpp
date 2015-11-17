@@ -192,7 +192,7 @@ void CallNode::HardReset()
 void CallNode::BuildGui()
 {
 	bool bTreeNode = ImGui::TreeNode(m_Name);
-	ImGui::SameLine(0, 100);
+	ImGui::SameLine(0.f, 100.f);
 	ImGui::Text( "[%d / %d] %.2f / %.2f ms", m_LastCallCount, m_MaxCallCount, m_fLastTimeSpent*100.0f, m_fMaxTimeSpent*100.0f );
 
 	if( bTreeNode )

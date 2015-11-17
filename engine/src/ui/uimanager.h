@@ -33,7 +33,7 @@ public:
 	virtual void		_Render( struct RenderContext& RenderCtxt );
 	static UIManager*	GetStaticInstance()		{ return m_pStaticInstance; }
 
-	void				RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lists_count);
+	void				RenderDrawLists(struct ImDrawData* data);
 	void				ToggleDebugMenu();
 
 protected:

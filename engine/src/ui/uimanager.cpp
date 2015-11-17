@@ -148,17 +148,18 @@ void UIManager::Destroy()
 // If text or lines are blurry when integrating ImGui in your engine:
 // - in your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f)
 // - try adjusting ImGui::GetIO().PixelCenterOffset to 0.5f or 0.375f
-static void ImImpl_RenderDrawLists(ImDrawList** const cmd_lists, int cmd_lists_count)
+static void ImImpl_RenderDrawLists(ImDrawData* data)
+//static void ImImpl_RenderDrawLists(ImDrawList** const cmd_lists, int cmd_lists_count)
 {
 	UIManager* pManager = UIManager::GetStaticInstance();
-	pManager->RenderDrawLists( cmd_lists, cmd_lists_count );
+	pManager->RenderDrawLists( data );
 }
 
-void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lists_count)
+void UIManager::RenderDrawLists(ImDrawData* data)
 {
 	PROFILE_SCOPE( __FUNCTION__ );
 
-	if (cmd_lists_count == 0)
+	if( data->CmdListsCount == 0 )
 		return;	
 
 	// We are using the OpenGL fixed pipeline to make the example code simpler to read!
@@ -195,14 +196,14 @@ void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lis
 	{
 		// Count the size we need to lock
 		uint32 sum_vtx_count = 0;
-		for (int n = 0; n < cmd_lists_count; n++)
+		for (int n = 0; n < data->CmdListsCount; n++)
 		{
-			const ImDrawList* cmd_list = cmd_lists[n];
+			const ImDrawList* cmd_list = data->CmdLists[n];
 
-			const ImDrawCmd* pcmd_end = cmd_list->commands.end();
-			for (const ImDrawCmd* pcmd = cmd_list->commands.begin(); pcmd != pcmd_end; pcmd++)
+			const ImDrawCmd* pcmd_end = cmd_list->CmdBuffer.end();
+			for (const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != pcmd_end; pcmd++)
 			{
-				sum_vtx_count += pcmd->vtx_count;
+				sum_vtx_count += pcmd->ElemCount;
 			}
 		}
 
@@ -214,28 +215,28 @@ void UIManager::RenderDrawLists(struct ImDrawList** const cmd_lists, int cmd_lis
 
 		uint32 vbo_byte_offset = 0;
 		uint32 vbo_vtx_offset = 0;
-		for (int n = 0; n < cmd_lists_count; n++)
+		for (int n = 0; n < data->CmdListsCount; n++)
 		{
-			const ImDrawList* cmd_list = cmd_lists[n];
-			const uint8* vtx_buffer = (const uint8*)cmd_list->vtx_buffer.begin();
+			const ImDrawList* cmd_list = data->CmdLists[n];
+			const uint8* vtx_buffer = (const uint8*)cmd_list->VtxBuffer.begin();
 			uint32 byte_offset = 0;
 			uint32 vtx_offset = 0;
 
-			const ImDrawCmd* pcmd_end = cmd_list->commands.end();
-			for( const ImDrawCmd* pcmd = cmd_list->commands.begin(); pcmd != pcmd_end; pcmd++ )
+			const ImDrawCmd* pcmd_end = cmd_list->CmdBuffer.end();
+			for( const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != pcmd_end; pcmd++ )
 			{
-				void* Dst = glMapBufferRange( GL_ARRAY_BUFFER, vbo_byte_offset, pcmd->vtx_count * sizeof(UIVertex), GL_MAP_UNSYNCHRONIZED_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_WRITE_BIT );
-				Memory::Memcpy( Dst, vtx_buffer + byte_offset, pcmd->vtx_count * sizeof(UIVertex) );
+				void* Dst = glMapBufferRange( GL_ARRAY_BUFFER, vbo_byte_offset, pcmd->ElemCount * sizeof(UIVertex), GL_MAP_UNSYNCHRONIZED_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_WRITE_BIT );
+				Memory::Memcpy( Dst, vtx_buffer + byte_offset, pcmd->ElemCount * sizeof(UIVertex) );
 				glUnmapBuffer( GL_ARRAY_BUFFER );
 
 				//--Memory::Memcpy( m_UI_VBO.m_VertexDataPtr + vbo_byte_offset, vtx_buffer + byte_offset, pcmd->vtx_count * sizeof(UIVertex) );
 				//glScissor((int)pcmd->clip_rect.x, (int)(height - pcmd->clip_rect.w), (int)(pcmd->clip_rect.z - pcmd->clip_rect.x), (int)(pcmd->clip_rect.w - pcmd->clip_rect.y));
-				glDrawArrays( GL_TRIANGLES, StartIndex + vbo_vtx_offset, pcmd->vtx_count );
+				glDrawArrays( GL_TRIANGLES, StartIndex + vbo_vtx_offset, pcmd->ElemCount );
 
-				vtx_offset += pcmd->vtx_count;
-				vbo_vtx_offset += pcmd->vtx_count;
-				byte_offset += pcmd->vtx_count * sizeof(UIVertex); 
-				vbo_byte_offset += pcmd->vtx_count * sizeof(UIVertex); 
+				vtx_offset += pcmd->ElemCount;
+				vbo_vtx_offset += pcmd->ElemCount;
+				byte_offset += pcmd->ElemCount * sizeof(UIVertex); 
+				vbo_byte_offset += pcmd->ElemCount * sizeof(UIVertex); 
 			}
 		}
 
@@ -295,7 +296,7 @@ void UIManager::InitImGui()
 	io.LogFilename = "../data/log/imgui.log";
 	io.DisplaySize = ImVec2((float)g_pEngine->GetDisplayMode().w, (float)g_pEngine->GetDisplayMode().h);  // Display size, in pixels. For clamping windows positions.
 	io.DeltaTime = 1.0f/60.0f;                          // Time elapsed since last frame, in seconds (in this sample app we'll override this every frame because our timestep is variable)
-	io.PixelCenterOffset = 0.0f;                        // Align OpenGL texels
+	//io.PixelCenterOffset = 0.0f;                        // Align OpenGL texels
 	io.KeyMap[ImGuiKey_Tab] = SDL_SCANCODE_TAB;// GLFW_KEY_TAB;             // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
 	io.KeyMap[ImGuiKey_LeftArrow] = SDL_SCANCODE_LEFT;// GLFW_KEY_LEFT;
 	io.KeyMap[ImGuiKey_RightArrow] = SDL_SCANCODE_RIGHT;// GLFW_KEY_RIGHT;
@@ -351,11 +352,17 @@ void UIManager::InitImGui()
 
 #if 1
 	// Default font (embedded in code)
-	const void* png_data;
-	uint32 png_size;
-	ImGui::GetDefaultFontData(NULL, NULL, &png_data, &png_size);
+	//const void* png_data;
+	//uint32 png_size;
+	//ImGui::GetDefaultFontData(NULL, NULL, &png_data, &png_size);
+
+	uint8* pixels;
+	int width, height, bytes_per_pixel;
+	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height, &bytes_per_pixel);
+	const int data_size = width * bytes_per_pixel * height;
+
 	int32 tex_x, tex_y, tex_comp;
-	void* tex_data = stbi_load_from_memory((const unsigned char*)png_data, (int)png_size, &tex_x, &tex_y, &tex_comp, 0);
+	void* tex_data = stbi_load_from_memory((const uint8*)pixels, data_size, &tex_x, &tex_y, &tex_comp, 0);
 	BB_ASSERT(tex_data != NULL);
 #else
 	// Custom font from filesystem
