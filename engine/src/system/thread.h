@@ -23,8 +23,11 @@ public:
 	void	WaitForSingleObject( uint32 _nMs );
 
 private:
-    //std::mutex  m_hEvent;
+#if !defined _MSC_VER
+    std::mutex  m_hEvent;
+#else
 	HANDLE		m_hEvent;
+#endif
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -40,8 +43,11 @@ public:
 	virtual void	ThreadMain();
 
 private:
+#if !defined _MSC_VER
+    std::thread m_hThread;
+#else
 	HANDLE	m_hThread;
-    //std::thread m_hThread;
+#endif
 
     static uint32 /*__stdcall*/ s_ThreadMain( void* _pArgs );
 };
