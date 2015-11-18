@@ -361,9 +361,11 @@ void UIManager::InitImGui()
 	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height, &bytes_per_pixel);
 	const int data_size = width * bytes_per_pixel * height;
 
-	int32 tex_x, tex_y, tex_comp;
-	void* tex_data = stbi_load_from_memory((const uint8*)pixels, data_size, &tex_x, &tex_y, &tex_comp, 0);
-	BB_ASSERT(tex_data != NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+	//int32 tex_x, tex_y, tex_comp;
+	//void* tex_data = stbi_load_from_memory((const uint8*)pixels, data_size, &tex_x, &tex_y, &tex_comp, 0);
+	//BB_ASSERT(tex_data != NULL);
 #else
 	// Custom font from filesystem
 	io.Font = new ImBitmapFont();
@@ -384,8 +386,8 @@ void UIManager::InitImGui()
 		}
 #endif
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_x, tex_y, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_data);
-		stbi_image_free(tex_data);
+		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_x, tex_y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixelstex_data);
+		//stbi_image_free(tex_data);
 }
 
 

@@ -103,11 +103,10 @@ void Controller::UpdateRenderCamera( float DeltaSeconds )
 		//m_pActiveCamCtrl->InitFromView( m_pActiveCam->GetView() );	
 	}
 
-	// TEMP
 	if( m_pActiveCam )
 		m_RenderView = m_pActiveCam->GetView();
-
-	m_pActiveCamCtrl->UpdateView( m_RenderView, DeltaSeconds );
+	if( m_pActiveCamCtrl )
+		m_pActiveCamCtrl->UpdateView( m_RenderView, DeltaSeconds );
 
 	// Compute proj matrix
 	SDL_DisplayMode DisplayMode = g_pEngine->GetDisplayMode();

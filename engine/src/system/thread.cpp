@@ -21,7 +21,8 @@ Thread::~Thread()
 bool Thread::Create()
 {
 	uint32 iThreadID;
-    m_hThread = std::thread(s_ThreadMain, this, iThreadID);//(HANDLE)_beginthreadex( NULL, 0, s_ThreadMain, this/*&hEvent*/, 0, &iThreadID );
+	m_hThread = (HANDLE)_beginthreadex( NULL, 0, s_ThreadMain, this/*&hEvent*/, 0, &iThreadID );
+    //m_hThread = std::thread(s_ThreadMain, this, iThreadID);
 	//if( m_hThread == NULL )
 	//{
 	//	return false;
@@ -30,8 +31,9 @@ bool Thread::Create()
 }
 void Thread::Destroy()
 {
-	//if( m_hThread )
-	//	CloseHandle( m_hThread );
+	//m_hThread.detach();
+	if( m_hThread )
+		CloseHandle( m_hThread );
 }
 
 void Thread::ThreadMain()
