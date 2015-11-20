@@ -49,7 +49,9 @@ public:
 	/** Dynamic VB used to render ui elements */
 	GLuint					m_UI_VAO;
 	//GLuint					m_UI_VB_TEMP;
-	UnsynchronizedVBO		m_UI_VBO;
+	//UnsynchronizedVBO		m_UI_VBO;
+	GLuint					m_UI_VBO;
+	GLuint					m_UI_EBO;
 
 	bool					m_bShowDebugMenu;
 	bool					m_bShowProfiler;

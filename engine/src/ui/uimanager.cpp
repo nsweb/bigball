@@ -9,72 +9,9 @@
 //#include "../gfx/bufferlock.h"
 #include "../system/profiler.h"
 
-
 // Needed for loading png
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"
-
-//
-//struct UIId
-//{
-//	uint32 Owner;
-//	uint32 Item;
-//	uint32 Index;
-//};
-//
-//struct UIContext
-//{
-//	UIId Hovered;		// about to be interacting (mouse hovering, highlight etc.)
-//	UIId Active;	// actually interacting
-//
-//	//ActiveContext;	// specific data for widget when active
-//};
-//
-///** Page, menu etc. (important for draw order) */
-//class UILayer
-//{
-//
-//};
-//
-///** Reurns true if the button was clicked */
-//bool DoButton( UIContext& Ctx, UIId& ButtonID, const char* Text );
-//{
-//	if( Ctx.Active == ButtonID )
-//	{
-//		if( mousewentup )
-//		{
-//			if( hot)
-//				result=true;
-//			Setnotactive;
-//		}
-//	}
-//	else if( Ctx.Hovered == ButtonID )
-//	{
-//		if( mousewentdown )
-//		{
-//			Setactive;
-//		}
-//	}
-//
-//	if( Inside )
-//		Sethot;
-//
-//	// Display the button
-//}
-//
-//void MainUpdateLoop()
-//{
-//	// Affichage en lua par ex
-//	for( menus )
-//	{
-//		for( items )
-//			DoItems;
-//	}
-//	for( popups )
-//
-//	for( 3delt )
-//}
-
 
 namespace bigball
 {
@@ -100,26 +37,19 @@ void UIManager::Create()
 {
 	InitImGui();
 
-	m_UIShader = GfxManager::GetStaticInstance()->LoadShader( "ui" );//"test" );//"block" );
+	m_UIShader = GfxManager::GetStaticInstance()->LoadShader( "ui" );
 
 	glGenVertexArrays( 1, &m_UI_VAO);
 	glBindVertexArray( m_UI_VAO);
 
-	const uint32 MaxUIVertex = 10000;
-	m_UI_VBO.Init( MaxUIVertex, sizeof(UIVertex) );
+	glGenBuffers(1, &m_UI_VBO);
+	glGenBuffers(1, &m_UI_EBO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_UI_VBO);
+	//const uint32 MaxUIVertex = 10000;
+	//m_UI_VBO.Init( MaxUIVertex, sizeof(UIVertex) );
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
-	//UIVertex Vertices[6] = { { vec2(10,10), vec2(0,0), u8vec4(0,0,0,0) },
-	//						 { vec2(200,10), vec2(0,0), u8vec4(0,0,0,0) },
-	//						 { vec2(10,200), vec2(0,0), u8vec4(0,0,0,0) },
-	//						 { vec2(10,200), vec2(0,0), u8vec4(0,0,0,0) },
-	//						 { vec2(200,200), vec2(0,0), u8vec4(0,0,0,0) },
-	//						 { vec2(200,10), vec2(0,0), u8vec4(0,0,0,0) } };
-
-	//glGenBuffers( 1, &m_UI_VB_TEMP);
-	//glBindBuffer( GL_ARRAY_BUFFER, m_UI_VB_TEMP);
-	//glBufferData( GL_ARRAY_BUFFER, 6 * sizeof(UIVertex), &Vertices[0], GL_STATIC_DRAW );
 
 	glVertexAttribPointer( 0, 2, GL_FLOAT, GL_FALSE, sizeof(UIVertex) /*stride*/, (void*)0 /*offset*/	);
 	glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, sizeof(UIVertex) /*stride*/, (void*)8 /*offset*/	);
@@ -134,33 +64,123 @@ void UIManager::Destroy()
 {
 	m_UIShader = nullptr;
 
-	m_UI_VBO.Cleanup();
+	//m_UI_VBO.Cleanup();
+	glDeleteBuffers( 1, &m_UI_VBO );
+	glDeleteBuffers( 1, &m_UI_EBO );
+
 	glDeleteVertexArrays( 1, &m_UI_VAO );
 
 	ImGui::Shutdown();
 }
 
-//static GLuint fontTex;
-//static bool mousePressed[2] = { false, false };
-//static ImVec2 mousePosScale(1.0f, 1.0f);
-
 // This is the main rendering function that you have to implement and provide to ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)
-// If text or lines are blurry when integrating ImGui in your engine:
-// - in your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f)
-// - try adjusting ImGui::GetIO().PixelCenterOffset to 0.5f or 0.375f
-static void ImImpl_RenderDrawLists(ImDrawData* data)
-//static void ImImpl_RenderDrawLists(ImDrawList** const cmd_lists, int cmd_lists_count)
+static void ImImpl_RenderDrawLists(ImDrawData* draw_data)
 {
 	UIManager* pManager = UIManager::GetStaticInstance();
-	pManager->RenderDrawLists( data );
+	pManager->RenderDrawLists( draw_data );
 }
 
-void UIManager::RenderDrawLists(ImDrawData* data)
+void UIManager::RenderDrawLists(ImDrawData* draw_data)
 {
 	PROFILE_SCOPE( __FUNCTION__ );
 
-	if( data->CmdListsCount == 0 )
+	if( draw_data->CmdListsCount == 0 )
 		return;	
+
+#if 0
+	// Backup GL state
+	GLint last_program; glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
+	GLint last_texture; glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
+	GLint last_array_buffer; glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &last_array_buffer);
+	GLint last_element_array_buffer; glGetIntegerv(GL_ELEMENT_ARRAY_BUFFER_BINDING, &last_element_array_buffer);
+	GLint last_vertex_array; glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &last_vertex_array);
+	GLint last_blend_src; glGetIntegerv(GL_BLEND_SRC, &last_blend_src);
+	GLint last_blend_dst; glGetIntegerv(GL_BLEND_DST, &last_blend_dst);
+	GLint last_blend_equation_rgb; glGetIntegerv(GL_BLEND_EQUATION_RGB, &last_blend_equation_rgb);
+	GLint last_blend_equation_alpha; glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &last_blend_equation_alpha);
+	GLint last_viewport[4]; glGetIntegerv(GL_VIEWPORT, last_viewport);
+	GLboolean last_enable_blend = glIsEnabled(GL_BLEND);
+	GLboolean last_enable_cull_face = glIsEnabled(GL_CULL_FACE);
+	GLboolean last_enable_depth_test = glIsEnabled(GL_DEPTH_TEST);
+	GLboolean last_enable_scissor_test = glIsEnabled(GL_SCISSOR_TEST);
+#endif
+
+	// Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled
+	glEnable(GL_BLEND);
+	glBlendEquation(GL_FUNC_ADD);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_SCISSOR_TEST);
+	glActiveTexture(GL_TEXTURE0);
+
+
+	// Handle cases of screen coordinates != from framebuffer coordinates (e.g. retina displays)
+	ImGuiIO& io = ImGui::GetIO();
+	float fb_height = io.DisplaySize.y * io.DisplayFramebufferScale.y;
+	draw_data->ScaleClipRects(io.DisplayFramebufferScale);
+
+	// Setup orthographic projection matrix
+	//glViewport(0, 0, (GLsizei)io.DisplaySize.x, (GLsizei)io.DisplaySize.y);
+	const float width = ImGui::GetIO().DisplaySize.x;
+	const float height = ImGui::GetIO().DisplaySize.y;
+	mat4 UIProjMatrix = mat4::ortho( 0.f, width, height, 0.f, 0.f, 1.f );
+
+	m_UIShader->Bind();
+	ShaderUniform UniProj = m_UIShader->GetUniformLocation("proj_mat");
+	ShaderUniform UniSampler0 =  m_UIShader->GetUniformLocation("textureUnit0");
+	m_UIShader->SetUniform( UniSampler0, 0 );
+	m_UIShader->SetUniform( UniProj, UIProjMatrix );
+
+	glBindVertexArray( m_UI_VAO );
+//glEnableVertexAttribArray(0);
+//glEnableVertexAttribArray(1);
+//glEnableVertexAttribArray(2);
+
+	for (int n = 0; n < draw_data->CmdListsCount; n++)
+	{
+		const ImDrawList* cmd_list = draw_data->CmdLists[n];
+		const ImDrawIdx* idx_buffer_offset = 0;
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_UI_VBO);
+		glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)cmd_list->VtxBuffer.size() * sizeof(ImDrawVert), (GLvoid*)&cmd_list->VtxBuffer.front(), GL_STREAM_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_UI_EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)cmd_list->IdxBuffer.size() * sizeof(ImDrawIdx), (GLvoid*)&cmd_list->IdxBuffer.front(), GL_STREAM_DRAW);
+
+		for (const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != cmd_list->CmdBuffer.end(); pcmd++)
+		{
+			if (pcmd->UserCallback)
+			{
+				pcmd->UserCallback(cmd_list, pcmd);
+			}
+			else
+			{
+				glBindTexture(GL_TEXTURE_2D, (GLuint)(intptr_t)pcmd->TextureId);
+				glScissor((int)pcmd->ClipRect.x, (int)(fb_height - pcmd->ClipRect.w), (int)(pcmd->ClipRect.z - pcmd->ClipRect.x), (int)(pcmd->ClipRect.w - pcmd->ClipRect.y));
+				glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT, idx_buffer_offset);
+			}
+			idx_buffer_offset += pcmd->ElemCount;
+		}
+	}
+
+#if 0
+	// Restore modified GL state
+	glUseProgram(last_program);
+	glBindTexture(GL_TEXTURE_2D, last_texture);
+	glBindBuffer(GL_ARRAY_BUFFER, last_array_buffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, last_element_array_buffer);
+	glBindVertexArray(last_vertex_array);
+	glBlendEquationSeparate(last_blend_equation_rgb, last_blend_equation_alpha);
+	glBlendFunc(last_blend_src, last_blend_dst);
+	if (last_enable_blend) glEnable(GL_BLEND); else glDisable(GL_BLEND);
+	if (last_enable_cull_face) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
+	if (last_enable_depth_test) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
+	if (last_enable_scissor_test) glEnable(GL_SCISSOR_TEST); else glDisable(GL_SCISSOR_TEST);
+	glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
+#endif
+
+#if 0
 
 	// We are using the OpenGL fixed pipeline to make the example code simpler to read!
 	// A probable faster way to render would be to collate all vertices from all cmd_lists into a single vertex buffer.
@@ -186,7 +206,7 @@ void UIManager::RenderDrawLists(ImDrawData* data)
 
 	m_UIShader->SetUniform( UniProj, UIProjMatrix );
 
-	glBindVertexArray( m_UI_VAO );
+	glBindVertexArray( glBindVertexArray( m_UI_VAO ); );
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
@@ -239,11 +259,11 @@ void UIManager::RenderDrawLists(ImDrawData* data)
 				vbo_byte_offset += pcmd->ElemCount * sizeof(UIVertex); 
 			}
 		}
-
 	}
 
 
 	glBindVertexArray(0);
+#endif
 
 	// glFenceSync() / glClientWaitSync() ?
 	//WriteGeometry( data, ... );
@@ -322,40 +342,13 @@ void UIManager::InitImGui()
 	io.ImeSetInputScreenPosFn = ImImpl_ImeSetInputScreenPosFn;
 #endif
 
-	// Load debug font texture
-
-	//void* tex_data;
-	//unsigned int png_size;
-	////ImGui::GetDefaultFontData(NULL, NULL, &png_data, &png_size);
-	//int tex_x, tex_y;//, tex_comp;
-
-	//File FontFile;
-	//if( FontFile.Open("../data/texture/courier_new_18.tga", File::Read) )
-	//{
-	//	TgaFileHeader TgaHead;
-	//	Memory::Memzero( &TgaHead, sizeof(TgaHead) );
-	//	FontFile.Serialize( &TgaHead, sizeof(TgaHead) );
-	//	
-	//	tex_x = TgaHead.width;
-	//	tex_y = TgaHead.height;
-
-	//}
-
-
-
-
 	// Load font texture
 	glGenTextures(1, &m_DebugFontTexId);
 	glBindTexture(GL_TEXTURE_2D, m_DebugFontTexId);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-#if 1
-	// Default font (embedded in code)
-	//const void* png_data;
-	//uint32 png_size;
-	//ImGui::GetDefaultFontData(NULL, NULL, &png_data, &png_size);
-
+	// Build texture atlas
 	uint8* pixels;
 	int width, height, bytes_per_pixel;
 	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height, &bytes_per_pixel);
@@ -363,31 +356,12 @@ void UIManager::InitImGui()
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
-	//int32 tex_x, tex_y, tex_comp;
-	//void* tex_data = stbi_load_from_memory((const uint8*)pixels, data_size, &tex_x, &tex_y, &tex_comp, 0);
-	//BB_ASSERT(tex_data != NULL);
-#else
-	// Custom font from filesystem
-	io.Font = new ImBitmapFont();
-	io.Font->LoadFromFile("../../extra_fonts/mplus-2m-medium_18.fnt");
-	IM_ASSERT(io.Font->IsLoaded());
+	// Store our identifier
+	io.Fonts->TexID = (void *)(intptr_t)m_DebugFontTexId;
 
-	int tex_x, tex_y, tex_comp;
-	void* tex_data = stbi_load("../../extra_fonts/mplus-2m-medium_18.png", &tex_x, &tex_y, &tex_comp, 0);
-	IM_ASSERT(tex_data != NULL);
-
-	// Automatically find white pixel from the texture we just loaded
-	// (io.FontTexUvForWhite needs to contains UV coordinates pointing to a white pixel in order to render solid objects)
-	for (int tex_data_off = 0; tex_data_off < tex_x*tex_y; tex_data_off++)
-		if (((unsigned int*)tex_data)[tex_data_off] == 0xffffffff)
-		{
-			io.FontTexUvForWhite = ImVec2((float)(tex_data_off % tex_x)/(tex_x), (float)(tex_data_off / tex_x)/(tex_y));
-			break;
-		}
-#endif
-
-		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_x, tex_y, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixelstex_data);
-		//stbi_image_free(tex_data);
+	// Cleanup (don't clear the input data if you want to append new fonts later)
+	io.Fonts->ClearInputData();
+	io.Fonts->ClearTexData();
 }
 
 
@@ -555,7 +529,4 @@ void UIManager::ToggleDebugMenu()
 	m_bShowDebugMenu = bNewShowDebugMenu;
 }
 
-
-
-
-}
+} /* namespace bigball */
