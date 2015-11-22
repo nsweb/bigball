@@ -8,6 +8,7 @@ namespace bigball
 
 #define UNUSED(...)
 
+#if defined _MSC_VER
 #define BB_ASSERT_LOG(Cond, Format, ...) \
 { \
 	if( !(Cond) ) \
@@ -17,6 +18,17 @@ namespace bigball
 		std::abort(); \
 	} \
 }
+#else
+#define BB_ASSERT_LOG(Cond, Format, ...) \
+    { \
+        if( !(Cond) ) \
+        { \
+            BBLog::Print( __FILE__, __LINE__, "Assert", BBLog::Error, Format, ##__VA_ARGS__ ); \
+            __builtin_trap();  \
+            std::abort(); \
+        } \
+    }
+#endif
 #define BB_ASSERT(Cond)		SDL_assert(Cond)
 
 #define BB_FREE(p)			{ if(p) Memory::Free(p); (p)=nullptr; }
@@ -27,8 +39,14 @@ namespace bigball
 #define COUNT_OF(_Array)	(sizeof(_Array) / sizeof(_Array[0]))
 #define CACHE_LINE			32
 #define CACHE_ALIGN			__declspec(align(CACHE_LINE))
+    
+#if !defined _MSC_VER
+    #define DECL_THREAD __thread
+#else
+    #define DECL_THREAD __declspec(thread)
+#endif
 
-template< class T > 
+template< class T >
 inline void swap( T& A, T& B )
 {
 	const T Tmp = A;

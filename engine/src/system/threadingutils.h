@@ -8,12 +8,12 @@ namespace bigball
 	{
 		void	Sleep( uint32 _nMs );
 		void	SpinLoop();
-#if WIN64
-		void	InterlockedExchange( void* dest, const int64 exchange );
-		int64	InterlockedCompareExchange( void* dest, int64 exchange, int64 compare );
+#if _WIN32
+        void	InterlockedExchange( void* dest, const int32 exchange );
+        int32	InterlockedCompareExchange( void* dest, int32 exchange, int32 compare );
 #else
-		void	InterlockedExchange( void* dest, const int32 exchange );
-		int32	InterlockedCompareExchange( void* dest, int32 exchange, int32 compare );
+        void	InterlockedExchange( void* dest, const int64 exchange );
+        int64	InterlockedCompareExchange( void* dest, int64 exchange, int64 compare );
 #endif
 		//int32	InterlockedCompareExchange2( void *dest, const int32 exchange1, const int32 exchange2, const int32 compare1, const int32 compare2 );
 		void	CompilerBarrier();
@@ -40,21 +40,21 @@ namespace bigball
 
             void Lock() 
 			{ 
-				while( 0 != InterlockedCompareExchange( (void*)&m_SyncObject, 1, 0 ) ) 
+				while( 0 != InterlockedCompareExchange( (void*)&m_SyncObject, 1, 0 ) )
 					ThreadTools::SpinLoop();
 			}
             void Unlock() 
 			{ 
-				while( 1 != InterlockedCompareExchange( (void*)&m_SyncObject, 0, 1 ) ) 
+				while( 1 != InterlockedCompareExchange( (void*)&m_SyncObject, 0, 1 ) )
 					ThreadTools::SpinLoop();
 			}
             bool TryLock()		{ return 0 != InterlockedCompareExchange( (void*)&m_SyncObject, 1, 0 ); }
             bool TryUnlock()	{ return 1 != InterlockedCompareExchange( (void*)&m_SyncObject, 0, 1 ); }
 
-#if WIN64
-            volatile uint64 m_SyncObject;
+#if _WIN32
+            volatile uint32 m_SyncObject;
 #else
-			volatile uint32 m_SyncObject;
+			volatile uint64 m_SyncObject;
 #endif
         };
 

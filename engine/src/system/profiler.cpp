@@ -12,8 +12,8 @@ namespace Profiler
 {
 
 static ProfilerData g_ProfilerData = ProfilerData();
-__declspec(thread) CallNode* g_ThreadCallRoot = nullptr;
-__declspec(thread) ThreadState CallNode::m_ThreadState = { {0}, nullptr };
+DECL_THREAD CallNode* g_ThreadCallRoot = nullptr;
+DECL_THREAD ThreadState CallNode::m_ThreadState = { {0}, nullptr };
 
 
 /** Start profiling on all threads */

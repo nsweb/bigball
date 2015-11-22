@@ -308,8 +308,8 @@ void UIManager::InitImGui()
 {
 	int wx, wy;
 	SDL_GetWindowSize( g_pEngine->GetDisplayWindow(), &wx, &wy );
-	float mousePosScalex = (float)g_pEngine->GetDisplayMode().w / wx;                  // Some screens e.g. Retina display have framebuffer size != from window size, and mouse inputs are given in window/screen coordinates.
-	float mousePosScaley = (float)g_pEngine->GetDisplayMode().h / wy;
+	//float mousePosScalex = (float)g_pEngine->GetDisplayMode().w / wx;                  // Some screens e.g. Retina display have framebuffer size != from window size, and mouse inputs are given in window/screen coordinates.
+	//float mousePosScaley = (float)g_pEngine->GetDisplayMode().h / wy;
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = "../data/imgui.ini";
@@ -352,7 +352,7 @@ void UIManager::InitImGui()
 	uint8* pixels;
 	int width, height, bytes_per_pixel;
 	io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height, &bytes_per_pixel);
-	const int data_size = width * bytes_per_pixel * height;
+	//const int data_size = width * bytes_per_pixel * height;
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 

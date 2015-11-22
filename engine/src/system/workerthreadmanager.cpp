@@ -26,14 +26,11 @@ WorkerThreadManager::WorkerThreadManager() :
 
 WorkerThreadManager::~WorkerThreadManager(void)
 {
-	m_pStaticInstance = NULL;
+	m_pStaticInstance = nullptr;
 }
 
 void WorkerThreadManager::Create()
 {
-	//m_pDxCamera = new peDxCamera;
-	//m_pCamTarget = new peCameraTarget_Ed;
-
 	m_vWorkerThreadPool.resize( WORKER_THREAD_POOL );
 	uint32 i, nPool = m_vWorkerThreadPool.size();
 	for( i = 0; i < nPool; i++ )
@@ -120,6 +117,8 @@ void WorkerThreadManager::UpdateTasks( int32& nFinishedTasks )
 			InFlight--;
 			m_vWorkerThreadPool[i]->PushTask( m_PendingSyncTasks[TaskSettledIdx++] );
 		}
+        if( ToAdd > 0 )
+            m_vWorkerThreadPool[i]->SetBusy();  // Wake thread
 	}
 	m_PendingSyncTasks.erase( 0, TaskSettledIdx );
 }

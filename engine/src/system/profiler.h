@@ -82,7 +82,7 @@ namespace Profiler
 		float				m_fMaxTimeSpent;
 		Array<CallNode*>	m_ChildrenArray;
 
-		static __declspec(thread) ThreadState m_ThreadState;
+        static DECL_THREAD ThreadState m_ThreadState;
 	};
 
 	struct CallRoot

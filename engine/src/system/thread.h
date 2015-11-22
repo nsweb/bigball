@@ -24,7 +24,9 @@ public:
 
 private:
 #if !defined _MSC_VER
-    std::mutex  m_hEvent;
+    std::mutex  m_Mutex;
+    std::condition_variable m_Cond;
+    bool m_Ready;
 #else
 	HANDLE		m_hEvent;
 #endif
@@ -68,7 +70,7 @@ public:
 	void			PushTask( Task* _pTask );
 	Task*			PopFinishedTask();
 	void			SetExit();
-	void			ForceBusy();
+	void			SetBusy();
 	//void			SetTaskProxy(TaskProxy* _pTaskProxy );
 	uint32			IsRunning()							{ return m_bRunning;	}
 	int32			GetRemainingTaskCount() const		{ return m_oStaticTaskQueue.GetElementCount();		}

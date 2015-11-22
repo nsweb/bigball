@@ -12,74 +12,83 @@ namespace bigball
 namespace ThreadTools
 {
 
+
 void SpinLoop()
 {
 	//__asm { pause };
-	::Sleep( 0 );
+	Sleep( 0 );
 }
 
 void Sleep( uint32 _nMs )
 {
-	::Sleep( _nMs );
+    SDL_Delay(_nMs);
 }
 
-#if WIN64
-void InterlockedExchange( void *_dest, const int64 _exchange )
-{
-	
-	::InterlockedExchange64( (int64*)_dest, _exchange );
-
-//	__asm
-//	{
-//		mov      ebx, dword ptr [_exchange]
-//		mov      ecx, dword ptr [_exchange + 4]
-//		mov      edi, _dest
-//			mov      eax, dword ptr [edi]
-//		mov      edx, dword ptr [edi + 4]
-//		jmp      start
-//retry:
-//		pause
-//start:
-//		lock cmpxchg8b [edi]
-//		jnz      retry
-//	};
-//
-}
-
-int64 InterlockedCompareExchange( void* _dest, int64 _exchange, int64 _compare )
-{
-	return ::InterlockedCompareExchange64( (int64*)_dest, _exchange, _compare );
-
-	//char _ret;
-	////
-	//__asm
-	//{
-	//	mov      edx, [_dest]
-	//	mov      eax, [_compare]
-	//	mov      ecx, [_exchange]
-
-	//	lock cmpxchg [edx], ecx
-
-	//		setz    al
-	//		mov     byte ptr [_ret], al
-	//}
-	////
-	//return _ret;
-
-}
-#else // 32 bit architectures
-
-void InterlockedExchange( void *_dest, const int32 _exchange )
-{
-	::InterlockedExchange( (volatile LONG *) _dest, (LONG) _exchange );
-}
-
-int32 InterlockedCompareExchange( void *_dest, int32 _exchange, int32 _compare )
-{
-	return ::InterlockedCompareExchange( (volatile LONG *) _dest, (LONG) _exchange, (LONG) _compare );
-}
-
-#endif // WIN64
+#if _WIN32
+    void InterlockedExchange( void *_dest, const int32 _exchange )
+    {
+        ::InterlockedExchange( (volatile LONG *) _dest, (LONG) _exchange );
+    }
+    
+    int32 InterlockedCompareExchange( void *_dest, int32 _exchange, int32 _compare )
+    {
+        return ::InterlockedCompareExchange( (volatile LONG *) _dest, (LONG) _exchange, (LONG) _compare );
+    }
+#else // 64 bit architectures
+    void InterlockedExchange( void *_dest, const int64 _exchange )
+    {
+#if !defined _MS_VER
+        __sync_lock_test_and_set( (int64*)_dest, _exchange );
+        __sync_synchronize();
+#else
+        ::InterlockedExchange64( (int64*)_dest, _exchange );
+#endif
+        
+        //	__asm
+        //	{
+        //		mov      ebx, dword ptr [_exchange]
+        //		mov      ecx, dword ptr [_exchange + 4]
+        //		mov      edi, _dest
+        //			mov      eax, dword ptr [edi]
+        //		mov      edx, dword ptr [edi + 4]
+        //		jmp      start
+        //retry:
+        //		pause
+        //start:
+        //		lock cmpxchg8b [edi]
+        //		jnz      retry
+        //	};
+        //
+    }
+    
+    int64 InterlockedCompareExchange( void* _dest, int64 _exchange, int64 _compare )
+    {
+#if !defined _MS_VER
+        //bool b = std::atomic_compare_exchange_strong (A* obj, T* expected, T val);
+        return __sync_val_compare_and_swap( (int64*)_dest, _compare, _exchange );
+#else
+        return ::InterlockedCompareExchange64( (int64*)_dest, _exchange, _compare );
+#endif
+        
+        //char _ret;
+        ////
+        //__asm
+        //{
+        //	mov      edx, [_dest]
+        //	mov      eax, [_compare]
+        //	mov      ecx, [_exchange]
+        
+        //	lock cmpxchg [edx], ecx
+        
+        //		setz    al
+        //		mov     byte ptr [_ret], al
+        //}
+        ////
+        //return _ret;
+        
+    }
+#endif // _WIN32
+    
 
 #if 0
 int32 InterlockedCompareExchange2( void *_dest, const int32 _exchange1, const int32 _exchange2, const int32 _compare1, const int32 _compare2 )
@@ -163,6 +172,7 @@ ScopeLock& ScopeLock::operator=( ScopeLock& InScopeLock )
 {
 	return *this;
 }
+
 
 } /*namespace ThreadTools*/
 

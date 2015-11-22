@@ -243,7 +243,7 @@ template<> void quat::printf() const
 
 template<> void mat2::printf() const
 {
-    mat2 const &p = *this;
+    //mat2 const &p = *this;
 
     //Log::Debug("[ %6.6f %6.6f\n", p[0][0], p[1][0]);
     //Log::Debug("  %6.6f %6.6f ]\n", p[0][1], p[1][1]);
@@ -251,7 +251,7 @@ template<> void mat2::printf() const
 
 template<> void mat3::printf() const
 {
-    mat3 const &p = *this;
+    //mat3 const &p = *this;
 
     //Log::Debug("[ %6.6f %6.6f %6.6f\n", p[0][0], p[1][0], p[2][0]);
     //Log::Debug("  %6.6f %6.6f %6.6f\n", p[0][1], p[1][1], p[2][1]);
@@ -260,7 +260,7 @@ template<> void mat3::printf() const
 
 template<> void mat4::printf() const
 {
-    mat4 const &p = *this;
+    //mat4 const &p = *this;
 
     //Log::Debug("[ %6.6f %6.6f %6.6f %6.6f\n",
     //           p[0][0], p[1][0], p[2][0], p[3][0]);

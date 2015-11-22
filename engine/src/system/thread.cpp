@@ -22,7 +22,7 @@ bool Thread::Create()
 {
 	uint32 iThreadID;
 #if !defined _MSC_VER
-    m_hThread = std::thread(s_ThreadMain, this, iThreadID);
+    //m_hThread = std::thread(s_ThreadMain, this, iThreadID);
 #else
 	m_hThread = (HANDLE)_beginthreadex( NULL, 0, s_ThreadMain, this/*&hEvent*/, 0, &iThreadID );
 	if( m_hThread == NULL )
@@ -124,7 +124,9 @@ void WorkerThread::ThreadMain()
 			}
 			else
 			{
-				m_pCurrentTask = NULL;
+				m_pCurrentTask = nullptr;
+                
+                // Wait until main() sends data
 				m_oBusyEvent.ResetEvent();
 				m_oBusyEvent.WaitForSingleObject( 10 );
 			}
@@ -142,7 +144,7 @@ Task* WorkerThread::PopFinishedTask()
 	m_oFinishedTaskQueue.Pop( pTask );
 	return pTask;
 }
-void WorkerThread::ForceBusy()
+void WorkerThread::SetBusy()
 {
 	m_oBusyEvent.SetEvent();
 }
@@ -178,39 +180,60 @@ ThreadEvent::~ThreadEvent()
 
 bool ThreadEvent::Create()
 {
-	m_hEvent = ::CreateEventA( NULL, TRUE, TRUE, "ThreadEvent" );
-	return m_hEvent ? true:false;
+#if !defined _MSC_VER
+    return true;
+#else
+    m_hEvent = ::CreateEventA( NULL, TRUE, TRUE, "ThreadEvent" );
+    return m_hEvent ? true:false;
+#endif
 }
 void ThreadEvent::Destroy()
 {
+#if !defined _MSC_VER
+    
+#else
 	if( m_hEvent )
 	{
 		::CloseHandle( m_hEvent );
 	}
+#endif
 }
 
 void ThreadEvent::SetEvent()  // signal the event
 {
+#if !defined _MSC_VER
+    m_Ready = true;
+    m_Cond.notify_one();
+#else
 	if( m_hEvent )
 	{
 		::SetEvent( m_hEvent );
 	}
+#endif
 }
 
 void ThreadEvent::ResetEvent()
 {
+#if !defined _MSC_VER
+    
+#else
 	if( m_hEvent )
 	{
 		::ResetEvent( m_hEvent );
 	}
+#endif
 }
 
 void ThreadEvent::WaitForSingleObject( uint32 _nMs )
 {
-	if( m_hEvent )
-	{
-		::WaitForSingleObject( m_hEvent, _nMs );
-	}
+#if !defined _MSC_VER
+
+#else
+    if( m_hEvent )
+    {
+        ::WaitForSingleObject( m_hEvent, _nMs );
+    }
+#endif
 }
 
 } /*namespace bigball*/

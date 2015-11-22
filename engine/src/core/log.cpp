@@ -32,7 +32,7 @@ void BBLog::Print( char const* File, int Line, char const* Category, Type type, 
 		"ERROR",
 	};
 
-#if defined _WIN32 || _WIN64
+#if defined _MS_VER
 
 	String TmpString = String::Printf( Format, ap );
 	TmpString += "\n";
