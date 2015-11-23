@@ -106,7 +106,7 @@ uint32 File::Serialize( void* pBuffer, uint32 Size )
 #if _WIN32 || _WIN64
 		ReadFile( m_FileHandle, pBuffer, Size, (LPDWORD)&SerializedCount, nullptr );
 #else
-		SerializedCount = fread( pBuffer, Size, 1, m_FileHandle );
+		SerializedCount = fread( pBuffer, 1, Size, m_FileHandle );
 #endif
 	}
 	else
@@ -128,7 +128,7 @@ uint32 File::Serialize( void* pBuffer, uint32 Size )
 				0, NULL );
 		}
 #else
-		SerializedCount = fwrite( pBuffer, Size, 1, m_FileHandle );
+		SerializedCount = fwrite( pBuffer, 1, Size, m_FileHandle );
 #endif
 	}
 	return SerializedCount;
