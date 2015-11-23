@@ -133,9 +133,6 @@ void UIManager::RenderDrawLists(ImDrawData* draw_data)
 	m_UIShader->SetUniform( UniProj, UIProjMatrix );
 
 	glBindVertexArray( m_UI_VAO );
-//glEnableVertexAttribArray(0);
-//glEnableVertexAttribArray(1);
-//glEnableVertexAttribArray(2);
 
 	for (int n = 0; n < draw_data->CmdListsCount; n++)
 	{
@@ -179,6 +176,8 @@ void UIManager::RenderDrawLists(ImDrawData* draw_data)
 	if (last_enable_scissor_test) glEnable(GL_SCISSOR_TEST); else glDisable(GL_SCISSOR_TEST);
 	glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
 #endif
+
+	glDisable(GL_SCISSOR_TEST);
 
 #if 0
 
