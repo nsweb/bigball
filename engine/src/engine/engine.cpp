@@ -7,6 +7,7 @@
 #include "entitymanager.h"
 #include "../gfx/gfxmanager.h"
 #include "../gfx/rendercontext.h"
+#include "../gfx/drawutils.h"
 #include "../system/workerthreadmanager.h"
 #include "../system/profiler.h"
 #include "../ui/uimanager.h"
@@ -100,6 +101,10 @@ bool Engine::Init( bool bCreateWindow )
 	// Ready to init our managers
 	InitManagers();
 
+	// Create drawutils manager
+	DrawUtils* pDrawUtils = new DrawUtils();
+	pDrawUtils->Create();
+
 	// Create UI manager
 	UIManager* pUIManager = new UIManager();
 	pUIManager->Create();
@@ -117,6 +122,9 @@ void Engine::Shutdown()
 {
 	UIManager::GetStaticInstance()->Destroy();
 	delete UIManager::GetStaticInstance();
+
+	DrawUtils::GetStaticInstance()->Destroy();
+	delete DrawUtils::GetStaticInstance();
 
 	DestroyManagers();
 
@@ -220,6 +228,7 @@ void Engine::MainLoop()
 			m_Managers[i]->_Render( RenderCtxt );
 		}
 
+		DrawUtils::GetStaticInstance()->_Render(RenderCtxt);
 		UIManager::GetStaticInstance()->_Render(RenderCtxt);
 
 		SDL_GL_SwapWindow( m_MainWindow );
