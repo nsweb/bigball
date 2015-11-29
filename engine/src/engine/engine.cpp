@@ -86,7 +86,7 @@ bool Engine::Init( bool bCreateWindow )
     SDL_GL_SetSwapInterval(1);
 
     /* Clear our buffer with a red background */
-    glClearColor( 0.1f, 0.1f, 0.15f, 1.0f );
+    glClearColor( 0.1f, 0.1f, 0.3f, 1.0f );
     glClear ( GL_COLOR_BUFFER_BIT );
     /* Swap our back buffer to the front */
     SDL_GL_SwapWindow( m_MainWindow );

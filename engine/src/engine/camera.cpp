@@ -16,8 +16,8 @@ CameraView::CameraView() :
 {
 	m_fParameters[eCP_FOV] = 55.0f;
 	m_fParameters[eCP_ASPECT] = 16.0f / 9.0f;
-	m_fParameters[eCP_NEAR] = 1.0f;
-	m_fParameters[eCP_FAR] = 10000.0f;
+	m_fParameters[eCP_NEAR] = 0.01f;
+	m_fParameters[eCP_FAR] = 100.0f;
 }
 
 Camera::Camera()

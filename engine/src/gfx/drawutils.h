@@ -17,24 +17,23 @@ namespace Draw
 		Box = 0,
 	};
 
-	struct Segment
-	{
-		vec3 P0, P1;
-		vec4 Color;
-		float PersistTime;
-	};
+    struct Vertex
+    {
+        vec3	Pos;
+        u8vec4	Col;
+    };
 	struct SegmentList
 	{
-		Array<vec3> PList;
-		vec4 Color;
-		float PersistTime;
+        int Offset;
+        int Count;
+		//float PersistTime;
 	};
 	struct Shape
 	{
 		ShapeType Type;
 		transform T;
 		vec4 Color;
-		float PersistTime;
+		//float PersistTime;
 	};
 }
 
@@ -56,17 +55,22 @@ public:
 	/* Functions for drawing utility shapes 
 	 * PersistTime : amount of time the shape should be drawn ( <0 : infinite / 0 : one frame / >0 time in second)
 	 */
-	void		PushSegment( vec3 P0, vec3 P1, vec4 Color, float PersistTime = 0.f );
-	void		PushSegments( Array<vec3> const& SegmentList, vec4 Color, float PersistTime = 0.f );
-	void		PushOBB( transform T, vec4 Color, float PersistTime = 0.f );
-	void		PushAABB( vec3 Pos, float Scale, vec4 Color, float PersistTime = 0.f );
+	void		PushSegment( vec3 P0, vec3 P1, u8vec4 Color0, u8vec4 Color1, float PersistTime = 0.f );
+	void		PushSegmentList( Array<vec3> const& SegmentList, u8vec4 Color, float PersistTime = 0.f );
+	void		PushOBB( transform T, u8vec4 Color, float PersistTime = 0.f );
+	void		PushAABB( vec3 Pos, float Scale, u8vec4 Color, float PersistTime = 0.f );
 
 protected:
 	Shader*				m_UtilsShader;
 
-	Array<Draw::Segment>		m_Segments;
 	Array<Draw::SegmentList>	m_SegmentList;
+    Array<Draw::Vertex>         m_SegBuffer;
+    
 	Array<Draw::Shape>			m_Shapes;
+    
+    /** Dynamic VB used to render segments */
+    GLuint					m_Seg_VAO;
+    GLuint					m_Seg_VBO;
 
 	void		RemoveOldElements( float DeltaSeconds );
 };
