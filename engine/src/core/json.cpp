@@ -70,9 +70,12 @@ bool Object::ParseString( char const* sz )
 
 TokenIdx Object::GetToken( char const* sz, TokenType Type, TokenIdx ParentIdx /*= INDEX_NONE */ )
 {
-	TokenIdx EndTokenIdx = (ParentIdx >= 0 && ParentIdx < m_Tokens.size() ? ParentIdx + m_Tokens[ParentIdx].size : m_Tokens.size());
+	if( ParentIdx >= m_Tokens.size() )
+		return INDEX_NONE;
+
+	TokenIdx EndTokenIdx = (ParentIdx >= 0 ? ParentIdx + m_Tokens[ParentIdx].size : m_Tokens[0].size);
 	TokenIdx TokenIdx = ParentIdx + 1;
-	while( TokenIdx < EndTokenIdx )
+	while( TokenIdx <= EndTokenIdx )
 	{
 		if( IsStringValue( TokenIdx, sz ) )
 		{
@@ -81,8 +84,8 @@ TokenIdx Object::GetToken( char const* sz, TokenType Type, TokenIdx ParentIdx /*
 				return TokenIdx+1;
 			}
 		}
-		TokenIdx += 1;
 		EndTokenIdx += m_Tokens[TokenIdx].size;
+		TokenIdx += 1;
 	}
 
 	return INDEX_NONE;

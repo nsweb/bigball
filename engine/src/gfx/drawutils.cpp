@@ -133,18 +133,23 @@ void DrawUtils::RemoveOldElements( float DeltaSeconds )
 void DrawUtils::PushSegment( vec3 P0, vec3 P1, u8vec4 Color0, u8vec4 Color1, float PersistTime )
 {
     const int Offset = m_SegBuffer.size();
-    m_SegBuffer.push_back( { P0, Color0 } );
-    m_SegBuffer.push_back( { P1, Color1 } );
-    m_SegmentList.push_back( { Offset, 2 } );
+	Draw::Vertex v0 = { P0, Color0 };
+	Draw::Vertex v1 = { P1, Color1 };
+    m_SegBuffer.push_back( v0 );
+    m_SegBuffer.push_back( v1 );
+	Draw::SegmentList SegList = { Offset, 2 };
+    m_SegmentList.push_back( SegList );
 }
 void DrawUtils::PushSegmentList( Array<vec3> const& SegmentList, u8vec4 Color, float PersistTime )
 {
     const int Offset = m_SegBuffer.size();
     for( int i =0; i < SegmentList.size(); i++ )
     {
-        m_SegBuffer.push_back( { SegmentList[i], Color } );
+		Draw::Vertex v = { SegmentList[i], Color };
+        m_SegBuffer.push_back( v );
     }
-	m_SegmentList.push_back( { Offset, SegmentList.size() } );
+	Draw::SegmentList SegList = { Offset, SegmentList.size() };
+	m_SegmentList.push_back( SegList );
 }
 void DrawUtils::PushOBB( transform T, u8vec4 Color, float PersistTime )
 {

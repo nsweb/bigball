@@ -12,10 +12,10 @@ typedef int32 TokenIdx;
 
 enum TokenType
 {
-	PRIMITIVE = 0,
 	OBJECT = 1,
 	ARRAY = 2,
-	STRING = 3
+	STRING = 3,
+	PRIMITIVE = 4
 };
 
 class Object

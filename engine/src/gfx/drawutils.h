@@ -26,7 +26,6 @@ namespace Draw
 	{
         int Offset;
         int Count;
-		//float PersistTime;
 	};
 	struct Shape
 	{
