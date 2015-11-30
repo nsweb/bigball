@@ -56,6 +56,7 @@ public:
 	 */
 	void		PushSegment( vec3 P0, vec3 P1, u8vec4 Color0, u8vec4 Color1, float PersistTime = 0.f );
 	void		PushSegmentList( Array<vec3> const& SegmentList, u8vec4 Color, float PersistTime = 0.f );
+    void		PushSegmentList( Array<vec3> const& SegmentList, Array<u8vec4> const& ColorList, float PersistTime = 0.f );
 	void		PushOBB( transform T, u8vec4 Color, float PersistTime = 0.f );
 	void		PushAABB( vec3 Pos, float Scale, u8vec4 Color, float PersistTime = 0.f );
 

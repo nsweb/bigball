@@ -55,14 +55,13 @@ void DrawUtils::Tick( TickContext& TickCtxt )
 
 void DrawUtils::_Render( struct RenderContext& RenderCtxt )
 {
-    mat4 ViewMat( RenderCtxt.m_View.m_Transform.GetRotation(), RenderCtxt.m_View.m_Transform.GetTranslation(), (float)RenderCtxt.m_View.m_Transform.GetScale() );
-    //mat4 ViewMat(1.f);
+    mat4 ViewInvMat( RenderCtxt.m_View.m_Transform.GetRotation(), RenderCtxt.m_View.m_Transform.GetTranslation(), (float)RenderCtxt.m_View.m_Transform.GetScale() );
     
     m_UtilsShader->Bind();
     ShaderUniform UniProj = m_UtilsShader->GetUniformLocation("proj_mat");
     m_UtilsShader->SetUniform( UniProj, RenderCtxt.m_ProjMat );
     ShaderUniform UniView = m_UtilsShader->GetUniformLocation("view_mat");
-    m_UtilsShader->SetUniform( UniView, bigball::inverse(ViewMat) );
+    m_UtilsShader->SetUniform( UniView, bigball::inverse(ViewInvMat) );
     
     glBindVertexArray( m_Seg_VAO );
     
@@ -150,6 +149,17 @@ void DrawUtils::PushSegmentList( Array<vec3> const& SegmentList, u8vec4 Color, f
     }
 	Draw::SegmentList SegList = { Offset, SegmentList.size() };
 	m_SegmentList.push_back( SegList );
+}
+void DrawUtils::PushSegmentList( Array<vec3> const& SegmentList, Array<u8vec4> const& ColorList, float PersistTime )
+{
+    const int Offset = m_SegBuffer.size();
+    for( int i =0; i < SegmentList.size(); i++ )
+    {
+        Draw::Vertex v = { SegmentList[i], ColorList[i] };
+        m_SegBuffer.push_back( v );
+    }
+    Draw::SegmentList SegList = { Offset, SegmentList.size() };
+    m_SegmentList.push_back( SegList );
 }
 void DrawUtils::PushOBB( transform T, u8vec4 Color, float PersistTime )
 {
