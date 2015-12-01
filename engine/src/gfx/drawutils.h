@@ -71,6 +71,11 @@ protected:
     /** Dynamic VB used to render segments */
     GLuint					m_Seg_VAO;
     GLuint					m_Seg_VBO;
+    
+    GLuint                  m_Shape_VAO;
+    GLuint                  m_Shape_VBO;
+    GLuint                  m_Shape_VEO;
+    
 
 	void		RemoveOldElements( float DeltaSeconds );
 };

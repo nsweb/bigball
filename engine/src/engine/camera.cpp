@@ -361,12 +361,6 @@ void Camera::GetViewMatrixVectors( vec3& _Right, vec3& _Up, vec3& _Front )
 	_Right = ViewT[0].xyz;
 	_Up = ViewT[1].xyz;
 	_Front = ViewT[2].xyz;
-
-	//_Right.x = m_mView._11;		_Right.y = m_mView._21;		_Right.z = m_mView._31;
-	//_Up.x = m_mView._12;		_Up.y = m_mView._22;		_Up.z = m_mView._32;
-	//_Front.x = -m_mView._13;	_Front.y = -m_mView._23;	_Front.z = -m_mView._33;
-
-	//_Pos.x = m_mView._41;		_Pos.y = m_mView._42;		_Pos.z = m_mView._43;
 }
 
 

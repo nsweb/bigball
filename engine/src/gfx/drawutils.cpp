@@ -28,24 +28,50 @@ void DrawUtils::Create()
     
     glGenVertexArrays( 1, &m_Seg_VAO);
     glBindVertexArray( m_Seg_VAO);
-    
     glGenBuffers( 1, &m_Seg_VBO );
     glBindBuffer( GL_ARRAY_BUFFER, m_Seg_VBO );
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
-    
     glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof(Draw::Vertex) /*stride*/, (void*)0 /*offset*/	);
     glVertexAttribPointer( 1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Draw::Vertex) /*stride*/, (void*)12 /*offset*/	);
     
     glBindVertexArray(0);
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
+    
+    // Shape
+    const vec3 CubeData[] = { {-1.f, -1.f, -1.f}, {-1.f, 1.f, -1.f}, {1.f, 1.f, -1.f}, {1.f, -1.f, -1.f},
+                              {-1.f, -1.f, 1.f}, {-1.f, 1.f, 1.f}, {1.f, 1.f, 1.f}, {1.f, -1.f, 1.f} };
+    
+    GLuint IdxData[] = {
+            0,1,2, 0,2,3,
+            1,0,4, 1,4,5,
+            2,1,5, 2,5,6,
+            3,2,6, 3,6,7,
+            0,3,7, 0,7,4,
+            5,4,7, 5,7,6
+    };
+    
+    glGenVertexArrays( 1, &m_Shape_VAO);
+    glBindVertexArray( m_Shape_VAO);
+    glGenBuffers( 1, &m_Shape_VBO );
+    glBindBuffer( GL_ARRAY_BUFFER, m_Shape_VBO );
+    
+    glEnableVertexAttribArray(0);
+    glBufferData( GL_ARRAY_BUFFER, COUNT_OF(CubeData) * sizeof(vec3), CubeData, GL_STATIC_DRAW );
+    
+    glGenBuffers( 1, &m_Shape_VEO );
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_Shape_VEO );
+    glBufferData( GL_ELEMENT_ARRAY_BUFFER, COUNT_OF(IdxData) * sizeof(GLuint), IdxData, GL_STATIC_DRAW );
+    
 }
 void DrawUtils::Destroy()
 {
-    glDeleteBuffers( 1, &m_Seg_VBO );
-    glDeleteVertexArrays( 1, &m_Seg_VAO );
+    GLuint BOArray[] = { m_Seg_VBO, m_Shape_VBO, m_Shape_VEO };
+    glDeleteBuffers( COUNT_OF(BOArray), BOArray );
+    GLuint AOArray[] = { m_Seg_VAO, m_Shape_VAO };
+    glDeleteVertexArrays( COUNT_OF(AOArray), AOArray );
 }
 
 void DrawUtils::Tick( TickContext& TickCtxt )
