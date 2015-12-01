@@ -22,20 +22,6 @@ CameraView::CameraView() :
 
 Camera::Camera()
 {
-	//m_fParameters[eParam_FOV] = 50.0f * F_DEG_TO_RAD;
-	//m_fParameters[eParam_ASPECTRATIO] = 1.333f;
-	//m_fParameters[eParam_NEARPLANE] = 30.0f;
-	//m_fParameters[eParam_FARPLANE] = 2500.0f;
-
-	//m_mTarget[eReference_CURRENT] = mat4(1.0f);
-	//m_mTarget[eReference_DESIRED] = mat4(1.0f);
-
-	/*vec3 Up( 0.0f, 0.0f, 1.0f );
-	SetUpVector( Up );
-	vec3 LookAt( 1.0f, 0.0f, 0.0f );
-	SetTargetPosition( LookAt, true );
-	vec3 Ref( 0.0f, 0.0f, 0.0f );
-	SetPosition( Ref, true );*/
 
 }
 
@@ -49,18 +35,14 @@ void Camera::Create( EntityPattern* Pattern, class json::Object* Proto, Name InN
 
 	json::TokenIdx EntTok = Proto->GetToken( "entity", json::OBJECT );
 	json::TokenIdx CamTok = Proto->GetToken( "camera", json::OBJECT, EntTok );
-	//tinyxml2::XMLElement* RootElt = Proto->FirstChildElement();
-	//tinyxml2::XMLElement* CameraElt = RootElt->FirstChildElement( "camera" );
 	if( CamTok != INDEX_NONE )
 	{
 		char const* ParamNames[] = { "fov", "near", "far" };
 		for( int32 i = 0; i < COUNT_OF( ParamNames ); ++i )
 		{
 			json::TokenIdx ParamTok = Proto->GetToken( ParamNames[i], json::PRIMITIVE, CamTok );
-			//tinyxml2::XMLElement* Elt = CameraElt->FirstChildElement( ParamNames[i] );
 			if( ParamTok != INDEX_NONE )
 				m_View.m_fParameters[i] = Proto->GetFloatValue( ParamTok, m_View.m_fParameters[i] );
-				//Elt->QueryFloatText( &m_View.m_fParameters[i] );
 		}
 	}
 }
