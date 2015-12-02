@@ -24,12 +24,14 @@ DrawUtils::~DrawUtils()
 
 void DrawUtils::Create()
 {
-    m_UtilsShader = GfxManager::GetStaticInstance()->LoadShader( "utils" );
+    m_UtilSegShader = GfxManager::GetStaticInstance()->LoadShader( "utilseg" );
+    m_UtilShapeShader = GfxManager::GetStaticInstance()->LoadShader( "utilshape" );
     
-    glGenVertexArrays( 1, &m_Seg_VAO);
-    glBindVertexArray( m_Seg_VAO);
-    glGenBuffers( 1, &m_Seg_VBO );
-    glBindBuffer( GL_ARRAY_BUFFER, m_Seg_VBO );
+    glGenVertexArrays( eVACount, m_VArrays );
+    glGenBuffers( eVBCount, m_VBuffers );
+    
+    glBindVertexArray( m_VArrays[eVASeg] );
+    glBindBuffer( GL_ARRAY_BUFFER, m_VBuffers[eVBSeg] );
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
@@ -40,6 +42,7 @@ void DrawUtils::Create()
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
     
+    //////////////////////////////////////////////////////////
     // Shape
     const vec3 CubeData[] = { {-1.f, -1.f, -1.f}, {-1.f, 1.f, -1.f}, {1.f, 1.f, -1.f}, {1.f, -1.f, -1.f},
                               {-1.f, -1.f, 1.f}, {-1.f, 1.f, 1.f}, {1.f, 1.f, 1.f}, {1.f, -1.f, 1.f} };
@@ -53,25 +56,38 @@ void DrawUtils::Create()
             5,4,7, 5,7,6
     };
     
-    glGenVertexArrays( 1, &m_Shape_VAO);
-    glBindVertexArray( m_Shape_VAO);
-    glGenBuffers( 1, &m_Shape_VBO );
-    glBindBuffer( GL_ARRAY_BUFFER, m_Shape_VBO );
-    
-    glEnableVertexAttribArray(0);
-    glBufferData( GL_ARRAY_BUFFER, COUNT_OF(CubeData) * sizeof(vec3), CubeData, GL_STATIC_DRAW );
-    
-    glGenBuffers( 1, &m_Shape_VEO );
-    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_Shape_VEO );
+    glBindVertexArray( m_VArrays[eVAShape] );
+
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_VBuffers[eVBShapeElt] );
     glBufferData( GL_ELEMENT_ARRAY_BUFFER, COUNT_OF(IdxData) * sizeof(GLuint), IdxData, GL_STATIC_DRAW );
     
+    glBindBuffer( GL_ARRAY_BUFFER, m_VBuffers[eVBShapePos] );
+    glBufferData( GL_ARRAY_BUFFER, COUNT_OF(CubeData) * sizeof(vec3), CubeData, GL_STATIC_DRAW );
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof(vec3) /*stride*/, (void*)0 /*offset*/ );
+
+    glBindBuffer( GL_ARRAY_BUFFER, m_VBuffers[eVBShapeCol] );
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer( 1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(u8vec4) /*stride*/, (void*)0 /*offset*/	);
+    glVertexAttribDivisor( 1, 1 );
+    
+    glBindBuffer( GL_ARRAY_BUFFER, m_VBuffers[eVBShapeMat] );
+    for (int i = 0; i < 4; i++ )
+    {
+        glEnableVertexAttribArray( 2 + i );
+        glVertexAttribPointer( 2 + i, 4, GL_FLOAT, GL_FALSE, sizeof(mat4) /*stride*/, (void*)(sizeof(vec4) * i) /*offset*/ );
+        glVertexAttribDivisor( 2 + i, 1 );
+    }
+    
+    glBindVertexArray(0);
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
 }
 void DrawUtils::Destroy()
 {
-    GLuint BOArray[] = { m_Seg_VBO, m_Shape_VBO, m_Shape_VEO };
-    glDeleteBuffers( COUNT_OF(BOArray), BOArray );
-    GLuint AOArray[] = { m_Seg_VAO, m_Shape_VAO };
-    glDeleteVertexArrays( COUNT_OF(AOArray), AOArray );
+    glDeleteBuffers( eVBCount, m_VBuffers );
+    glDeleteVertexArrays( eVACount, m_VArrays );
 }
 
 void DrawUtils::Tick( TickContext& TickCtxt )
@@ -83,34 +99,49 @@ void DrawUtils::_Render( struct RenderContext& RenderCtxt )
 {
     mat4 ViewInvMat( RenderCtxt.m_View.m_Transform.GetRotation(), RenderCtxt.m_View.m_Transform.GetTranslation(), (float)RenderCtxt.m_View.m_Transform.GetScale() );
     
-    m_UtilsShader->Bind();
-    ShaderUniform UniProj = m_UtilsShader->GetUniformLocation("proj_mat");
-    m_UtilsShader->SetUniform( UniProj, RenderCtxt.m_ProjMat );
-    ShaderUniform UniView = m_UtilsShader->GetUniformLocation("view_mat");
-    m_UtilsShader->SetUniform( UniView, bigball::inverse(ViewInvMat) );
-    
-    glBindVertexArray( m_Seg_VAO );
-    
-    //for( int iSL = 0; iSL < m_SegmentList.size(); iSL++)
+    // Render Segments
+    m_UtilSegShader->Bind();
     {
-        //Draw::SegmentList const& seg_list = m_SegmentList[iSL];
-        //int idx_buffer_offset = 0;
-        
-        glBindBuffer(GL_ARRAY_BUFFER, m_Seg_VBO);
-        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_SegBuffer.size() * sizeof(Draw::Vertex), (GLvoid*)m_SegBuffer.Data(), GL_DYNAMIC_DRAW/*GL_STREAM_DRAW*/);
+        ShaderUniform UniProj = m_UtilSegShader->GetUniformLocation("proj_mat");
+        m_UtilSegShader->SetUniform( UniProj, RenderCtxt.m_ProjMat );
+        ShaderUniform UniView = m_UtilSegShader->GetUniformLocation("view_mat");
+        m_UtilSegShader->SetUniform( UniView, bigball::inverse(ViewInvMat) );
+    
+        glBindVertexArray( m_VArrays[eVASeg] );
+    
+        glBindBuffer(GL_ARRAY_BUFFER, m_VBuffers[eVBSeg]);
+        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_SegBuffer.size() * sizeof(Draw::Vertex), (GLvoid*)m_SegBuffer.Data(), GL_DYNAMIC_DRAW );
         
         for( int iSL = 0; iSL < m_SegmentList.size(); iSL++)
-        //for (const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != cmd_list->CmdBuffer.end(); pcmd++)
         {
-            Draw::SegmentList const& seg_list = m_SegmentList[iSL];
+            Draw::BufferRange const& seg_list = m_SegmentList[iSL];
             glDrawArrays(/*GL_TRIANGLE_STRIP*/GL_LINE_STRIP, seg_list.Offset, seg_list.Count );
-            
-            //idx_buffer_offset += pcmd->ElemCount;
         }
-    }
     
-    glBindVertexArray(0);
-    m_UtilsShader->Unbind();
+        glBindVertexArray(0);
+    }
+    m_UtilSegShader->Unbind();
+    
+    // Render Shapes
+    m_UtilShapeShader->Bind();
+    {
+        ShaderUniform UniProj = m_UtilShapeShader->GetUniformLocation("proj_mat");
+        m_UtilShapeShader->SetUniform( UniProj, RenderCtxt.m_ProjMat );
+        ShaderUniform UniView = m_UtilShapeShader->GetUniformLocation("view_mat");
+        m_UtilShapeShader->SetUniform( UniView, bigball::inverse(ViewInvMat) );
+    
+        glBindVertexArray( m_VArrays[eVAShape] );
+    
+        glBindBuffer(GL_ARRAY_BUFFER, m_VBuffers[eVBShapeCol]);
+        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_ShapeColors.size() * sizeof(u8vec4), (GLvoid*)m_ShapeColors.Data(), GL_DYNAMIC_DRAW );
+        
+        glBindBuffer(GL_ARRAY_BUFFER, m_VBuffers[eVBShapeMat]);
+        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_ShapeMatrices.size() * sizeof(mat4), (GLvoid*)m_ShapeMatrices.Data(), GL_DYNAMIC_DRAW );
+
+    
+        glBindVertexArray(0);
+    }
+    m_UtilShapeShader->Unbind();
     
 
 	// Purge old elements
@@ -162,7 +193,7 @@ void DrawUtils::PushSegment( vec3 P0, vec3 P1, u8vec4 Color0, u8vec4 Color1, flo
 	Draw::Vertex v1 = { P1, Color1 };
     m_SegBuffer.push_back( v0 );
     m_SegBuffer.push_back( v1 );
-	Draw::SegmentList SegList = { Offset, 2 };
+	Draw::BufferRange SegList = { Offset, 2 };
     m_SegmentList.push_back( SegList );
 }
 void DrawUtils::PushSegmentList( Array<vec3> const& SegmentList, u8vec4 Color, float PersistTime )
@@ -173,7 +204,7 @@ void DrawUtils::PushSegmentList( Array<vec3> const& SegmentList, u8vec4 Color, f
 		Draw::Vertex v = { SegmentList[i], Color };
         m_SegBuffer.push_back( v );
     }
-	Draw::SegmentList SegList = { Offset, SegmentList.size() };
+	Draw::BufferRange SegList = { Offset, SegmentList.size() };
 	m_SegmentList.push_back( SegList );
 }
 void DrawUtils::PushSegmentList( Array<vec3> const& SegmentList, Array<u8vec4> const& ColorList, float PersistTime )
@@ -184,18 +215,22 @@ void DrawUtils::PushSegmentList( Array<vec3> const& SegmentList, Array<u8vec4> c
         Draw::Vertex v = { SegmentList[i], ColorList[i] };
         m_SegBuffer.push_back( v );
     }
-    Draw::SegmentList SegList = { Offset, SegmentList.size() };
+    Draw::BufferRange SegList = { Offset, SegmentList.size() };
     m_SegmentList.push_back( SegList );
 }
 void DrawUtils::PushOBB( transform T, u8vec4 Color, float PersistTime )
 {
-	Draw::Shape Shape = { Draw::ShapeType::Box, T, Color };
-	m_Shapes.push_back( Shape );
+    mat4 m( T.GetRotation(), T.GetTranslation(), T.GetScale() );
+
+    m_ShapeColors.push_back( Color );
+    m_ShapeMatrices.push_back( m );
+    
+    m_Shapes[Draw::ShapeType::Box].Offset = 0;
+    m_Shapes[Draw::ShapeType::Box].Count = m_ShapeMatrices.size();
 }
 void DrawUtils::PushAABB( vec3 Pos, float Scale, u8vec4 Color, float PersistTime )
 {
-	Draw::Shape Shape = { Draw::ShapeType::Box, transform(quat(1.f,0.f,0.f,0.f), Pos, Scale), Color };
-	m_Shapes.push_back( Shape );
+    PushOBB( transform( quat(1.f,0.f,0.f,0.f), Pos, Scale ), Color );
 }
 
 

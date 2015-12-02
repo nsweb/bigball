@@ -12,9 +12,10 @@ class BIGBALL_API Shader;
 
 namespace Draw
 {
-	enum class ShapeType
+	enum ShapeType
 	{
 		Box = 0,
+        Count
 	};
 
     struct Vertex
@@ -22,17 +23,10 @@ namespace Draw
         vec3	Pos;
         u8vec4	Col;
     };
-	struct SegmentList
+	struct BufferRange
 	{
         int Offset;
         int Count;
-	};
-	struct Shape
-	{
-		ShapeType Type;
-		transform T;
-		vec4 Color;
-		//float PersistTime;
 	};
 }
 
@@ -61,21 +55,34 @@ public:
 	void		PushAABB( vec3 Pos, float Scale, u8vec4 Color, float PersistTime = 0.f );
 
 protected:
-	Shader*				m_UtilsShader;
+	Shader*                     m_UtilSegShader;
+    Shader*                     m_UtilShapeShader;
 
-	Array<Draw::SegmentList>	m_SegmentList;
+	Array<Draw::BufferRange>	m_SegmentList;
     Array<Draw::Vertex>         m_SegBuffer;
     
-	Array<Draw::Shape>			m_Shapes;
+    Draw::BufferRange           m_Shapes[Draw::ShapeType::Count];
+    Array<u8vec4>               m_ShapeColors;
+    Array<mat4>                 m_ShapeMatrices;
     
-    /** Dynamic VB used to render segments */
-    GLuint					m_Seg_VAO;
-    GLuint					m_Seg_VBO;
-    
-    GLuint                  m_Shape_VAO;
-    GLuint                  m_Shape_VBO;
-    GLuint                  m_Shape_VEO;
-    
+    enum eVAType
+    {
+        eVASeg = 0,
+        eVAShape,
+        eVACount
+    };
+    enum eVBType
+    {
+        eVBSeg = 0,        /** Dynamic VB used to render segments */
+        eVBShapeElt,
+        eVBShapePos,
+        eVBShapeMat,
+        eVBShapeCol,
+        eVBCount
+    };
+
+    GLuint					m_VArrays[eVACount];
+    GLuint					m_VBuffers[eVBCount];
 
 	void		RemoveOldElements( float DeltaSeconds );
 };
