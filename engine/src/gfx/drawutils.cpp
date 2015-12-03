@@ -138,6 +138,7 @@ void DrawUtils::_Render( struct RenderContext& RenderCtxt )
         glBindBuffer(GL_ARRAY_BUFFER, m_VBuffers[eVBShapeMat]);
         glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_ShapeMatrices.size() * sizeof(mat4), (GLvoid*)m_ShapeMatrices.Data(), GL_DYNAMIC_DRAW );
 
+        glDrawElementsInstanced( GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)0, m_ShapeMatrices.size() );
     
         glBindVertexArray(0);
     }
@@ -152,6 +153,14 @@ void DrawUtils::RemoveOldElements( float DeltaSeconds )
 {
     m_SegmentList.clear();
     m_SegBuffer.clear();
+    
+    for (int i = 0; i < Draw::ShapeType::Count; i++)
+    {
+        m_Shapes[i].Offset = 0;
+        m_Shapes[i].Count = 0;
+    }
+    m_ShapeColors.clear();
+    m_ShapeMatrices.clear();
     
 #if 0
     for( int i = m_Segments.size() - 1; i >= 0 ; i++ )
