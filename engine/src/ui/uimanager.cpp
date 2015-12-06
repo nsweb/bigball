@@ -19,11 +19,13 @@ namespace bigball
 UIManager* UIManager::m_pStaticInstance = NULL;
 
 UIManager::UIManager() :
+    m_pDrawEditorFn(nullptr),
 	m_DebugFontTexId(0),
 	m_UIShader(nullptr),
 	m_UI_VAO(0),
 	m_bShowDebugMenu(false),
-	m_bShowProfiler(false)
+	m_bShowProfiler(false),
+    m_bShowEditor(false)
 {
 	m_pStaticInstance = this;
 }
@@ -433,6 +435,10 @@ void UIManager::_Render( struct RenderContext& RenderCtxt )
 
 	if( m_bShowProfiler )
 		DrawProfiler();
+    
+    if( m_bShowEditor && m_pDrawEditorFn )
+        (*m_pDrawEditorFn)( &m_bShowEditor );
+        
 	//static bool show_test_window = false;//true;
 	//static bool show_another_window = true;
 
@@ -526,6 +532,28 @@ void UIManager::ToggleDebugMenu()
 	}
 
 	m_bShowDebugMenu = bNewShowDebugMenu;
+}
+void UIManager::ToggleEditor()
+{
+    if( !m_pDrawEditorFn )
+        return;
+    
+    bool bNewShowEditor = !m_bShowEditor;
+    
+    if( bNewShowEditor )
+    {
+        // Allow menu interaction
+        SDL_SetRelativeMouseMode(SDL_FALSE);
+        SDL_SetWindowGrab( g_pEngine->GetDisplayWindow(), SDL_FALSE );
+    }
+    else
+    {
+        // Allow FPS style mouse movement
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+        SDL_SetWindowGrab( g_pEngine->GetDisplayWindow(), SDL_TRUE );
+    }
+    
+    m_bShowEditor = bNewShowEditor;
 }
 
 } /* namespace bigball */

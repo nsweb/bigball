@@ -9,6 +9,9 @@
 namespace bigball
 {
 
+typedef void (*DrawEditorCB)( bool* );
+    
+    
 class BIGBALL_API Shader;
 
 struct UIVertex
@@ -35,6 +38,8 @@ public:
 
 	void				RenderDrawLists(struct ImDrawData* data);
 	void				ToggleDebugMenu();
+    void                ToggleEditor();
+    void                SetDrawEditorFn( DrawEditorCB pFn ) { m_pDrawEditorFn = pFn; }
 
 protected:
 	void				InitImGui();
@@ -44,6 +49,7 @@ protected:
 	static UIManager*		m_pStaticInstance;
 
 public:
+    DrawEditorCB            m_pDrawEditorFn;
 	GLuint					m_DebugFontTexId;
 	Shader*					m_UIShader;
 	/** Dynamic VB used to render ui elements */
@@ -55,6 +61,7 @@ public:
 
 	bool					m_bShowDebugMenu;
 	bool					m_bShowProfiler;
+    bool                    m_bShowEditor;
 };
 
 } /* namespace bigball */
