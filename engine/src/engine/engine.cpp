@@ -283,6 +283,10 @@ void Engine::MainLoop()
 					{
 						UIManager::GetStaticInstance()->ToggleDebugMenu();
 					}
+                    else if( Event.key.keysym.sym == SDLK_e )
+                    {
+                        UIManager::GetStaticInstance()->ToggleEditor();
+                    }
 					else if( Event.key.keysym.sym == SDLK_F9 || Event.key.keysym.sym == SDLK_F10 )
 					{
 						// HACK

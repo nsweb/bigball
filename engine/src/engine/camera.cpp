@@ -366,12 +366,14 @@ void Camera::GetViewMatrixVectors( vec3& _Right, vec3& _Up, vec3& _Front )
 
 
 #endif
+    
+    void CameraCtrl_Base::UpdateView( CameraView& CamView, float DeltaSeconds )
+    {
+        
+    }
 
 
-void CameraCtrl_Base::UpdateView( CameraView& CamView, float DeltaSeconds )
-{
 
-}
 
 bool CameraCtrl_Base::OnControllerInput( Camera* pCamera, ControllerInput const& Input )
 {

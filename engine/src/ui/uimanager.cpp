@@ -20,6 +20,7 @@ UIManager* UIManager::m_pStaticInstance = NULL;
 
 UIManager::UIManager() :
     m_pDrawEditorFn(nullptr),
+    m_pToggleEditorFn(nullptr),
 	m_DebugFontTexId(0),
 	m_UIShader(nullptr),
 	m_UI_VAO(0),
@@ -539,6 +540,9 @@ void UIManager::ToggleEditor()
         return;
     
     bool bNewShowEditor = !m_bShowEditor;
+    
+    if( m_pToggleEditorFn )
+        (*m_pToggleEditorFn)( bNewShowEditor );
     
     if( bNewShowEditor )
     {
