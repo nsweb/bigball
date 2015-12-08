@@ -44,8 +44,8 @@ void DrawUtils::Create()
     
     //////////////////////////////////////////////////////////
     // Shape
-    const vec3 CubeData[] = { {-1.f, -1.f, -1.f}, {-1.f, 1.f, -1.f}, {1.f, 1.f, -1.f}, {1.f, -1.f, -1.f},
-                              {-1.f, -1.f, 1.f}, {-1.f, 1.f, 1.f}, {1.f, 1.f, 1.f}, {1.f, -1.f, 1.f} };
+    const vec3 CubeData[] = { vec3(-1.f, -1.f, -1.f), vec3(-1.f, 1.f, -1.f), vec3(1.f, 1.f, -1.f), vec3(1.f, -1.f, -1.f),
+                              vec3(-1.f, -1.f, 1.f), vec3(-1.f, 1.f, 1.f), vec3(1.f, 1.f, 1.f), vec3(1.f, -1.f, 1.f) };
     
     GLuint IdxData[] = {
             0,1,2, 0,2,3,

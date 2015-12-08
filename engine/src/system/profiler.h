@@ -39,7 +39,7 @@ namespace bigball
 namespace Profiler
 {
 	typedef uint32 NameHandle;
-	typedef MapRH<String,NameHandle> NameMap;
+	typedef Map<String,NameHandle> NameMap;
 
 	struct CallNode;
 

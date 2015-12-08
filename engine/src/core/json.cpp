@@ -30,15 +30,15 @@ namespace json
 //}
 
 
-bool Object::ParseFile( char const* Path )
+bool Object::ParseFile( char const* path )
 {
-	File jsFile;
-	if( jsFile.Open( Path, false /*bWrite*/, false ) )
+	File js_file;
+	if( js_file.Open( path, false /*bWrite*/, false ) )
 	{
-		String FileBuffer;
-		jsFile.SerializeString( FileBuffer );
+		String file_buffer;
+		js_file.SerializeString( file_buffer );
 		
-		return ParseString( FileBuffer.c_str() );
+		return ParseString( file_buffer.c_str() );
 	}
 
 	return false;
@@ -46,17 +46,17 @@ bool Object::ParseFile( char const* Path )
 
 bool Object::ParseString( char const* sz )
 {
-	m_Str = sz;
+	m_str = sz;
 
 	jsmn_parser p;
-	int32 MaxToken = 128;
+	int32 max_token = 128;
 	while( 1 )
 	{
-		MaxToken <<= 1;
-		m_Tokens.resize( MaxToken );
+		max_token <<= 1;
+		m_tokens.resize( max_token );
 
 		jsmn_init(&p);
-		int r = jsmn_parse(&p, sz, m_Str.Len(), m_Tokens.Data(), MaxToken);
+		int r = jsmn_parse(&p, sz, m_str.Len(), m_tokens.Data(), max_token);
 		if( r >= 0 )
 			break;
 		else if( r == JSMN_ERROR_NOMEM )
@@ -68,65 +68,65 @@ bool Object::ParseString( char const* sz )
 	return true;
 }
 
-TokenIdx Object::GetToken( char const* sz, TokenType Type, TokenIdx ParentIdx /*= INDEX_NONE */ )
+TokenIdx Object::GetToken( char const* sz, TokenType type, TokenIdx parent_idx /*= INDEX_NONE */ )
 {
-	if( ParentIdx >= m_Tokens.size() )
+	if( parent_idx >= m_tokens.size() )
 		return INDEX_NONE;
 
-	TokenIdx EndTokenIdx = (ParentIdx >= 0 ? ParentIdx + m_Tokens[ParentIdx].size : m_Tokens[0].size);
-	TokenIdx TokenIdx = ParentIdx + 1;
-	while( TokenIdx <= EndTokenIdx )
+	TokenIdx end_token_idx = (parent_idx >= 0 ? parent_idx + m_tokens[parent_idx].size : m_tokens[0].size);
+	TokenIdx token_idx = parent_idx + 1;
+	while( token_idx <= end_token_idx )
 	{
-		if( IsStringValue( TokenIdx, sz ) )
+		if( IsStringValue( token_idx, sz ) )
 		{
-			if( TokenIdx + 1 < m_Tokens.size() && m_Tokens[TokenIdx+1].type == Type )
+			if( token_idx + 1 < m_tokens.size() && m_tokens[token_idx+1].type == type )
 			{
-				return TokenIdx+1;
+				return token_idx+1;
 			}
 		}
-		EndTokenIdx += m_Tokens[TokenIdx].size;
-		TokenIdx += 1;
+		end_token_idx += m_tokens[token_idx].size;
+		token_idx += 1;
 	}
 
 	return INDEX_NONE;
 }
 
-bool Object::GetStringValue( TokenIdx Idx, String& Val )
+bool Object::GetStringValue( TokenIdx token_idx, String& val )
 {
-	BB_ASSERT( Idx >= 0 && Idx < m_Tokens.size() );
-	if( m_Tokens[Idx].type == JSMN_STRING )
+	BB_ASSERT( token_idx >= 0 && token_idx < m_tokens.size() );
+	if( m_tokens[token_idx].type == JSMN_STRING )
 	{
-		Val = String( m_Str.c_str() + m_Tokens[Idx].start, m_Tokens[Idx].end - m_Tokens[Idx].start );
+		val = String( m_str.c_str() + m_tokens[token_idx].start, m_tokens[token_idx].end - m_tokens[token_idx].start );
 		return true;
 	}
 	return false;
 }
 
-bool Object::IsStringValue( TokenIdx Idx, char const* sz )
+bool Object::IsStringValue( TokenIdx token_idx, char const* sz )
 {
-	BB_ASSERT( Idx >= 0 && Idx < m_Tokens.size() );
-	if( m_Tokens[Idx].type == JSMN_STRING )
+	BB_ASSERT( token_idx >= 0 && token_idx < m_tokens.size() );
+	if( m_tokens[token_idx].type == JSMN_STRING )
 	{
 		int sz_len = (int)strlen(sz);
-		if( m_Tokens[Idx].end - m_Tokens[Idx].start == sz_len )
+		if( m_tokens[token_idx].end - m_tokens[token_idx].start == sz_len )
 		{
-			char const* szToken = m_Str.c_str() + m_Tokens[Idx].start;
+			char const* szToken = m_str.c_str() + m_tokens[token_idx].start;
 			return Memory::Memcmp( szToken, sz, sz_len ) == 0;
 		}
 	}
 	return false;
 }
 
-float Object::GetFloatValue( TokenIdx Idx, float DefaultValue )
+float Object::GetFloatValue( TokenIdx token_idx, float default_value )
 {
-	BB_ASSERT( Idx >= 0 && Idx < m_Tokens.size() );
-	if( m_Tokens[Idx].type == JSMN_PRIMITIVE )
+	BB_ASSERT( token_idx >= 0 && token_idx < m_tokens.size() );
+	if( m_tokens[token_idx].type == JSMN_PRIMITIVE )
 	{
-		String strVal( m_Str.c_str() + m_Tokens[Idx].start, m_Tokens[Idx].end - m_Tokens[Idx].start );
+		String strVal( m_str.c_str() + m_tokens[token_idx].start, m_tokens[token_idx].end - m_tokens[token_idx].start );
 		float Val = (float)std::atof( strVal.c_str() );
 		return Val;
 	}
-	return DefaultValue;
+	return default_value;
 }
 
 } /* namespace json */

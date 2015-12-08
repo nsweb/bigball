@@ -31,8 +31,8 @@ public:
 	float		GetFloatValue( TokenIdx Idx, float DefaultValue = 0.f );
 
 private:
-	Array<jsmntok_t> m_Tokens;
-	String			 m_Str;
+	Array<jsmntok_t> m_tokens;
+	String			 m_str;
 };
 	
 
