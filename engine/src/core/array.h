@@ -150,27 +150,27 @@ public:
         return m_data[m_count - 1];
     }
 
-    inline Array& operator<<(T const &x)
+    inline Array& operator<<(Element const &item)
     {
         if (m_count >= m_reserved)
         {
-            T tmp = x;
+            Element tmp(item);
             reserve(m_count * 13 / 8 + 8);
             new (&m_data[m_count++]) Element(tmp);
         }
         else
         {
-            new (&m_data[m_count++]) Element(x);
+            new (&m_data[m_count++]) Element(item);
         }
         return *this;
     }
 
-    inline void push_back(T const &x)
+    inline void push_back(Element const &item)
     {
-        *this << x;
+        *this << item;
     }
 
-    inline T pop_back()
+    inline Element pop_back()
     {
         BB_ASSERT(m_count > 0);
         Element tmp = Last();
@@ -224,23 +224,39 @@ public:
         }
         m_count -= todelete;
     }
+    
+    void insert( const Element& item, int pos )
+    {
+        BB_ASSERT(pos >= 0);
+        BB_ASSERT(pos <= m_count);
+        if (m_count >= m_reserved)
+            reserve(m_count+1);
+        
+        for (int i = m_count; i > pos; --i)
+        {
+            new (&m_data[i]) Element(m_data[i - 1]);
+            m_data[i - 1].~Element();
+        }
+        new (&m_data[pos]) Element(item);
+        ++m_count;
+    }
 
-	void remove( const Element& Item )
+	void remove( const Element& item )
     {
         for( int i = 0; i < m_count; )
         {
-        	if( m_data[i] == Item )
+        	if( m_data[i] == item )
 				erase( i, 1 );
 			else
 				++i;
         }
     }
 
-	void remove_swap( const Element& Item )
+	void remove_swap( const Element& item )
 	{
 		for( int i = 0; i < m_count; )
 		{
-        	if( m_data[i] == Item )
+        	if( m_data[i] == item )
 				erase_swap( i, 1 );
 			else
 				++i;
