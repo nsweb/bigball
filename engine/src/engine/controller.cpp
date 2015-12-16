@@ -100,7 +100,7 @@ void Controller::UpdateRenderCamera( float DeltaSeconds )
 	if( !m_pActiveCam && m_Cameras.size() )
 	{
 		m_pActiveCam = m_Cameras[0];
-		//m_pActiveCamCtrl->InitFromView( m_pActiveCam->GetView() );	
+		//m_pActiveCamCtrl->InitFromView( m_pActiveCam->GetView() );
 	}
 
 	if( m_pActiveCam )
