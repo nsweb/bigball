@@ -258,7 +258,7 @@ void Engine::MainLoop()
 		if( Keys[SDL_SCANCODE_PAGEDOWN] )
 			Controller::GetStaticInstance()->OnInputZ( Modifiers, -DeltaSeconds );
 		
-
+		ImGuiIO& io = ImGui::GetIO();
 		while( SDL_PollEvent( &Event ) )
 		{
 			switch( Event.type )
@@ -268,6 +268,13 @@ void Engine::MainLoop()
 					//SDL_Keycode keyPressed = Event.key.keysym.sym;
 					//if( keyPressed == SDLK_LEFT )
 					//	Controller::GetStaticInstance()->OnInputX( Event.key.keysym.mod, -DeltaSeconds );
+
+					// Warn ImGui
+					int key = Event.key.keysym.sym & ~SDLK_SCANCODE_MASK;
+					io.KeysDown[key] = (Event.type == SDL_KEYDOWN);
+					io.KeyShift = ((SDL_GetModState() & KMOD_SHIFT) != 0);
+					io.KeyCtrl = ((SDL_GetModState() & KMOD_CTRL) != 0);
+					io.KeyAlt = ((SDL_GetModState() & KMOD_ALT) != 0);
 				}
 				break;
 			case SDL_KEYUP:
@@ -310,6 +317,18 @@ void Engine::MainLoop()
 						if( m_bShowCulling )
 							g_SavedFrustumView = Controller::GetStaticInstance()->GetRenderView();
 					}
+
+					// Warn ImGui
+					int key = Event.key.keysym.sym & ~SDLK_SCANCODE_MASK;
+					io.KeysDown[key] = (Event.type == SDL_KEYDOWN);
+					io.KeyShift = ((SDL_GetModState() & KMOD_SHIFT) != 0);
+					io.KeyCtrl = ((SDL_GetModState() & KMOD_CTRL) != 0);
+					io.KeyAlt = ((SDL_GetModState() & KMOD_ALT) != 0);
+				}
+				break;
+			case SDL_TEXTINPUT:
+				{
+					io.AddInputCharactersUTF8(Event.text.text);
 				}
 				break;
 			case SDL_MOUSEMOTION:
