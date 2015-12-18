@@ -396,18 +396,18 @@ bool CameraCtrl_Fly::OnControllerInput( Camera* pCamera, ControllerInput const& 
 {
 	CameraView& View = pCamera->GetView();
 
-	if( Input.m_Type == eCIT_Key )
+	if( Input.m_type == eCIT_Key )
 	{
 		mat4 CamToWorldMat( View.m_Transform.GetRotation() );
 		vec3 Right = CamToWorldMat.v0.xyz;
 		vec3 Up = CamToWorldMat.v1.xyz;
 		vec3 Front = -CamToWorldMat.v2.xyz;
-		View.m_Transform.GetTranslation() += (Right * Input.m_Delta.x + Up * Input.m_Delta.z + Front * Input.m_Delta.y) * m_StrafeSpeed;
+		View.m_Transform.GetTranslation() += (Right * Input.m_delta.x + Up * Input.m_delta.z + Front * Input.m_delta.y) * m_StrafeSpeed;
 	}
-	else if( Input.m_Type == eCIT_Mouse )
+	else if( Input.m_type == eCIT_Mouse )
 	{
 		// TODO : arcball rotation
-		quat YawPitchRoll( quat::fromeuler_xyz( Input.m_Delta.y * m_RotationSpeed, Input.m_Delta.x * m_RotationSpeed, 0.0f ) );
+		quat YawPitchRoll( quat::fromeuler_xyz( Input.m_delta.y * m_RotationSpeed, Input.m_delta.x * m_RotationSpeed, 0.0f ) );
 
 		View.m_Transform.SetRotation( View.m_Transform.GetRotation() * YawPitchRoll );
 	}

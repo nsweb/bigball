@@ -10,12 +10,6 @@
 namespace bigball
 {
 
-//class BIGBALL_API Camera;
-//class BIGBALL_API CameraCtrl_Base;
-
-//BIGBALL_TEMPLATE template class BIGBALL_API Array<Camera*>;
-//BIGBALL_TEMPLATE template class BIGBALL_API Array<CameraCtrl_Base*>;
-
 enum eControllerInputModifier
 {
 	eIM_Ctrl = 0x00000001,
@@ -33,10 +27,10 @@ enum eControllerInputType
 
 struct ControllerInput
 {
-	vec3				m_Delta;
-	eControllerInputType			m_Type;
+	vec3				m_delta;
+	eControllerInputType			m_type;
 
-	bool operator == ( eControllerInputType OtherType ) const		{ return m_Type == OtherType; }
+	bool operator == ( eControllerInputType other_type ) const		{ return m_type == other_type; }
 };
 
 
@@ -54,32 +48,32 @@ public:
 	virtual void		Destroy();	
 	virtual void		Tick( struct TickContext& TickCtxt );
 
-	void				RegisterCameraCtrl( CameraCtrl_Base* pCamCtrl );
-	void				SetActiveCameraCtrl( Name const& CamCtrlName );
-	CameraCtrl_Base*	GetActiveCameraCtrl()			{ return m_pActiveCamCtrl;			}
-	CameraCtrl_Base*	GetCameraCtrl( Name const& CamCtrlName );
-	void				AddCamera( Camera* pCamera );
-	void				RemoveCamera( Camera* pCamera );
-	void				UpdateRenderCamera( float DeltaSeconds );
-	Camera*				GetActiveCamera()				{ return m_pActiveCam;				}
+	void				RegisterCameraCtrl( CameraCtrl_Base* cam_ctrl );
+	void				SetActiveCameraCtrl( Name const& cam_ctrl_name );
+	CameraCtrl_Base*	GetActiveCameraCtrl()			{ return m_active_cam_ctrl;			}
+	CameraCtrl_Base*	GetCameraCtrl( Name const& cam_ctrl_name );
+	void				AddCamera( Camera* camera );
+	void				RemoveCamera( Camera* camera );
+	void				UpdateRenderCamera( float delta_seconds );
+	Camera*				GetActiveCamera()				{ return m_active_cam;				}
 
-	void				OnInputX( uint32 ModifierFlags, float Delta );
-	void				OnInputY( uint32 ModifierFlags, float Delta );
-	void				OnInputZ( uint32 ModifierFlags, float Delta );
-	void				OnMouseMove( uint32 ModifierFlags, vec3 Delta );
-	CameraView const&	GetRenderView()					{ return m_RenderView;				}
-	mat4 const&			GetRenderProjMatrix()			{ return m_RenderProjMatrix;		}
+	void				OnInputX( uint32 modifier_flags, float delta );
+	void				OnInputY( uint32 modifier_flags, float delta );
+	void				OnInputZ( uint32 modifier_flags, float delta );
+	void				OnMouseMove( uint32 modifier_flags, vec3 delta );
+	CameraView const&	GetRenderView()					{ return m_render_view;				}
+	mat4 const&			GetRenderProjMatrix()			{ return m_render_proj_matrix;		}
 
 protected:
-	Array<ControllerInput>		m_FrameInputs;
-	Array<Camera*>				m_Cameras;
-	Array<CameraCtrl_Base*>		m_CamCtrls;
-	Camera*						m_pActiveCam;
-	CameraCtrl_Base*			m_pActiveCamCtrl;
-	CameraView					m_RenderView;
-	mat4						m_RenderProjMatrix;
+	Array<ControllerInput>		m_frame_inputs;
+	Array<Camera*>				m_cameras;
+	Array<CameraCtrl_Base*>		m_cam_ctrls;
+	Camera*						m_active_cam;
+	CameraCtrl_Base*			m_active_cam_ctrl;
+	CameraView					m_render_view;
+	mat4						m_render_proj_matrix;
 
-	void				OnInputXYZ( uint32 ModifierFlags, vec3 Delta );
+	void				OnInputXYZ( uint32 modifier_flags, vec3 delta );
 
 };
 

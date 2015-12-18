@@ -14,8 +14,8 @@ STATIC_MANAGER_CPP( Controller )
 Controller::Controller()
 {
 	m_pStaticInstance = this;
-	m_pActiveCamCtrl = nullptr;
-	m_pActiveCam = nullptr;
+	m_active_cam_ctrl = nullptr;
+	m_active_cam = nullptr;
 }
 
 Controller::~Controller()
@@ -32,137 +32,138 @@ void Controller::Create()
 }
 void Controller::Destroy()
 {
-	for( int32 i = 0; i < m_CamCtrls.size(); ++i )
-		BB_DELETE( m_CamCtrls[i] );
-	m_CamCtrls.clear();
+	for( int32 i = 0; i < m_cam_ctrls.size(); ++i )
+		BB_DELETE( m_cam_ctrls[i] );
+	m_cam_ctrls.clear();
 }
 
-void Controller::Tick( TickContext& TickCtxt )
+void Controller::Tick( TickContext& tick_ctxt )
 {
 	// Manage inputs
-	if( m_pActiveCamCtrl && m_pActiveCam )
+	if( m_active_cam_ctrl && m_active_cam )
 	{
-		for( int32 i = 0; i < m_FrameInputs.size(); ++i )
+		for( int32 i = 0; i < m_frame_inputs.size(); ++i )
 		{
-			m_pActiveCamCtrl->OnControllerInput( m_pActiveCam, m_FrameInputs[i] );
+			m_active_cam_ctrl->OnControllerInput( m_active_cam, m_frame_inputs[i] );
 		}
 	}
-	m_FrameInputs.clear();
+	m_frame_inputs.clear();
 
 
-	UpdateRenderCamera( TickCtxt.m_DeltaSeconds );
+	UpdateRenderCamera( tick_ctxt.m_DeltaSeconds );
 }
 
-void Controller::RegisterCameraCtrl( CameraCtrl_Base* pCamCtrl )
+void Controller::RegisterCameraCtrl( CameraCtrl_Base* cam_ctrl )
 {
-	m_CamCtrls.push_back( pCamCtrl );
+	m_cam_ctrls.push_back( cam_ctrl );
 }
 
-void Controller::SetActiveCameraCtrl( Name const& CamCtrlName )
+void Controller::SetActiveCameraCtrl( Name const& cam_ctrl_name )
 {
-	for( int32 i = 0; i < m_CamCtrls.size(); ++i )
+	for( int32 i = 0; i < m_cam_ctrls.size(); ++i )
 	{
-		if( m_CamCtrls[i]->GetClassName() == CamCtrlName )
+		if( m_cam_ctrls[i]->GetClassName() == cam_ctrl_name )
 		{
-			m_pActiveCamCtrl = m_CamCtrls[i];
+			m_active_cam_ctrl = m_cam_ctrls[i];
 			break;
 		}
 	}
 }
 
-CameraCtrl_Base* Controller::GetCameraCtrl( Name const& CamCtrlName )
+CameraCtrl_Base* Controller::GetCameraCtrl( Name const& cam_ctrl_name )
 {
-	for( int32 i = 0; i < m_CamCtrls.size(); ++i )
+	for( int32 i = 0; i < m_cam_ctrls.size(); ++i )
 	{
-		if( m_CamCtrls[i]->GetClassName() == CamCtrlName )
+		if( m_cam_ctrls[i]->GetClassName() == cam_ctrl_name )
 		{
-			return m_CamCtrls[i];
+			return m_cam_ctrls[i];
 		}
 	}
 	return nullptr;
 }
 
-void Controller::AddCamera( Camera* pCamera )
+void Controller::AddCamera( Camera* camera )
 {
-	if( INDEX_NONE == m_Cameras.find( pCamera ) )
-		m_Cameras.push_back( pCamera );
+	if( INDEX_NONE == m_cameras.find( camera ) )
+		m_cameras.push_back( camera );
 }
 
-void Controller::RemoveCamera( Camera* pCamera )
+void Controller::RemoveCamera( Camera* camera )
 {
-	int CameraIdx = m_Cameras.find( pCamera );
-	if( INDEX_NONE != CameraIdx )
-		m_Cameras.remove( pCamera );
+	int camera_idx = m_cameras.find( camera );
+	if( INDEX_NONE != camera_idx )
+		m_cameras.remove( camera );
 }
 
-void Controller::UpdateRenderCamera( float DeltaSeconds )
+void Controller::UpdateRenderCamera( float delta_seconds )
 {
-	if( !m_pActiveCam && m_Cameras.size() )
+	if( !m_active_cam && m_cameras.size() )
 	{
-		m_pActiveCam = m_Cameras[0];
+		m_active_cam = m_cameras[0];
 		//m_pActiveCamCtrl->InitFromView( m_pActiveCam->GetView() );
 	}
 
-	if( m_pActiveCam )
-		m_RenderView = m_pActiveCam->GetView();
-	if( m_pActiveCamCtrl )
-		m_pActiveCamCtrl->UpdateView( m_RenderView, DeltaSeconds );
+	CameraView* current_view = m_active_cam ? &m_active_cam->GetView() : &m_render_view;
+	if( m_active_cam_ctrl )
+		m_active_cam_ctrl->UpdateView( *current_view, delta_seconds );
+
+	m_render_view = *current_view;
 
 	// Compute proj matrix
-	SDL_DisplayMode DisplayMode = g_pEngine->GetDisplayMode();
-	m_RenderView.m_fParameters[eCP_ASPECT] = (float)DisplayMode.w / (float)DisplayMode.h;
-	m_RenderProjMatrix = mat4::perspective( m_RenderView.m_fParameters[eCP_FOV] * (F_PI / 180.0f), (float)DisplayMode.w / (float)DisplayMode.h, m_RenderView.m_fParameters[eCP_NEAR], m_RenderView.m_fParameters[eCP_FAR] );
+	SDL_DisplayMode display_mode = g_pEngine->GetDisplayMode();
+	m_render_view.m_fParameters[eCP_ASPECT] = (float)display_mode.w / (float)display_mode.h;
+	m_render_proj_matrix = mat4::perspective( m_render_view.m_fParameters[eCP_FOV] * (F_PI / 180.0f), (float)display_mode.w / (float)display_mode.h, m_render_view.m_fParameters[eCP_NEAR], m_render_view.m_fParameters[eCP_FAR] );
 }
 
-void Controller::OnInputX( uint32 ModifierFlags, float Delta )
+void Controller::OnInputX( uint32 modifier_flags, float delta )
 {
-	OnInputXYZ( ModifierFlags, vec3( Delta, 0.f, 0.f ) );
+	OnInputXYZ( modifier_flags, vec3( delta, 0.f, 0.f ) );
 }
 
-void Controller::OnInputY( uint32 ModifierFlags, float Delta )
+void Controller::OnInputY( uint32 modifier_flags, float delta )
 {
-	OnInputXYZ( ModifierFlags, vec3( 0.f, Delta, 0.f ) );
+	OnInputXYZ( modifier_flags, vec3( 0.f, delta, 0.f ) );
 }
 
-void Controller::OnInputZ( uint32 ModifierFlags, float Delta )
+void Controller::OnInputZ( uint32 modifier_flags, float delta )
 {
-	OnInputXYZ( ModifierFlags, vec3( 0.f, 0.f, Delta ) );
+	OnInputXYZ( modifier_flags, vec3( 0.f, 0.f, delta ) );
 }
 
-void Controller::OnInputXYZ( uint32 ModifierFlags, vec3 Delta )
+void Controller::OnInputXYZ( uint32 modifier_flags, vec3 delta )
 {
-	eControllerInputType InputType = (ModifierFlags & eIM_Ctrl ? eCIT_KeyCtrl : eCIT_Key);
-	int Idx = m_FrameInputs.FindByKey( InputType );
+	eControllerInputType input_type = (modifier_flags & eIM_Ctrl ? eCIT_KeyCtrl : eCIT_Key);
+	int Idx = m_frame_inputs.FindByKey( input_type );
 	if( Idx == INDEX_NONE )
 	{
-		ControllerInput Input;
-		Input.m_Delta = Delta;
-		Input.m_Type = InputType;
-		m_FrameInputs.push_back( Input );
+		ControllerInput input;
+		input.m_delta = delta;
+		input.m_type = input_type;
+		m_frame_inputs.push_back( input );
 	}
 	else
 	{
-		ControllerInput& Input = m_FrameInputs[Idx];
-		Input.m_Delta += Delta;
+		ControllerInput& input = m_frame_inputs[Idx];
+		input.m_delta += delta;
 	}
 }
 
-void Controller::OnMouseMove( uint32 ModifierFlags, vec3 Delta )
+void Controller::OnMouseMove( uint32 modifier_flags, vec3 delta )
 {
-	eControllerInputType InputType = (ModifierFlags & eIM_Ctrl ? eCIT_MouseCtrl : eCIT_Mouse);
+	eControllerInputType input_type = (modifier_flags & eIM_Ctrl ? eCIT_MouseCtrl : eCIT_Mouse);
 	//BB_LOG( Inputs, Log, "----MouseDelta x=%f y=%f CTRL=%d", Delta.x, Delta.y, ModifierFlags & KMOD_CTRL ? 1 : 0 );
-	int Idx = m_FrameInputs.FindByKey( InputType );
+	int Idx = m_frame_inputs.FindByKey( input_type );
 	if( Idx == INDEX_NONE )
 	{
-		ControllerInput Input;
-		Input.m_Delta = Delta;
-		Input.m_Type = InputType;
-		m_FrameInputs.push_back( Input );
+		ControllerInput input;
+		input.m_delta = delta;
+		input.m_type = input_type;
+		m_frame_inputs.push_back( input );
 	}
 	else
 	{
-		ControllerInput& Input = m_FrameInputs[Idx];
-		Input.m_Delta += Delta;
+		ControllerInput& input = m_frame_inputs[Idx];
+		input.m_delta += delta;
 	}
 }
 
