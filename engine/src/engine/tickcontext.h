@@ -11,15 +11,15 @@ namespace bigball
 
 struct BIGBALL_API TickContext
 {
-	TickContext( float InDeltaSeconds = 0.f, uint32 InFrameIdx = 0 ) :
-			m_DeltaSeconds(InDeltaSeconds),
-			m_FrameIdx(InFrameIdx)
+	TickContext( float delta_seconds = 0.f, uint32 frame_idx = 0 ) :
+			m_delta_seconds(delta_seconds),
+			m_frame_idx(frame_idx)
 			{
 
 			}
 
-	float		m_DeltaSeconds;
-	uint32		m_FrameIdx;
+	float		m_delta_seconds;
+	uint32		m_frame_idx;
 };
 
 } /* namespace bigball */

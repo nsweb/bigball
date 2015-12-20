@@ -46,7 +46,7 @@ void EntityManager::Tick( TickContext& TickCtxt )
 {
 	for( int i = 0; i < m_Entities.size(); ++i )
 	{
-		m_Entities[i]->Tick( TickCtxt.m_DeltaSeconds );
+		m_Entities[i]->Tick( TickCtxt.m_delta_seconds );
 	}
 }
 

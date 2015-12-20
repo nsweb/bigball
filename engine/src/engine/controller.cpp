@@ -50,7 +50,7 @@ void Controller::Tick( TickContext& tick_ctxt )
 	m_frame_inputs.clear();
 
 
-	UpdateRenderCamera( tick_ctxt.m_DeltaSeconds );
+	UpdateRenderCamera( tick_ctxt.m_delta_seconds );
 }
 
 void Controller::RegisterCameraCtrl( CameraCtrl_Base* cam_ctrl )
