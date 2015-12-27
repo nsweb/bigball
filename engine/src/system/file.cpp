@@ -134,31 +134,6 @@ uint32 File::Serialize( void* pBuffer, uint32 Size )
 	return SerializedCount;
 }
 
-uint32 File::SerializeString( String& BufferStr )
-{
-	uint32 SerializedCount = 0;
-	if( IsReading() )
-	{
-		BufferStr = "";
-		char Buffer[256];
-		uint32 SizeRead = 0;
-
-		while( (SizeRead = Serialize( Buffer, sizeof(Buffer) )) > 0 )
-		{
-			int OldLen = BufferStr.Len();
-			BufferStr.resize( OldLen + SizeRead );
-			Memory::Memcpy( &BufferStr[OldLen], Buffer, SizeRead );
-		}
-		SerializedCount = BufferStr.Len();
-	}
-	else
-	{
-		SerializedCount = Serialize( BufferStr.c_str(), BufferStr.Len() );
-	}
-
-	return SerializedCount;
-}
-
 bool File::SerializeAsync( void* pBuffer, uint32 Size )
 {
 #if _WIN32 || _WIN64
@@ -308,6 +283,32 @@ void ListFiles( char const* strSearch, Array<String>& OutFiles )
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+    
+uint32 Archive::SerializeString( String& BufferStr )
+{
+    uint32 SerializedCount = 0;
+    if( IsReading() )
+    {
+        BufferStr = "";
+        char Buffer[256];
+        uint32 SizeRead = 0;
+        
+        while( (SizeRead = Serialize( Buffer, sizeof(Buffer) )) > 0 )
+        {
+            int OldLen = BufferStr.Len();
+            BufferStr.resize( OldLen + SizeRead );
+            Memory::Memcpy( &BufferStr[OldLen], Buffer, SizeRead );
+        }
+        SerializedCount = BufferStr.Len();
+    }
+    else
+    {
+        SerializedCount = Serialize( BufferStr.c_str(), BufferStr.Len() );
+    }
+    
+    return SerializedCount;
+}
+    
 uint32 MemoryReader::Serialize( void* pBuffer, uint32 Size )
 {
 	// Ensure we have enough data

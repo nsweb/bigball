@@ -416,7 +416,7 @@ void UIManager::_Render( struct RenderContext& RenderCtxt )
 	//glfwPollEvents();
 	//UpdateImGui();
 
-	io.DeltaTime = bigball::max(0.000001f, RenderCtxt.m_DeltaSeconds);
+	io.DeltaTime = bigball::max(0.000001f, RenderCtxt.m_delta_seconds);
 
 
 	// Setup inputs
@@ -440,7 +440,7 @@ void UIManager::_Render( struct RenderContext& RenderCtxt )
 		DrawProfiler();
     
     if( m_bShowEditor && m_pDrawEditorFn )
-        (*m_pDrawEditorFn)( &m_bShowEditor );
+        (*m_pDrawEditorFn)( &m_bShowEditor, RenderCtxt );
         
 	//static bool show_test_window = false;//true;
 	//static bool show_another_window = true;

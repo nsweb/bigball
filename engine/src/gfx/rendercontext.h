@@ -22,12 +22,12 @@ struct BIGBALL_API RenderContext
 		eRM_DataCell,
 	};
 
-	CameraView	m_View;
-	CameraView*	m_pFrustumView;
-	mat4		m_ProjMat;
-	float		m_DeltaSeconds;
-	uint32		m_FrameIdx;
-	uint32		m_RenderMode;
+	CameraView	m_view;
+	CameraView*	m_pfrustum_view;
+	mat4		m_proj_mat;
+	float		m_delta_seconds;
+	uint32		m_frame_idx;
+	uint32		m_render_mode;
 };
 
 } /* namespace bigball */

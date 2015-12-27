@@ -9,7 +9,7 @@
 namespace bigball
 {
 
-typedef void (*DrawEditorCB)( bool* );
+typedef void (*DrawEditorCB)( bool*, struct RenderContext& );
 typedef void (*ToggleEditorCB)( bool );
     
     

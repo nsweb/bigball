@@ -97,13 +97,13 @@ void DrawUtils::Tick( TickContext& TickCtxt )
 
 void DrawUtils::_Render( struct RenderContext& RenderCtxt )
 {
-    mat4 ViewInvMat( RenderCtxt.m_View.m_Transform.GetRotation(), RenderCtxt.m_View.m_Transform.GetTranslation(), (float)RenderCtxt.m_View.m_Transform.GetScale() );
+    mat4 ViewInvMat( RenderCtxt.m_view.m_Transform.GetRotation(), RenderCtxt.m_view.m_Transform.GetTranslation(), (float)RenderCtxt.m_view.m_Transform.GetScale() );
     
     // Render Segments
     m_UtilSegShader->Bind();
     {
         ShaderUniform UniProj = m_UtilSegShader->GetUniformLocation("proj_mat");
-        m_UtilSegShader->SetUniform( UniProj, RenderCtxt.m_ProjMat );
+        m_UtilSegShader->SetUniform( UniProj, RenderCtxt.m_proj_mat );
         ShaderUniform UniView = m_UtilSegShader->GetUniformLocation("view_mat");
         m_UtilSegShader->SetUniform( UniView, bigball::inverse(ViewInvMat) );
     
@@ -126,7 +126,7 @@ void DrawUtils::_Render( struct RenderContext& RenderCtxt )
     m_UtilShapeShader->Bind();
     {
         ShaderUniform UniProj = m_UtilShapeShader->GetUniformLocation("proj_mat");
-        m_UtilShapeShader->SetUniform( UniProj, RenderCtxt.m_ProjMat );
+        m_UtilShapeShader->SetUniform( UniProj, RenderCtxt.m_proj_mat );
         ShaderUniform UniView = m_UtilShapeShader->GetUniformLocation("view_mat");
         m_UtilShapeShader->SetUniform( UniView, bigball::inverse(ViewInvMat) );
     
@@ -146,7 +146,7 @@ void DrawUtils::_Render( struct RenderContext& RenderCtxt )
     
 
 	// Purge old elements
-	RemoveOldElements( RenderCtxt.m_DeltaSeconds );
+	RemoveOldElements( RenderCtxt.m_delta_seconds );
 }
 
 void DrawUtils::RemoveOldElements( float DeltaSeconds )

@@ -21,6 +21,7 @@ public:
 	template<typename K>
 	uint32				SerializeRaw( K& Val )			{ return Serialize( &Val, sizeof(K) );		}
 	virtual uint32		Serialize( void* pBuffer, uint32 Size ) = 0;
+    uint32				SerializeString( String& BufferStr );
 	uint32				IsReading()		{ return m_Flags & ArchiveFlag_Read; }
 	uint32				IsWriting() 	{ return m_Flags & ArchiveFlag_Write; }
 	virtual void		Seek( uint32 Offset ) = 0;
@@ -89,7 +90,6 @@ public:
 	bool				HasAsyncIOCompleted();
 
 	virtual uint32		Serialize( void* pBuffer, uint32 Size );
-	uint32				SerializeString( String& BufferStr );
 	bool				SerializeAsync( void* pBuffer, uint32 Size );
 	virtual void		Seek( uint32 Offset );
 	virtual uint32		Tell();

@@ -217,12 +217,12 @@ void Engine::MainLoop()
 
 		// Prepare rendering
 		RenderContext RenderCtxt;
-		RenderCtxt.m_View = Controller::GetStaticInstance()->GetRenderView();
-		RenderCtxt.m_pFrustumView = (m_bShowCulling ? &g_SavedFrustumView : nullptr);
-		RenderCtxt.m_ProjMat = Controller::GetStaticInstance()->GetRenderProjMatrix();
-		RenderCtxt.m_DeltaSeconds = DeltaSeconds;
-		RenderCtxt.m_FrameIdx = m_FrameCount++;
-		RenderCtxt.m_RenderMode = m_RenderMode;
+		RenderCtxt.m_view = Controller::GetStaticInstance()->GetRenderView();
+		RenderCtxt.m_pfrustum_view = (m_bShowCulling ? &g_SavedFrustumView : nullptr);
+		RenderCtxt.m_proj_mat = Controller::GetStaticInstance()->GetRenderProjMatrix();
+		RenderCtxt.m_delta_seconds = DeltaSeconds;
+		RenderCtxt.m_frame_idx = m_FrameCount++;
+		RenderCtxt.m_render_mode = m_RenderMode;
 		for( int32 i = 0; i < m_Managers.size(); ++i )
 		{
 			m_Managers[i]->_Render( RenderCtxt );
@@ -236,27 +236,27 @@ void Engine::MainLoop()
 		// Handle SDL events & inputs
 		SDL_Event Event;
 		const uint8* Keys = SDL_GetKeyboardState( nullptr );
-		uint32 Modifiers = 0;
+		uint32 modifiers = 0;
 		if( Keys[SDL_SCANCODE_LCTRL] || Keys[SDL_SCANCODE_RCTRL] )
-			Modifiers |= eIM_Ctrl;
+			modifiers |= eIM_Ctrl;
 		if( Keys[SDL_SCANCODE_LSHIFT] || Keys[SDL_SCANCODE_RSHIFT] )
-			Modifiers |= eIM_Shift;
+			modifiers |= eIM_Shift;
 		if( Keys[SDL_SCANCODE_LALT] || Keys[SDL_SCANCODE_RALT] )
-			Modifiers |= eIM_Alt;
+			modifiers |= eIM_Alt;
 
 		//Event.key.keysym.mod
 		if( Keys[SDL_SCANCODE_LEFT] )
-			Controller::GetStaticInstance()->OnInputX( Modifiers, -DeltaSeconds );
+			Controller::GetStaticInstance()->OnInputX( modifiers, -DeltaSeconds );
 		if( Keys[SDL_SCANCODE_RIGHT] )
-			Controller::GetStaticInstance()->OnInputX( Modifiers, DeltaSeconds );
+			Controller::GetStaticInstance()->OnInputX( modifiers, DeltaSeconds );
 		if( Keys[SDL_SCANCODE_UP] )
-			Controller::GetStaticInstance()->OnInputY( Modifiers, DeltaSeconds );
+			Controller::GetStaticInstance()->OnInputY( modifiers, DeltaSeconds );
 		if( Keys[SDL_SCANCODE_DOWN] )
-			Controller::GetStaticInstance()->OnInputY( Modifiers, -DeltaSeconds );
+			Controller::GetStaticInstance()->OnInputY( modifiers, -DeltaSeconds );
 		if( Keys[SDL_SCANCODE_PAGEUP] )
-			Controller::GetStaticInstance()->OnInputZ( Modifiers, DeltaSeconds );
+			Controller::GetStaticInstance()->OnInputZ( modifiers, DeltaSeconds );
 		if( Keys[SDL_SCANCODE_PAGEDOWN] )
-			Controller::GetStaticInstance()->OnInputZ( Modifiers, -DeltaSeconds );
+			Controller::GetStaticInstance()->OnInputZ( modifiers, -DeltaSeconds );
 		
 		ImGuiIO& io = ImGui::GetIO();
 		while( SDL_PollEvent( &Event ) )
@@ -339,7 +339,7 @@ void Engine::MainLoop()
 							-(float)Event.motion.yrel / (float)m_DisplayMode.h,
 							0.f );
 						//BB_LOG( Inputs, Log, "MouseDelta x=%f y=%f Mouse x=%d y=%d xrel=%d yrel=%d mod=%d", MouseDelta.x, MouseDelta.y, Event.motion.x, Event.motion.y, Event.motion.xrel, Event.motion.yrel, Event.key.keysym.mod );
-						Controller::GetStaticInstance()->OnMouseMove( Modifiers, MouseDelta * DeltaSeconds );
+						Controller::GetStaticInstance()->OnMouseMove( modifiers, MouseDelta * DeltaSeconds );
 					}
 				}
 				break;
