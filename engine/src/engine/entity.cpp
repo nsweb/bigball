@@ -72,6 +72,7 @@ void Entity::AddToWorld()
 		ComponentFactory* Factory = pEntityManager->FindComponentFactory( m_Components[i]->GetClassName() );
 		if( Factory && Factory->m_Manager )
 		{
+            m_Components[i]->AddToWorld();
 			Factory->m_Manager->AddComponentToWorld( m_Components[i] );
 		}
 	}
@@ -89,6 +90,7 @@ void Entity::RemoveFromWorld()
 		if( Factory && Factory->m_Manager )
 		{
 			Factory->m_Manager->RemoveComponentFromWorld( m_Components[i] );
+            m_Components[i]->RemoveFromWorld();
 		}
 	}
 

@@ -12,10 +12,10 @@ class BIGBALL_API BaseManager;
 struct BIGBALL_API CommandLine
 {
 	void Parse( int argc, char* argv[] );
-	bool IsCommand( String& CmdType );
+	bool IsCommand( String& cmd_type );
 
-	Array<String> Tokens;
-	Array<String> Switches;
+	Array<String> tokens;
+	Array<String> switches;
 };
 
 //////////////////////////////////////////////////////////////////////////

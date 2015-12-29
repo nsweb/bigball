@@ -12,11 +12,11 @@ struct BIGBALL_API ShaderUniform
 {
 	friend class Shader;
 
-	inline ShaderUniform() : m_Index(-1), m_Flags(0) {}
+	inline ShaderUniform() : m_index(-1), m_flags(0) {}
 
 private:
-	GLint	m_Index;
-	uint32	m_Flags;
+	GLint	m_index;
+	uint32	m_flags;
 };
 
 class BIGBALL_API Shader
@@ -37,8 +37,10 @@ public:
 						Shader();
 	virtual				~Shader();
 
-	bool				Create( String const& ShaderName );
-	ShaderUniform		GetUniformLocation( char const* UniformName ) const;
+	bool				Create( String const& shader_name );
+    /** Create shaders from memory, src_buffers should hold at least MAX elements */
+    bool				CreateFromMemBuffers( const char** src_buffers );
+	ShaderUniform		GetUniformLocation( char const* uniform_name ) const;
 	void				SetUniform( ShaderUniform const &uni, int i);
 	void				SetUniform( ShaderUniform const &uni, ivec2 const &v);
 	void				SetUniform( ShaderUniform const &uni, ivec3 const &v);
@@ -61,11 +63,12 @@ public:
 	void				Unbind() const;
 
 protected:
-	GLuint	m_ShaderIDs[MAX];
-	GLuint	m_ProgramID;
+	GLuint	m_shader_ids[MAX];
+	GLuint	m_program_id;
 
 	void				DeleteShaders();
-	
+    bool                CreateAndCompileShader( char const* shader_src, GLenum shader_type, GLuint& shader_id );
+    bool                LinkProgram();
 };
 
 } /* namespace bigball */

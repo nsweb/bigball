@@ -60,25 +60,25 @@ public:
 
 	virtual void		Create();
 	virtual void		Destroy();	
-	virtual void		Tick( struct TickContext& TickCtxt );
+	virtual void		Tick( struct TickContext& tick_ctxt );
 
-	Entity*				CreateEntity( char const* PatternName, class json::Object* Proto = nullptr, Name InName = Name() );
-	Entity*				CreateEntityFromJson( char const* JsonPath, Name InName = Name()  );
+	Entity*				CreateEntity( char const* pattern_name, class json::Object* proto = nullptr, Name name = Name() );
+	Entity*				CreateEntityFromJson( char const* json_path, Name name = Name()  );
 
-	void				AddEntityToWorld( Entity* pEntity );
-	void				RemoveEntityFromWorld( Entity* pEntity );
-	void				DestroyEntity( Entity* pEntity );
-	Entity*				FindEntityByName( Name InName );
+	void				AddEntityToWorld( Entity* entity );
+	void				RemoveEntityFromWorld( Entity* entity );
+	void				DestroyEntity( Entity* entity );
+	Entity*				FindEntityByName( Name name );
 
-	void				RegisterFactory( ComponentFactory& Factory );
-	void				RegisterPattern( EntityPattern const& Pattern );
-	ComponentFactory*	FindComponentFactory( Name const& ComponentName );
+	void				RegisterFactory( ComponentFactory& factory );
+	void				RegisterPattern( EntityPattern const& pattern );
+	ComponentFactory*	FindComponentFactory( Name const& component_name );
 
 protected:
-	Array<Entity*>		m_Entities;
+	Array<Entity*>		m_entities;
 
-	Array<ComponentFactory>		m_ComponentFactories;
-	Array<EntityPattern>		m_EntityPatterns;
+	Array<ComponentFactory>		m_component_factories;
+	Array<EntityPattern>		m_entity_patterns;
 };
 
 } /* namespace bigball */

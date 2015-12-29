@@ -23,12 +23,14 @@ class Object
 public:
 	Object()	{}
 	~Object()	{}
-	bool		ParseFile( char const* Path );
+	bool		ParseFile( char const* path );
 	bool		ParseString( char const* sz );
-	TokenIdx	GetToken( char const* sz, TokenType Type, TokenIdx ParentIdx = INDEX_NONE );
-	bool		GetStringValue( TokenIdx Idx, String& Val );
-	bool		IsStringValue( TokenIdx Idx, char const* sz );
-	float		GetFloatValue( TokenIdx Idx, float DefaultValue = 0.f );
+	TokenIdx	GetToken( char const* sz, TokenType type, TokenIdx parent_idx = INDEX_NONE );
+	bool		GetStringValue( TokenIdx token_idx, String& val );
+	bool		IsStringValue( TokenIdx token_idx, char const* sz );
+	float		GetFloatValue( TokenIdx token_idx, float default_value = 0.f );
+    int         GetArraySize( TokenIdx token_idx );
+    bool		GetArrayStringValue( TokenIdx token_idx, int elt_idx, String& val );
 
 private:
 	Array<jsmntok_t> m_tokens;

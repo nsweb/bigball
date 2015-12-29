@@ -33,45 +33,45 @@ void EntityManager::Create()
 void EntityManager::Destroy()
 {
 	// Destroy remaining entities (no remove from world)
-	for( int i = 0; i < m_Entities.size(); ++i )
+	for( int i = 0; i < m_entities.size(); ++i )
 	{
-		Entity* pEntity = m_Entities[i];
-		pEntity->Destroy();
-		delete pEntity;
+		Entity* entity = m_entities[i];
+		entity->Destroy();
+		delete entity;
 	}
-	m_Entities.clear();
+	m_entities.clear();
 }
 
-void EntityManager::Tick( TickContext& TickCtxt )
+void EntityManager::Tick( TickContext& tick_ctxt )
 {
-	for( int i = 0; i < m_Entities.size(); ++i )
+	for( int i = 0; i < m_entities.size(); ++i )
 	{
-		m_Entities[i]->Tick( TickCtxt.m_delta_seconds );
+		m_entities[i]->Tick( tick_ctxt.m_delta_seconds );
 	}
 }
 
-Entity* EntityManager::CreateEntity( char const* PatternName, json::Object* Proto, Name InName )
+Entity* EntityManager::CreateEntity( char const* pattern_name, json::Object* proto, Name name )
 {
-	int PatternIdx = m_EntityPatterns.FindByKey( Name(PatternName) );
-	if( PatternIdx == INDEX_NONE )
+	int pattern_idx = m_entity_patterns.FindByKey( Name(pattern_name) );
+	if( pattern_idx == INDEX_NONE )
 	{
-		BB_LOG( Entity, Error, "Unknown entity pattern name <%s>", PatternName );
+		BB_LOG( Entity, Error, "Unknown entity pattern name <%s>", pattern_name );
 		return nullptr;
 	}
 
-	EntityPattern& Pattern = m_EntityPatterns[PatternIdx];
-	Entity* NewEntity = Pattern.m_CreateFunc();
-	NewEntity->Create( &Pattern, Proto, InName );
+	EntityPattern& pattern = m_entity_patterns[pattern_idx];
+	Entity* new_entity = pattern.m_CreateFunc();
+	new_entity->Create( &pattern, proto, name );
 
-	m_Entities.push_back( NewEntity );
+	m_entities.push_back( new_entity );
 	
-	return NewEntity;
+	return new_entity;
 }
 
-Entity* EntityManager::CreateEntityFromJson( char const* JsonPath, Name InName )
+Entity* EntityManager::CreateEntityFromJson( char const* json_path, Name InName )
 {
 	json::Object jsnObj;
-	if( jsnObj.ParseFile( JsonPath ) )
+	if( jsnObj.ParseFile( json_path ) )
 	{
 		json::TokenIdx EntTok = jsnObj.GetToken( "entity", json::OBJECT );
 		json::TokenIdx PatTok = jsnObj.GetToken( "pattern", json::STRING, EntTok );
@@ -90,33 +90,33 @@ Entity* EntityManager::CreateEntityFromJson( char const* JsonPath, Name InName )
 	//	return CreateEntity( PatternName, &XMLProto );
 	//}
 
-	BB_LOG( Entity, Error, "JSON file <%s> is not a valid entity prototype", JsonPath );
+	BB_LOG( Entity, Error, "JSON file <%s> is not a valid entity prototype", json_path );
 
 	return nullptr;
 }
 
-void EntityManager::AddEntityToWorld( Entity* pEntity )
+void EntityManager::AddEntityToWorld( Entity* entity )
 {
-	if( !pEntity->IsInWorld() )
+	if( !entity->IsInWorld() )
 	{
-		pEntity->AddToWorld();
+		entity->AddToWorld();
 	}
 }
 
-void EntityManager::RemoveEntityFromWorld( Entity* pEntity )
+void EntityManager::RemoveEntityFromWorld( Entity* entity )
 {
-	if( pEntity->IsInWorld() )
+	if( entity->IsInWorld() )
 	{
-		pEntity->RemoveFromWorld();
+		entity->RemoveFromWorld();
 	}
 }
 
-void EntityManager::DestroyEntity( Entity* pEntity )
+void EntityManager::DestroyEntity( Entity* entity )
 {
-	pEntity->Destroy();
-	m_Entities.remove( pEntity );
+	entity->Destroy();
+	m_entities.remove( entity );
 
-	delete pEntity;
+	delete entity;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -124,34 +124,34 @@ void EntityManager::DestroyEntity( Entity* pEntity )
 
 void EntityManager::RegisterPattern( EntityPattern const& Pattern )
 {
-	BB_ASSERT( -1 == m_EntityPatterns.FindByKey( Pattern.m_Name ) );
+	BB_ASSERT( -1 == m_entity_patterns.FindByKey( Pattern.m_Name ) );
 
-	m_EntityPatterns.push_back( Pattern );
+	m_entity_patterns.push_back( Pattern );
 }
 
 void EntityManager::RegisterFactory( ComponentFactory& Factory )
 {
-	BB_ASSERT( -1 == m_ComponentFactories.FindByKey( Factory.m_Name ) );
+	BB_ASSERT( -1 == m_component_factories.FindByKey( Factory.m_Name ) );
 
-	m_ComponentFactories.push_back( Factory );
+	m_component_factories.push_back( Factory );
 }
 
 ComponentFactory* EntityManager::FindComponentFactory( Name const& ComponentName )
 {
-	int FactoryIdx = m_ComponentFactories.FindByKey( ComponentName );
+	int FactoryIdx = m_component_factories.FindByKey( ComponentName );
 	if( FactoryIdx != INDEX_NONE )
-		return &m_ComponentFactories[FactoryIdx];
+		return &m_component_factories[FactoryIdx];
 
 	return nullptr;
 }
 
 Entity* EntityManager::FindEntityByName( Name InName )
 {
-	for( int i = 0; i < m_Entities.size(); ++i )
+	for( int i = 0; i < m_entities.size(); ++i )
 	{
-		Entity* pEntity = m_Entities[i];
-		if( pEntity->GetName() == InName )
-			return pEntity;
+		Entity* entity = m_entities[i];
+		if( entity->GetName() == InName )
+			return entity;
 	}
 	return nullptr;
 }

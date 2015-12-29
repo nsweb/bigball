@@ -128,6 +128,26 @@ float Object::GetFloatValue( TokenIdx token_idx, float default_value )
 	}
 	return default_value;
 }
+    
+int Object::GetArraySize( TokenIdx token_idx )
+{
+    BB_ASSERT( token_idx >= 0 && token_idx < m_tokens.size() );
+    if( m_tokens[token_idx].type == JSMN_ARRAY )
+    {
+        return m_tokens[token_idx].size;
+    }
+    return 0;
+}
+    
+bool Object::GetArrayStringValue( TokenIdx token_idx, int elt_idx, String& val )
+{
+    BB_ASSERT( token_idx >= 0 && token_idx < m_tokens.size() );
+    BB_ASSERT( m_tokens[token_idx].type == JSMN_ARRAY );
+    BB_ASSERT( elt_idx < m_tokens[token_idx].size);
+    
+    TokenIdx token_elt_idx = token_idx + 1 + elt_idx;
+    return GetStringValue( token_elt_idx, val );
+}
 
 } /* namespace json */
 
