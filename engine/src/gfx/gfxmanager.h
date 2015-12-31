@@ -26,6 +26,7 @@ public:
 	virtual void		Tick( struct TickContext& TickCtxt );
 
 	Shader*				LoadShader( String const& ShaderName );
+    Shader*				LoadShaderFromMemory( String const& ShaderName, const char** src_buffers );
 
 protected:
 	Map<String,Shader*>		m_Shaders;

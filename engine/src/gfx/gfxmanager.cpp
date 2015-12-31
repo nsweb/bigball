@@ -55,6 +55,23 @@ Shader* GfxManager::LoadShader( String const& ShaderName )
 	m_Shaders.Add( ShaderName, pShader );
 	return pShader;
 }
+    
+Shader*	GfxManager::LoadShaderFromMemory( String const& ShaderName, const char** src_buffers )
+{
+    auto pPair = m_Shaders.Find( ShaderName );
+    if( pPair )
+        return pPair->Value;
+    
+    Shader* pShader = new Shader();
+    if( !pShader->CreateFromMemory( src_buffers ) )
+    {
+        BB_DELETE( pShader );
+        return nullptr;
+    }
+    
+    m_Shaders.Add( ShaderName, pShader );
+    return pShader;
+}
 
 
 } /*namespace bigball*/

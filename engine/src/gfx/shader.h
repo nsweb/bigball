@@ -39,7 +39,7 @@ public:
 
 	bool				Create( String const& shader_name );
     /** Create shaders from memory, src_buffers should hold at least MAX elements */
-    bool				CreateFromMemBuffers( const char** src_buffers );
+    bool				CreateFromMemory( const char** src_buffers );
 	ShaderUniform		GetUniformLocation( char const* uniform_name ) const;
 	void				SetUniform( ShaderUniform const &uni, int i);
 	void				SetUniform( ShaderUniform const &uni, ivec2 const &v);

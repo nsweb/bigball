@@ -63,7 +63,7 @@ bool Shader::Create( String const& shader_name )
 	return true;
 }
     
-bool Shader::CreateFromMemBuffers( const char** src_buffers )
+bool Shader::CreateFromMemory( const char** src_buffers )
 {
     m_program_id = glCreateProgram();
     

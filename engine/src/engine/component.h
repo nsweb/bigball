@@ -21,14 +21,15 @@ public:
 						Component();
 	virtual				~Component();
 
-	virtual void		Create( Entity* Owner, class json::Object* Proto = nullptr );
+	virtual void		Create( Entity* owner, class json::Object* proto = nullptr );
 	virtual void		Destroy();	
 	virtual void		AddToWorld();
 	virtual void		RemoveFromWorld();
-	inline Entity*		GetEntity()				{ return m_Owner;		}
+	inline Entity*		GetEntity()				{ return m_owner;		}
+    Component*          GetEntityComponent( Name const& component_name );
 
 private:
-	Entity*		m_Owner;
+	Entity*		m_owner;
 };
 
 } /* namespace bigball */
