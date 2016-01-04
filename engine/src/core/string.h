@@ -265,7 +265,7 @@ public:
     }
 
 	static String Printf(char const *format, ...);
-    static String Printf(char const *format, va_list ap);
+	static String vaPrintf(char const *format, va_list ap);
 };
 
 inline bool operator ==(char const* sz, String const &s)

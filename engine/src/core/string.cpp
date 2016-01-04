@@ -21,13 +21,13 @@ String String::Printf(char const *format, ...)
 
     va_list ap;
     va_start(ap, format);
-    ret = String::Printf(format, ap);
+    ret = vaPrintf(format, ap);
     va_end(ap);
 
     return ret;
 }
 
-String String::Printf(char const *format, va_list ap)
+String String::vaPrintf(char const *format, va_list ap)
 {
     String ret;
 
