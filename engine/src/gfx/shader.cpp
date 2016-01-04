@@ -164,28 +164,36 @@ void Shader::DeleteShaders()
 	m_program_id = 0;
 }
 
-ShaderUniform Shader::GetUniformLocation( char const* UniformName ) const
+ShaderUniform Shader::GetUniformLocation( char const* uniform_name ) const
 {
     ShaderUniform ret;
 
-    ret.m_index = glGetUniformLocation( m_program_id, UniformName);
-    
-	/*GLsizei UniformCount;
-	glGetProgramiv( ProgramID, GL_ACTIVE_UNIFORMS, &UniformCount );
-	for( int32 i = 0; i < UniformCount; ++i )
-	{
-	GLsizei bufSize = 256;
-	GLsizei length = 0;
-	GLint size = 0;
-	GLenum type;
-	GLchar name[256];
-
-	glGetActiveUniform (ProgramID, i, bufSize, &length, &size, &type, name );
-	GLint loc = glGetUniformLocation( ProgramID, name );
-	int32 Break=0;
-	}*/
+    ret.m_index = glGetUniformLocation( m_program_id, uniform_name );
 
     return ret;
+}
+    
+int Shader::GetActiveUniforms( Array<ShaderUniformDetail>& uniforms ) const
+{
+    GLsizei uniform_count = 0;
+    glGetProgramiv( m_program_id, GL_ACTIVE_UNIFORMS, &uniform_count );
+    uniforms.resize(uniform_count);
+    
+    for( int i = 0; i < uniform_count; ++i )
+    {
+        GLsizei buf_size = 256;
+        GLsizei length = 0;
+        GLint size = 0;
+        GLenum type = GL_ZERO;
+        GLchar name[256];
+     
+        glGetActiveUniform( m_program_id, i, buf_size, &length, &size, &type, name );
+        uniforms[i].m_index = glGetUniformLocation( m_program_id, name );
+        uniforms[i].m_name = name;
+        uniforms[i].m_type = type;
+    }
+    
+    return uniform_count;
 }
 
 /*

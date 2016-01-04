@@ -50,8 +50,8 @@ bool Engine::Init( bool bCreateWindow )
     /* Request opengl 3.2 context.
      * SDL doesn't have the ability to choose which profile at this time of writing,
      * but it should default to the core profile */
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);//SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);//SDL_GL_CONTEXT_PROFILE_CORE);
 
     /* Turn on double buffering with a 24bit Z buffer.
