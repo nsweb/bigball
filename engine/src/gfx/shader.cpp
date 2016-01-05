@@ -286,6 +286,46 @@ void Shader::SetUniform( ShaderUniform const &uni, Array<vec4> const &v )
 {
     glUniform4fv( uni.m_index, v.size(), &v[0][0] );
 }
+    
+void Shader::GetUniform( ShaderUniform const &uni, int& i) const
+{
+    glGetUniformiv(	m_program_id, uni.m_index, &i );
+}
+    
+void Shader::GetUniform( ShaderUniform const &uni, ivec2& v) const
+{
+    glGetUniformiv(	m_program_id, uni.m_index, &v[0] );
+}
+
+void Shader::GetUniform( ShaderUniform const &uni, ivec3& v) const
+{
+    glGetUniformiv(	m_program_id, uni.m_index, &v[0] );
+}
+
+void Shader::GetUniform( ShaderUniform const &uni, ivec4& v) const
+{
+    glGetUniformiv(	m_program_id, uni.m_index, &v[0] );
+}
+    
+void Shader::GetUniform( ShaderUniform const &uni, float& f) const
+{
+    glGetUniformfv(	m_program_id, uni.m_index, &f );
+}
+
+void Shader::GetUniform( ShaderUniform const &uni, vec2& v) const
+{
+    glGetUniformfv(	m_program_id, uni.m_index, &v[0] );
+}
+
+void Shader::GetUniform( ShaderUniform const &uni, vec3& v) const
+{
+    glGetUniformfv(	m_program_id, uni.m_index, &v[0] );
+}
+
+void Shader::GetUniform( ShaderUniform const &uni, vec4& v) const
+{
+    glGetUniformfv(	m_program_id, uni.m_index, &v[0] );
+}
 
 void Shader::Bind() const
 {

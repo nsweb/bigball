@@ -64,12 +64,20 @@ public:
 	void				SetUniform( ShaderUniform const &uni, mat3 const &m);
 	void				SetUniform( ShaderUniform const &uni, mat4 const &m);
 	//void				SetUniform( ShaderUniform const &uni, ShaderTexture tex, int index);
-								    
 	void				SetUniform( ShaderUniform const &uni, Array<float> const &v);
 	void				SetUniform( ShaderUniform const &uni, Array<vec2> const &v);
 	void				SetUniform( ShaderUniform const &uni, Array<vec3> const &v);
 	void				SetUniform( ShaderUniform const &uni, Array<vec4> const &v);
 
+    void				GetUniform( ShaderUniform const &uni, int& i) const;
+    void				GetUniform( ShaderUniform const &uni, ivec2& v) const;
+    void				GetUniform( ShaderUniform const &uni, ivec3& v) const;
+    void				GetUniform( ShaderUniform const &uni, ivec4& v) const;
+    void				GetUniform( ShaderUniform const &uni, float& f) const;
+    void				GetUniform( ShaderUniform const &uni, vec2& v) const;
+    void				GetUniform( ShaderUniform const &uni, vec3& v) const;
+    void				GetUniform( ShaderUniform const &uni, vec4& v) const;
+    
 	void				Bind() const;
 	void				Unbind() const;
 
