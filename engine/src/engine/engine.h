@@ -13,6 +13,7 @@ struct BIGBALL_API CommandLine
 {
 	void Parse( int argc, char* argv[] );
 	bool IsCommand( String& cmd_type );
+	bool GetTokenValue( String const& key, String& value );
 
 	Array<String> tokens;
 	Array<String> switches;

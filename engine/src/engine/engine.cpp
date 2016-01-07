@@ -60,8 +60,16 @@ bool Engine::Init( bool bCreateWindow )
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
     /* Create our window centered at 512x512 resolution */
+	int res_x = 800;
+	int res_y = 600;
+	String str_value;
+	if( m_CmdLine.GetTokenValue( "res_x", str_value ) )
+		res_x = std::atoi( str_value.c_str() );
+	if( m_CmdLine.GetTokenValue( "res_y", str_value ) )
+		res_y = std::atoi( str_value.c_str() );
+
     m_MainWindow = SDL_CreateWindow("GL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                  800, 600, /*1280, 720,*/ SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+                                  res_x, res_y, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if( !m_MainWindow ) /* Die if creation failed */
 	{
       //  sdldie("Unable to create window");
@@ -392,6 +400,25 @@ bool CommandLine::IsCommand( String& cmd_type )
 	{
 		cmd_type = tokens[0].Sub( 4, tokens[0].Len() - 4 );
 		return true;
+	}
+	return false;
+}
+
+bool CommandLine::GetTokenValue( String const& key, String& value )
+{
+	for( int tok_idx = 0; tok_idx < tokens.size(); tok_idx++)
+	{
+		String const& token = tokens[tok_idx];
+		int sep_idx = token.IndexOf( "=" );
+		if( sep_idx > 0 )
+		{
+			String keyword = token.Sub( 0, sep_idx );
+			if( keyword == key )
+			{
+				value = token.Sub(sep_idx+1, token.Len() - sep_idx - 1 );
+				return true;
+			}
+		}
 	}
 	return false;
 }
