@@ -24,14 +24,14 @@ DrawUtils::~DrawUtils()
 
 void DrawUtils::Create()
 {
-    m_UtilSegShader = GfxManager::GetStaticInstance()->LoadShader( "utilseg" );
-    m_UtilShapeShader = GfxManager::GetStaticInstance()->LoadShader( "utilshape" );
+    m_util_seg_shader = GfxManager::GetStaticInstance()->LoadShader( "utilseg" );
+    m_util_shape_shader = GfxManager::GetStaticInstance()->LoadShader( "utilshape" );
     
-    glGenVertexArrays( eVACount, m_VArrays );
-    glGenBuffers( eVBCount, m_VBuffers );
+    glGenVertexArrays( eVACount, m_varrays );
+    glGenBuffers( eVBCount, m_vbuffers );
     
-    glBindVertexArray( m_VArrays[eVASeg] );
-    glBindBuffer( GL_ARRAY_BUFFER, m_VBuffers[eVBSeg] );
+    glBindVertexArray( m_varrays[eVASeg] );
+    glBindBuffer( GL_ARRAY_BUFFER, m_vbuffers[eVBSeg] );
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
@@ -44,10 +44,10 @@ void DrawUtils::Create()
     
     //////////////////////////////////////////////////////////
     // Shape
-    const vec3 CubeData[] = { vec3(-1.f, -1.f, -1.f), vec3(-1.f, 1.f, -1.f), vec3(1.f, 1.f, -1.f), vec3(1.f, -1.f, -1.f),
+    const vec3 cube_data[] = { vec3(-1.f, -1.f, -1.f), vec3(-1.f, 1.f, -1.f), vec3(1.f, 1.f, -1.f), vec3(1.f, -1.f, -1.f),
                               vec3(-1.f, -1.f, 1.f), vec3(-1.f, 1.f, 1.f), vec3(1.f, 1.f, 1.f), vec3(1.f, -1.f, 1.f) };
     
-    GLuint IdxData[] = {
+    GLuint idx_data[] = {
             0,1,2, 0,2,3,
             1,0,4, 1,4,5,
             2,1,5, 2,5,6,
@@ -56,22 +56,22 @@ void DrawUtils::Create()
             5,4,7, 5,7,6
     };
     
-    glBindVertexArray( m_VArrays[eVAShape] );
+    glBindVertexArray( m_varrays[eVAShape] );
 
-    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_VBuffers[eVBShapeElt] );
-    glBufferData( GL_ELEMENT_ARRAY_BUFFER, COUNT_OF(IdxData) * sizeof(GLuint), IdxData, GL_STATIC_DRAW );
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_vbuffers[eVBShapeElt] );
+    glBufferData( GL_ELEMENT_ARRAY_BUFFER, COUNT_OF(idx_data) * sizeof(GLuint), idx_data, GL_STATIC_DRAW );
     
-    glBindBuffer( GL_ARRAY_BUFFER, m_VBuffers[eVBShapePos] );
-    glBufferData( GL_ARRAY_BUFFER, COUNT_OF(CubeData) * sizeof(vec3), CubeData, GL_STATIC_DRAW );
+    glBindBuffer( GL_ARRAY_BUFFER, m_vbuffers[eVBShapePos] );
+    glBufferData( GL_ARRAY_BUFFER, COUNT_OF(cube_data) * sizeof(vec3), cube_data, GL_STATIC_DRAW );
     glEnableVertexAttribArray(0);
     glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof(vec3) /*stride*/, (void*)0 /*offset*/ );
 
-    glBindBuffer( GL_ARRAY_BUFFER, m_VBuffers[eVBShapeCol] );
+    glBindBuffer( GL_ARRAY_BUFFER, m_vbuffers[eVBShapeCol] );
     glEnableVertexAttribArray(1);
     glVertexAttribPointer( 1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(u8vec4) /*stride*/, (void*)0 /*offset*/	);
     glVertexAttribDivisor( 1, 1 );
     
-    glBindBuffer( GL_ARRAY_BUFFER, m_VBuffers[eVBShapeMat] );
+    glBindBuffer( GL_ARRAY_BUFFER, m_vbuffers[eVBShapeMat] );
     for (int i = 0; i < 4; i++ )
     {
         glEnableVertexAttribArray( 2 + i );
@@ -86,160 +86,160 @@ void DrawUtils::Create()
 }
 void DrawUtils::Destroy()
 {
-    glDeleteBuffers( eVBCount, m_VBuffers );
-    glDeleteVertexArrays( eVACount, m_VArrays );
+    glDeleteBuffers( eVBCount, m_vbuffers );
+    glDeleteVertexArrays( eVACount, m_varrays );
 }
 
-void DrawUtils::Tick( TickContext& TickCtxt )
+void DrawUtils::Tick( TickContext& tick_ctxt )
 {
 	
 }
 
-void DrawUtils::_Render( struct RenderContext& RenderCtxt )
+void DrawUtils::_Render( struct RenderContext& render_ctxt )
 {
-    mat4 ViewInvMat( RenderCtxt.m_view.m_Transform.GetRotation(), RenderCtxt.m_view.m_Transform.GetTranslation(), (float)RenderCtxt.m_view.m_Transform.GetScale() );
+    mat4 view_inv_mat( render_ctxt.m_view.m_Transform.GetRotation(), render_ctxt.m_view.m_Transform.GetTranslation(), (float)render_ctxt.m_view.m_Transform.GetScale() );
     
     // Render Segments
-    m_UtilSegShader->Bind();
+    m_util_seg_shader->Bind();
     {
-        ShaderUniform UniProj = m_UtilSegShader->GetUniformLocation("proj_mat");
-        m_UtilSegShader->SetUniform( UniProj, RenderCtxt.m_proj_mat );
-        ShaderUniform UniView = m_UtilSegShader->GetUniformLocation("view_mat");
-        m_UtilSegShader->SetUniform( UniView, bigball::inverse(ViewInvMat) );
+        ShaderUniform UniProj = m_util_seg_shader->GetUniformLocation("proj_mat");
+        m_util_seg_shader->SetUniform( UniProj, render_ctxt.m_proj_mat );
+        ShaderUniform UniView = m_util_seg_shader->GetUniformLocation("view_mat");
+        m_util_seg_shader->SetUniform( UniView, bigball::inverse(view_inv_mat) );
     
-        glBindVertexArray( m_VArrays[eVASeg] );
+        glBindVertexArray( m_varrays[eVASeg] );
     
-        glBindBuffer(GL_ARRAY_BUFFER, m_VBuffers[eVBSeg]);
-        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_SegBuffer.size() * sizeof(Draw::Vertex), (GLvoid*)m_SegBuffer.Data(), GL_DYNAMIC_DRAW );
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbuffers[eVBSeg]);
+        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_seg_buffer.size() * sizeof(Draw::Vertex), (GLvoid*)m_seg_buffer.Data(), GL_DYNAMIC_DRAW );
         
-        for( int iSL = 0; iSL < m_SegmentList.size(); iSL++)
+        for( int iSL = 0; iSL < m_seg_list.size(); iSL++)
         {
-            Draw::BufferRange const& seg_list = m_SegmentList[iSL];
-            glDrawArrays(/*GL_TRIANGLE_STRIP*/GL_LINE_STRIP, seg_list.Offset, seg_list.Count );
+            Draw::BufferRange const& seg_list = m_seg_list[iSL];
+            glDrawArrays(/*GL_TRIANGLE_STRIP*/GL_LINE_STRIP, seg_list.m_offset, seg_list.m_count );
         }
     
         glBindVertexArray(0);
     }
-    m_UtilSegShader->Unbind();
+    m_util_seg_shader->Unbind();
     
     // Render Shapes
-    m_UtilShapeShader->Bind();
+    m_util_shape_shader->Bind();
     {
-        ShaderUniform UniProj = m_UtilShapeShader->GetUniformLocation("proj_mat");
-        m_UtilShapeShader->SetUniform( UniProj, RenderCtxt.m_proj_mat );
-        ShaderUniform UniView = m_UtilShapeShader->GetUniformLocation("view_mat");
-        m_UtilShapeShader->SetUniform( UniView, bigball::inverse(ViewInvMat) );
+        ShaderUniform UniProj = m_util_shape_shader->GetUniformLocation("proj_mat");
+        m_util_shape_shader->SetUniform( UniProj, render_ctxt.m_proj_mat );
+        ShaderUniform UniView = m_util_shape_shader->GetUniformLocation("view_mat");
+        m_util_shape_shader->SetUniform( UniView, bigball::inverse(view_inv_mat) );
     
-        glBindVertexArray( m_VArrays[eVAShape] );
+        glBindVertexArray( m_varrays[eVAShape] );
     
-        glBindBuffer(GL_ARRAY_BUFFER, m_VBuffers[eVBShapeCol]);
-        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_ShapeColors.size() * sizeof(u8vec4), (GLvoid*)m_ShapeColors.Data(), GL_DYNAMIC_DRAW );
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbuffers[eVBShapeCol]);
+        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_shape_colors.size() * sizeof(u8vec4), (GLvoid*)m_shape_colors.Data(), GL_DYNAMIC_DRAW );
         
-        glBindBuffer(GL_ARRAY_BUFFER, m_VBuffers[eVBShapeMat]);
-        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_ShapeMatrices.size() * sizeof(mat4), (GLvoid*)m_ShapeMatrices.Data(), GL_DYNAMIC_DRAW );
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbuffers[eVBShapeMat]);
+        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_shape_matrices.size() * sizeof(mat4), (GLvoid*)m_shape_matrices.Data(), GL_DYNAMIC_DRAW );
 
-        glDrawElementsInstanced( GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)0, m_ShapeMatrices.size() );
+        glDrawElementsInstanced( GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)0, m_shape_matrices.size() );
     
         glBindVertexArray(0);
     }
-    m_UtilShapeShader->Unbind();
+    m_util_shape_shader->Unbind();
     
 
 	// Purge old elements
-	RemoveOldElements( RenderCtxt.m_delta_seconds );
+	RemoveOldElements( render_ctxt.m_delta_seconds );
 }
 
-void DrawUtils::RemoveOldElements( float DeltaSeconds )
+void DrawUtils::RemoveOldElements( float delta_seconds )
 {
-    m_SegmentList.clear();
-    m_SegBuffer.clear();
+    m_seg_list.clear();
+    m_seg_buffer.clear();
     
     for (int i = 0; i < Draw::ShapeType::Count; i++)
     {
-        m_Shapes[i].Offset = 0;
-        m_Shapes[i].Count = 0;
+        m_shapes[i].m_offset = 0;
+        m_shapes[i].m_count = 0;
     }
-    m_ShapeColors.clear();
-    m_ShapeMatrices.clear();
+    m_shape_colors.clear();
+    m_shape_matrices.clear();
     
 #if 0
     for( int i = m_Segments.size() - 1; i >= 0 ; i++ )
     {
-        if( m_Segments[i].PersistTime < 0.f )
+        if( m_Segments[i].persist_time < 0.f )
             continue;
         
-        m_Segments[i].PersistTime = bigball::max( 0.f, m_Segments[i].PersistTime - DeltaSeconds );
-        if( m_Segments[i].PersistTime == 0.f )
+        m_Segments[i].persist_time = bigball::max( 0.f, m_Segments[i].persist_time - DeltaSeconds );
+        if( m_Segments[i].persist_time == 0.f )
             m_Segments.erase(i);
     }
     
     for( int i = m_SegmentList.size() - 1; i >= 0 ; i++ )
     {
-        if( m_SegmentList[i].PersistTime < 0.f )
+        if( m_SegmentList[i].persist_time < 0.f )
             continue;
         
-        m_SegmentList[i].PersistTime = bigball::max( 0.f, m_SegmentList[i].PersistTime - DeltaSeconds );
-        if( m_SegmentList[i].PersistTime == 0.f )
+        m_SegmentList[i].persist_time = bigball::max( 0.f, m_SegmentList[i].persist_time - DeltaSeconds );
+        if( m_SegmentList[i].persist_time == 0.f )
             m_SegmentList.erase(i);
     }
     
     for( int i = m_Shapes.size() - 1; i >= 0 ; i++ )
     {
-        if( m_Shapes[i].PersistTime < 0.f )
+        if( m_Shapes[i].persist_time < 0.f )
             continue;
         
-        m_Shapes[i].PersistTime = bigball::max( 0.f, m_Shapes[i].PersistTime - DeltaSeconds );
-        if( m_Shapes[i].PersistTime == 0.f )
+        m_Shapes[i].persist_time = bigball::max( 0.f, m_Shapes[i].persist_time - DeltaSeconds );
+        if( m_Shapes[i].persist_time == 0.f )
             m_Shapes.erase(i);
     }
 #endif
 }
 
-void DrawUtils::PushSegment( vec3 P0, vec3 P1, u8vec4 Color0, u8vec4 Color1, float PersistTime )
+void DrawUtils::PushSegment( vec3 p0, vec3 p1, u8vec4 color0, u8vec4 color1, float persist_time )
 {
-    const int Offset = m_SegBuffer.size();
-	Draw::Vertex v0 = { P0, Color0 };
-	Draw::Vertex v1 = { P1, Color1 };
-    m_SegBuffer.push_back( v0 );
-    m_SegBuffer.push_back( v1 );
-	Draw::BufferRange SegList = { Offset, 2 };
-    m_SegmentList.push_back( SegList );
+    const int offset = m_seg_buffer.size();
+	Draw::Vertex v0 = { p0, color0 };
+	Draw::Vertex v1 = { p1, color1 };
+    m_seg_buffer.push_back( v0 );
+    m_seg_buffer.push_back( v1 );
+	Draw::BufferRange seg_list = { offset, 2 };
+    m_seg_list.push_back( seg_list );
 }
-void DrawUtils::PushSegmentList( Array<vec3> const& SegmentList, u8vec4 Color, float PersistTime )
+void DrawUtils::PushSegmentList( Array<vec3> const& segment_list, u8vec4 color, float persist_time )
 {
-    const int Offset = m_SegBuffer.size();
-    for( int i =0; i < SegmentList.size(); i++ )
+    const int offset = m_seg_buffer.size();
+    for( int i =0; i < segment_list.size(); i++ )
     {
-		Draw::Vertex v = { SegmentList[i], Color };
-        m_SegBuffer.push_back( v );
+		Draw::Vertex v = { segment_list[i], color };
+        m_seg_buffer.push_back( v );
     }
-	Draw::BufferRange SegList = { Offset, SegmentList.size() };
-	m_SegmentList.push_back( SegList );
+	Draw::BufferRange seg_list = { offset, segment_list.size() };
+	m_seg_list.push_back( seg_list );
 }
-void DrawUtils::PushSegmentList( Array<vec3> const& SegmentList, Array<u8vec4> const& ColorList, float PersistTime )
+void DrawUtils::PushSegmentList( Array<vec3> const& segment_list, Array<u8vec4> const& color_list, float persist_time )
 {
-    const int Offset = m_SegBuffer.size();
-    for( int i =0; i < SegmentList.size(); i++ )
+    const int offset = m_seg_buffer.size();
+    for( int i =0; i < segment_list.size(); i++ )
     {
-        Draw::Vertex v = { SegmentList[i], ColorList[i] };
-        m_SegBuffer.push_back( v );
+        Draw::Vertex v = { segment_list[i], color_list[i] };
+        m_seg_buffer.push_back( v );
     }
-    Draw::BufferRange SegList = { Offset, SegmentList.size() };
-    m_SegmentList.push_back( SegList );
+    Draw::BufferRange seg_list = { offset, segment_list.size() };
+    m_seg_list.push_back( seg_list );
 }
-void DrawUtils::PushOBB( transform T, u8vec4 Color, float PersistTime )
+void DrawUtils::PushOBB( transform t, u8vec4 color, float persist_time )
 {
-    mat4 m( T.GetRotation(), T.GetTranslation(), T.GetScale() );
+    mat4 m( t.GetRotation(), t.GetTranslation(), t.GetScale() );
 
-    m_ShapeColors.push_back( Color );
-    m_ShapeMatrices.push_back( m );
+    m_shape_colors.push_back( color );
+    m_shape_matrices.push_back( m );
     
-    m_Shapes[Draw::ShapeType::Box].Offset = 0;
-    m_Shapes[Draw::ShapeType::Box].Count = m_ShapeMatrices.size();
+    m_shapes[Draw::ShapeType::Box].m_offset = 0;
+    m_shapes[Draw::ShapeType::Box].m_count = m_shape_matrices.size();
 }
-void DrawUtils::PushAABB( vec3 Pos, float Scale, u8vec4 Color, float PersistTime )
+void DrawUtils::PushAABB( vec3 pos, float scale, u8vec4 color, float persist_time )
 {
-    PushOBB( transform( quat(1.f,0.f,0.f,0.f), Pos, Scale ), Color );
+    PushOBB( transform( quat(1.f,0.f,0.f,0.f), pos, scale ), color );
 }
 
 

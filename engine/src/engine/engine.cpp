@@ -26,10 +26,10 @@ Engine* g_pEngine = nullptr;
 static CameraView g_SavedFrustumView;
 
 Engine::Engine() :
-	m_MainWindow(nullptr),
-	m_FrameCount(0),
-	m_RenderMode(RenderContext::eRM_Lit),
-	m_bShowCulling(false)
+	m_main_window(nullptr),
+	m_frame_count(0),
+	m_render_mode(RenderContext::eRM_Lit),
+	m_show_culling(false)
 {
 	
 }
@@ -39,7 +39,7 @@ Engine::~Engine()
 
 }
 
-bool Engine::Init( bool bCreateWindow )
+bool Engine::Init( bool create_window )
 {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) /* Initialize SDL's Video subsystem */
 	{
@@ -63,21 +63,21 @@ bool Engine::Init( bool bCreateWindow )
 	int res_x = 800;
 	int res_y = 600;
 	String str_value;
-	if( m_CmdLine.GetTokenValue( "res_x", str_value ) )
+	if( m_cmd_line.GetTokenValue( "res_x", str_value ) )
 		res_x = std::atoi( str_value.c_str() );
-	if( m_CmdLine.GetTokenValue( "res_y", str_value ) )
+	if( m_cmd_line.GetTokenValue( "res_y", str_value ) )
 		res_y = std::atoi( str_value.c_str() );
 
-    m_MainWindow = SDL_CreateWindow("GL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+    m_main_window = SDL_CreateWindow("GL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                   res_x, res_y, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
-    if( !m_MainWindow ) /* Die if creation failed */
+    if( !m_main_window ) /* Die if creation failed */
 	{
       //  sdldie("Unable to create window");
 		return false;
 	}
 
     /* Create our opengl context and attach it to our window */
-    m_GLContext = SDL_GL_CreateContext( m_MainWindow );
+    m_gl_context = SDL_GL_CreateContext( m_main_window );
     //checkSDLError(__LINE__);
 
 	// Init GLEW
@@ -93,29 +93,29 @@ bool Engine::Init( bool bCreateWindow )
     /* This makes our buffer swap syncronized with the monitor's vertical refresh */
     SDL_GL_SetSwapInterval(1);
 
-    /* Clear our buffer with a red background */
+    /* Clear our buffer with a blue background */
     glClearColor( 0.1f, 0.1f, 0.3f, 1.0f );
     glClear ( GL_COLOR_BUFFER_BIT );
     /* Swap our back buffer to the front */
-    SDL_GL_SwapWindow( m_MainWindow );
+    SDL_GL_SwapWindow( m_main_window );
 
-	SDL_GetWindowDisplayMode( m_MainWindow, &m_DisplayMode );
+	SDL_GetWindowDisplayMode( m_main_window, &m_display_mode );
 
 	// Allow FPS style mouse movement
 	//SDL_SetRelativeMouseMode(SDL_FALSE);
 	SDL_SetRelativeMouseMode(SDL_TRUE);
-	SDL_SetWindowGrab( m_MainWindow, SDL_TRUE );
+	SDL_SetWindowGrab( m_main_window, SDL_TRUE );
 
 	// Ready to init our managers
 	InitManagers();
 
 	// Create drawutils manager
-	DrawUtils* pDrawUtils = new DrawUtils();
-	pDrawUtils->Create();
+	DrawUtils* draw_utils = new DrawUtils();
+	draw_utils->Create();
 
 	// Create UI manager
-	UIManager* pUIManager = new UIManager();
-	pUIManager->Create();
+	UIManager* ui_manager = new UIManager();
+	ui_manager->Create();
 
 	// Declare available components and entities
 	DeclareComponentsAndEntities();
@@ -137,8 +137,8 @@ void Engine::Shutdown()
 	DestroyManagers();
 
 	/* Delete our opengl context, destroy our window, and shutdown SDL */
-	SDL_GL_DeleteContext( m_GLContext );
-	SDL_DestroyWindow( m_MainWindow );
+	SDL_GL_DeleteContext( m_gl_context );
+	SDL_DestroyWindow( m_main_window );
 	SDL_Quit();
 }
 
@@ -146,37 +146,31 @@ void Engine::Shutdown()
 
 void Engine::InitManagers()
 {
-	//tinyxml2::XMLDocument TestDoc;
-	////TestDoc.LoadFile("../../data/test.xml");
-	//tinyxml2::XMLError err = TestDoc.LoadFile("../data/test.xml");
-	//tinyxml2::XMLElement* FirstElt = TestDoc.FirstChildElement();
-	//tinyxml2::XMLNode* FirstChild = TestDoc.FirstChild();
+	WorkerThreadManager* worker_thread_manager = new WorkerThreadManager();
+	worker_thread_manager->Create();
+	m_managers.push_back( worker_thread_manager );
 
-	WorkerThreadManager* pWorkerThreadManager = new WorkerThreadManager();
-	pWorkerThreadManager->Create();
-	m_Managers.push_back( pWorkerThreadManager );
+	Controller* controller = new Controller();
+	controller->Create();
+	m_managers.push_back( controller );
 
-	Controller* pController = new Controller();
-	pController->Create();
-	m_Managers.push_back( pController );
+	EntityManager* entity_manager = new EntityManager();
+	entity_manager->Create();
+	m_managers.push_back( entity_manager );
 
-	EntityManager* pEntityManager = new EntityManager();
-	pEntityManager->Create();
-	m_Managers.push_back( pEntityManager );
-
-	GfxManager* pGfxManager = new GfxManager();
-	pGfxManager->Create();
-	m_Managers.push_back( pGfxManager );
+	GfxManager* gfx_manager = new GfxManager();
+	gfx_manager->Create();
+	m_managers.push_back( gfx_manager );
 }
 
 void Engine::DestroyManagers()
 {
-	for( int32 i = m_Managers.size() - 1; i >=0 ; --i )
+	for( int32 i = m_managers.size() - 1; i >=0 ; --i )
 	{
-		m_Managers[i]->Destroy();
-		BB_DELETE( m_Managers[i] );
+		m_managers[i]->Destroy();
+		BB_DELETE( m_managers[i] );
 	}
-	m_Managers.clear();
+	m_managers.clear();
 }
 
 void Engine::DeclareComponentsAndEntities()
@@ -193,16 +187,15 @@ void Engine::CreateGameCameras()
 //////////////////////////////////////////////////////////////////////////
 void Engine::MainLoop()
 {
-//int32 OldTime, CurrentTime = SDL_GetTicks();
-	uint64 OldTime, CurrentTime = SDL_GetPerformanceCounter();
+	uint64 old_time, current_time = SDL_GetPerformanceCounter();
 
 	while( 1 )
 	{
-		int32 LoopStatus = 0;
-		OldTime = CurrentTime;
-		CurrentTime = SDL_GetPerformanceCounter();
+		int32 loop_status = 0;
+		old_time = current_time;
+		current_time = SDL_GetPerformanceCounter();
 
-		float DeltaSeconds = (CurrentTime - OldTime) / (float)SDL_GetPerformanceFrequency(); // / 1000.0f;
+		float delta_seconds = (current_time - old_time) / (float)SDL_GetPerformanceFrequency(); // / 1000.0f;
 
 
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -212,64 +205,64 @@ void Engine::MainLoop()
 		glEnable( GL_CULL_FACE );
 		glCullFace( GL_FRONT );
 
-		if( m_RenderMode == RenderContext::eRM_Wireframe )
+		if( m_render_mode == RenderContext::eRM_Wireframe )
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		else
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		TickContext TickCtxt( DeltaSeconds, m_FrameCount );
-		for( int32 i = 0; i < m_Managers.size(); ++i )
+		TickContext TickCtxt( delta_seconds, m_frame_count );
+		for( int32 i = 0; i < m_managers.size(); ++i )
 		{
-			m_Managers[i]->Tick( TickCtxt );
+			m_managers[i]->Tick( TickCtxt );
 		}
 
 		// Prepare rendering
-		RenderContext RenderCtxt;
-		RenderCtxt.m_view = Controller::GetStaticInstance()->GetRenderView();
-		RenderCtxt.m_pfrustum_view = (m_bShowCulling ? &g_SavedFrustumView : nullptr);
-		RenderCtxt.m_proj_mat = Controller::GetStaticInstance()->GetRenderProjMatrix();
-		RenderCtxt.m_delta_seconds = DeltaSeconds;
-		RenderCtxt.m_frame_idx = m_FrameCount++;
-		RenderCtxt.m_render_mode = m_RenderMode;
-		for( int32 i = 0; i < m_Managers.size(); ++i )
+		RenderContext render_ctxt;
+		render_ctxt.m_view = Controller::GetStaticInstance()->GetRenderView();
+		render_ctxt.m_pfrustum_view = (m_show_culling ? &g_SavedFrustumView : nullptr);
+		render_ctxt.m_proj_mat = Controller::GetStaticInstance()->GetRenderProjMatrix();
+		render_ctxt.m_delta_seconds = delta_seconds;
+		render_ctxt.m_frame_idx = m_frame_count++;
+		render_ctxt.m_render_mode = m_render_mode;
+		for( int32 i = 0; i < m_managers.size(); ++i )
 		{
-			m_Managers[i]->_Render( RenderCtxt );
+			m_managers[i]->_Render( render_ctxt );
 		}
 
-		DrawUtils::GetStaticInstance()->_Render(RenderCtxt);
-		UIManager::GetStaticInstance()->_Render(RenderCtxt);
+		DrawUtils::GetStaticInstance()->_Render(render_ctxt);
+		UIManager::GetStaticInstance()->_Render(render_ctxt);
 
-		SDL_GL_SwapWindow( m_MainWindow );
+		SDL_GL_SwapWindow( m_main_window );
 
 		// Handle SDL events & inputs
-		SDL_Event Event;
-		const uint8* Keys = SDL_GetKeyboardState( nullptr );
+		SDL_Event event;
+		const uint8* keys = SDL_GetKeyboardState( nullptr );
 		uint32 modifiers = 0;
-		if( Keys[SDL_SCANCODE_LCTRL] || Keys[SDL_SCANCODE_RCTRL] )
+		if( keys[SDL_SCANCODE_LCTRL] || keys[SDL_SCANCODE_RCTRL] )
 			modifiers |= eIM_Ctrl;
-		if( Keys[SDL_SCANCODE_LSHIFT] || Keys[SDL_SCANCODE_RSHIFT] )
+		if( keys[SDL_SCANCODE_LSHIFT] || keys[SDL_SCANCODE_RSHIFT] )
 			modifiers |= eIM_Shift;
-		if( Keys[SDL_SCANCODE_LALT] || Keys[SDL_SCANCODE_RALT] )
+		if( keys[SDL_SCANCODE_LALT] || keys[SDL_SCANCODE_RALT] )
 			modifiers |= eIM_Alt;
 
 		//Event.key.keysym.mod
-		if( Keys[SDL_SCANCODE_LEFT] )
-			Controller::GetStaticInstance()->OnInputX( modifiers, -DeltaSeconds );
-		if( Keys[SDL_SCANCODE_RIGHT] )
-			Controller::GetStaticInstance()->OnInputX( modifiers, DeltaSeconds );
-		if( Keys[SDL_SCANCODE_UP] )
-			Controller::GetStaticInstance()->OnInputY( modifiers, DeltaSeconds );
-		if( Keys[SDL_SCANCODE_DOWN] )
-			Controller::GetStaticInstance()->OnInputY( modifiers, -DeltaSeconds );
-		if( Keys[SDL_SCANCODE_PAGEUP] )
-			Controller::GetStaticInstance()->OnInputZ( modifiers, DeltaSeconds );
-		if( Keys[SDL_SCANCODE_PAGEDOWN] )
-			Controller::GetStaticInstance()->OnInputZ( modifiers, -DeltaSeconds );
+		if( keys[SDL_SCANCODE_LEFT] )
+			Controller::GetStaticInstance()->OnInputX( modifiers, -delta_seconds );
+		if( keys[SDL_SCANCODE_RIGHT] )
+			Controller::GetStaticInstance()->OnInputX( modifiers, delta_seconds );
+		if( keys[SDL_SCANCODE_UP] )
+			Controller::GetStaticInstance()->OnInputY( modifiers, delta_seconds );
+		if( keys[SDL_SCANCODE_DOWN] )
+			Controller::GetStaticInstance()->OnInputY( modifiers, -delta_seconds );
+		if( keys[SDL_SCANCODE_PAGEUP] )
+			Controller::GetStaticInstance()->OnInputZ( modifiers, delta_seconds );
+		if( keys[SDL_SCANCODE_PAGEDOWN] )
+			Controller::GetStaticInstance()->OnInputZ( modifiers, -delta_seconds );
 		
 		ImGuiIO& io = ImGui::GetIO();
-		while( SDL_PollEvent( &Event ) )
+		while( SDL_PollEvent( &event ) )
 		{
-			switch( Event.type )
+			switch( event.type )
 			{
 			case SDL_KEYDOWN:
 				{
@@ -278,8 +271,8 @@ void Engine::MainLoop()
 					//	Controller::GetStaticInstance()->OnInputX( Event.key.keysym.mod, -DeltaSeconds );
 
 					// Warn ImGui
-					int key = Event.key.keysym.sym & ~SDLK_SCANCODE_MASK;
-					io.KeysDown[key] = (Event.type == SDL_KEYDOWN);
+					int key = event.key.keysym.sym & ~SDLK_SCANCODE_MASK;
+					io.KeysDown[key] = (event.type == SDL_KEYDOWN);
 					io.KeyShift = ((SDL_GetModState() & KMOD_SHIFT) != 0);
 					io.KeyCtrl = ((SDL_GetModState() & KMOD_CTRL) != 0);
 					io.KeyAlt = ((SDL_GetModState() & KMOD_ALT) != 0);
@@ -288,47 +281,47 @@ void Engine::MainLoop()
 			case SDL_KEYUP:
 				{
 					// if escape is pressed, quit
-					if( Event.key.keysym.sym == SDLK_ESCAPE )
-						LoopStatus = 1; // set status to 1 to exit main loop
-					else if( Event.key.keysym.sym >= SDLK_F1 && Event.key.keysym.sym <= SDLK_F4 )
+					if( event.key.keysym.sym == SDLK_ESCAPE )
+						loop_status = 1; // set status to 1 to exit main loop
+					else if( event.key.keysym.sym >= SDLK_F1 && event.key.keysym.sym <= SDLK_F4 )
 					{
-						m_RenderMode = Event.key.keysym.sym - SDLK_F1;
+						m_render_mode = event.key.keysym.sym - SDLK_F1;
 					}
-					else if( Event.key.keysym.sym == SDLK_F5 )
+					else if( event.key.keysym.sym == SDLK_F5 )
 					{
 						UIManager::GetStaticInstance()->ToggleDebugMenu();
 					}
-                    else if( Event.key.keysym.sym == SDLK_e )
+                    else if( event.key.keysym.sym == SDLK_e )
                     {
                         UIManager::GetStaticInstance()->ToggleEditor();
                     }
-					else if( Event.key.keysym.sym == SDLK_F9 || Event.key.keysym.sym == SDLK_F10 )
+					else if( event.key.keysym.sym == SDLK_F9 || event.key.keysym.sym == SDLK_F10 )
 					{
 						// HACK
-						bool bWrite = Event.key.keysym.sym == SDLK_F9 ? true : false;
+						bool is_write = event.key.keysym.sym == SDLK_F9 ? true : false;
 
-						File outFile;
-						if( outFile.Open("../save/camera_debug.bin", bWrite) )
+						File out_file;
+						if( out_file.Open("../save/camera_debug.bin", is_write) )
 						{
-							Camera* pCurrentCam = Controller::GetStaticInstance()->GetActiveCamera();
-							if( pCurrentCam )
+							Camera* current_cam = Controller::GetStaticInstance()->GetActiveCamera();
+							if( current_cam )
 							{
-								CameraView& CamView = pCurrentCam->GetView();
-								outFile.Serialize( &CamView.m_Transform, sizeof(CamView.m_Transform) );
-								outFile.Serialize( &CamView.m_fParameters, sizeof(CamView.m_fParameters) );
+								CameraView& cam_view = current_cam->GetView();
+								out_file.Serialize( &cam_view.m_Transform, sizeof(cam_view.m_Transform) );
+								out_file.Serialize( &cam_view.m_fParameters, sizeof(cam_view.m_fParameters) );
 							}
 						}
 					}
-					else if( Event.key.keysym.sym == SDLK_c )
+					else if( event.key.keysym.sym == SDLK_c )
 					{
-						m_bShowCulling = !m_bShowCulling;
-						if( m_bShowCulling )
+						m_show_culling = !m_show_culling;
+						if( m_show_culling )
 							g_SavedFrustumView = Controller::GetStaticInstance()->GetRenderView();
 					}
 
 					// Warn ImGui
-					int key = Event.key.keysym.sym & ~SDLK_SCANCODE_MASK;
-					io.KeysDown[key] = (Event.type == SDL_KEYDOWN);
+					int key = event.key.keysym.sym & ~SDLK_SCANCODE_MASK;
+					io.KeysDown[key] = (event.type == SDL_KEYDOWN);
 					io.KeyShift = ((SDL_GetModState() & KMOD_SHIFT) != 0);
 					io.KeyCtrl = ((SDL_GetModState() & KMOD_CTRL) != 0);
 					io.KeyAlt = ((SDL_GetModState() & KMOD_ALT) != 0);
@@ -336,18 +329,18 @@ void Engine::MainLoop()
 				break;
 			case SDL_TEXTINPUT:
 				{
-					io.AddInputCharactersUTF8(Event.text.text);
+					io.AddInputCharactersUTF8(event.text.text);
 				}
 				break;
 			case SDL_MOUSEMOTION:
 				{
 					if( !UIManager::GetStaticInstance()->m_bShowDebugMenu )
 					{
-						vec3 MouseDelta(	-(float)Event.motion.xrel / (float)m_DisplayMode.w, 
-							-(float)Event.motion.yrel / (float)m_DisplayMode.h,
+						vec3 mouse_delta(	-(float)event.motion.xrel / (float)m_display_mode.w, 
+							-(float)event.motion.yrel / (float)m_display_mode.h,
 							0.f );
 						//BB_LOG( Inputs, Log, "MouseDelta x=%f y=%f Mouse x=%d y=%d xrel=%d yrel=%d mod=%d", MouseDelta.x, MouseDelta.y, Event.motion.x, Event.motion.y, Event.motion.xrel, Event.motion.yrel, Event.key.keysym.mod );
-						Controller::GetStaticInstance()->OnMouseMove( modifiers, MouseDelta * DeltaSeconds );
+						Controller::GetStaticInstance()->OnMouseMove( modifiers, mouse_delta * delta_seconds );
 					}
 				}
 				break;
@@ -356,7 +349,7 @@ void Engine::MainLoop()
 			case SDL_MOUSEBUTTONUP:
 				break;
 			case SDL_QUIT:
-				LoopStatus = 1;
+				loop_status = 1;
 				break;
 			}
 		}
@@ -364,12 +357,12 @@ void Engine::MainLoop()
 		// Reset profiler data for next frame
 		PROFILE_THREAD_FRAMERESET()
 
-		if( LoopStatus == 1 ) // if received instruction to quit
+		if( loop_status == 1 ) // if received instruction to quit
 			break;
 	}
 }
 
-bool Engine::RunCommand( String const& CmdType, Array<String> const& Switches, Array<String> const& Tokens )
+bool Engine::RunCommand( String const& cmd_type, Array<String> const& switches, Array<String> const& tokens )
 {
 	return false;
 }
@@ -377,19 +370,19 @@ bool Engine::RunCommand( String const& CmdType, Array<String> const& Switches, A
 //////////////////////////////////////////////////////////////////////////
 void CommandLine::Parse( int argc, char* argv[] )
 {
-	String strArg;
-	for( int32 ArgIdx = 1; ArgIdx < argc; ++ArgIdx )
+	String str_arg;
+	for( int32 arg_idx = 1; arg_idx < argc; ++arg_idx )
 	{
-		strArg = argv[ArgIdx];
-		if( strArg[0] == '-' )
+		str_arg = argv[arg_idx];
+		if( str_arg[0] == '-' )
 		{
 			// switch
-			switches.push_back( strArg.c_str() + 1 );
+			switches.push_back( str_arg.c_str() + 1 );
 		}
 		else
 		{
 			// token
-			tokens.push_back( strArg );
+			tokens.push_back( str_arg );
 		}
 	}
 }

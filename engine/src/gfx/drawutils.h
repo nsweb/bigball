@@ -20,13 +20,13 @@ namespace Draw
 
     struct Vertex
     {
-        vec3	Pos;
-        u8vec4	Col;
+        vec3	m_pos;
+        u8vec4	m_col;
     };
 	struct BufferRange
 	{
-        int Offset;
-        int Count;
+        int m_offset;
+        int m_count;
 	};
 }
 
@@ -42,28 +42,28 @@ public:
 
 	virtual void		Create();
 	virtual void		Destroy();	
-	virtual void		Tick( struct TickContext& TickCtxt );
-	virtual void		_Render( struct RenderContext& RenderCtxt );
+	virtual void		Tick( struct TickContext& tick_ctxt );
+	virtual void		_Render( struct RenderContext& render_ctxt );
 
 	/* Functions for drawing utility shapes 
-	 * PersistTime : amount of time the shape should be drawn ( <0 : infinite / 0 : one frame / >0 time in second)
+	 * persist_time : amount of time the shape should be drawn ( <0 : infinite / 0 : one frame / >0 time in second)
 	 */
-	void		PushSegment( vec3 P0, vec3 P1, u8vec4 Color0, u8vec4 Color1, float PersistTime = 0.f );
-	void		PushSegmentList( Array<vec3> const& SegmentList, u8vec4 Color, float PersistTime = 0.f );
-    void		PushSegmentList( Array<vec3> const& SegmentList, Array<u8vec4> const& ColorList, float PersistTime = 0.f );
-	void		PushOBB( transform T, u8vec4 Color, float PersistTime = 0.f );
-	void		PushAABB( vec3 Pos, float Scale, u8vec4 Color, float PersistTime = 0.f );
+	void		PushSegment( vec3 p0, vec3 p1, u8vec4 color0, u8vec4 color1, float persist_time = 0.f );
+	void		PushSegmentList( Array<vec3> const& segment_list, u8vec4 Color, float persist_time = 0.f );
+    void		PushSegmentList( Array<vec3> const& segment_list, Array<u8vec4> const& color_list, float persist_time = 0.f );
+	void		PushOBB( transform t, u8vec4 color, float persist_time = 0.f );
+	void		PushAABB( vec3 pos, float scale, u8vec4 color, float persist_time = 0.f );
 
 protected:
-	Shader*                     m_UtilSegShader;
-    Shader*                     m_UtilShapeShader;
+	Shader*                     m_util_seg_shader;
+    Shader*                     m_util_shape_shader;
 
-	Array<Draw::BufferRange>	m_SegmentList;
-    Array<Draw::Vertex>         m_SegBuffer;
+	Array<Draw::BufferRange>	m_seg_list;
+    Array<Draw::Vertex>         m_seg_buffer;
     
-    Draw::BufferRange           m_Shapes[Draw::ShapeType::Count];
-    Array<u8vec4>               m_ShapeColors;
-    Array<mat4>                 m_ShapeMatrices;
+    Draw::BufferRange           m_shapes[Draw::ShapeType::Count];
+    Array<u8vec4>               m_shape_colors;
+    Array<mat4>                 m_shape_matrices;
     
     enum eVAType
     {
@@ -81,10 +81,10 @@ protected:
         eVBCount
     };
 
-    GLuint					m_VArrays[eVACount];
-    GLuint					m_VBuffers[eVBCount];
+    GLuint					m_varrays[eVACount];
+    GLuint					m_vbuffers[eVBCount];
 
-	void		RemoveOldElements( float DeltaSeconds );
+	void		RemoveOldElements( float delta_seconds );
 };
 
 } /* namespace bigball */

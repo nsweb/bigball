@@ -26,27 +26,27 @@ public:
 					Engine();
 	virtual			~Engine();
 
-	virtual bool	Init( bool bCreateWindow );
+	virtual bool	Init( bool create_window );
 	virtual void	Shutdown();
 	virtual void	MainLoop();
-	virtual bool	RunCommand( String const& CmdType, Array<String> const& Switches, Array<String> const& Tokens );
+	virtual bool	RunCommand( String const& cmd_type, Array<String> const& switches, Array<String> const& tokens );
 
-	SDL_DisplayMode const&	GetDisplayMode()							{ return m_DisplayMode;		}
-	SDL_Window*				GetDisplayWindow()							{ return m_MainWindow;		}
-	CommandLine&			GetCommandLine()							{ return m_CmdLine;			}
+	SDL_DisplayMode const&	GetDisplayMode()							{ return m_display_mode;		}
+	SDL_Window*				GetDisplayWindow()							{ return m_main_window;		}
+	CommandLine&			GetCommandLine()							{ return m_cmd_line;			}
 
 protected:
-	SDL_Window*				m_MainWindow; 
-	SDL_DisplayMode			m_DisplayMode;
-	SDL_GLContext			m_GLContext; 
-	CommandLine				m_CmdLine;
+	SDL_Window*				m_main_window; 
+	SDL_DisplayMode			m_display_mode;
+	SDL_GLContext			m_gl_context; 
+	CommandLine				m_cmd_line;
 
-	Array<BaseManager*>		m_Managers;
+	Array<BaseManager*>		m_managers;
 
 public:
-	uint32					m_FrameCount;
-	uint32					m_RenderMode;
-	bool					m_bShowCulling;
+	uint32					m_frame_count;
+	uint32					m_render_mode;
+	bool					m_show_culling;
 
 protected:
 	virtual void	InitManagers();

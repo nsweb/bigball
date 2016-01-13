@@ -26,13 +26,14 @@ public:
 	//virtual void	AddToWorld();
 	//virtual void	RemoveFromWorld();
 
-	void			SetPosition( vec3 Position );
-	vec3			GetPosition()		{ return m_Transform.GetTranslation(); }
-	void			SetRotation( quat Rotation );
-	quat			GetRotation()		{ return m_Transform.GetRotation(); }
+	void				SetPosition( vec3 Position );
+	vec3				GetPosition()		{ return m_transform.GetTranslation(); }
+	void				SetRotation( quat Rotation );
+	quat				GetRotation()		{ return m_transform.GetRotation(); }
+	const transform&	GetTransform()		{ return m_transform;	}
 
 protected:
-	transform	m_Transform;
+	transform	m_transform;
 };
 
 } /* namespace bigball */
