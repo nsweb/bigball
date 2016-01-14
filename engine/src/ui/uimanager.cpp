@@ -180,92 +180,10 @@ void UIManager::RenderDrawLists(ImDrawData* draw_data)
 	glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
 #endif
 
+	glEnable(GL_CULL_FACE);
 	glDisable(GL_SCISSOR_TEST);
+	glEnable(GL_DEPTH_TEST);
 
-#if 0
-
-	// We are using the OpenGL fixed pipeline to make the example code simpler to read!
-	// A probable faster way to render would be to collate all vertices from all cmd_lists into a single vertex buffer.
-	// Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, vertex/texcoord/color pointers.
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-	//glEnable(GL_TEXTURE_2D);
-
-	// Setup orthographic projection matrix
-	const float width = ImGui::GetIO().DisplaySize.x;
-	const float height = ImGui::GetIO().DisplaySize.y;
-	mat4 UIProjMatrix = mat4::ortho( 0.f, width, height, 0.f, 0.f, 1.f );
-
-	m_UIShader->Bind();
-
-	ShaderUniform UniProj = m_UIShader->GetUniformLocation("proj_mat");
-	ShaderUniform UniSampler0 =  m_UIShader->GetUniformLocation("textureUnit0");
-	m_UIShader->SetUniform( UniSampler0, 0 );
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_DebugFontTexId);
-
-	m_UIShader->SetUniform( UniProj, UIProjMatrix );
-
-	glBindVertexArray( glBindVertexArray( m_UI_VAO ); );
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-
-
-	if(1)
-	{
-		// Count the size we need to lock
-		uint32 sum_vtx_count = 0;
-		for (int n = 0; n < data->CmdListsCount; n++)
-		{
-			const ImDrawList* cmd_list = data->CmdLists[n];
-
-			const ImDrawCmd* pcmd_end = cmd_list->CmdBuffer.end();
-			for (const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != pcmd_end; pcmd++)
-			{
-				sum_vtx_count += pcmd->ElemCount;
-			}
-		}
-
-		uint32 StartIndex = m_UI_VBO.m_DestHead / sizeof(UIVertex);
-
-		glBindBuffer( GL_ARRAY_BUFFER, m_UI_VBO.m_VB_ID );
-
-		//--m_UI_VBO.m_LockManager.WaitForLockedRange( m_UI_VBO.m_DestHead, sum_vtx_count*sizeof(UIVertex) ); 
-
-		uint32 vbo_byte_offset = 0;
-		uint32 vbo_vtx_offset = 0;
-		for (int n = 0; n < data->CmdListsCount; n++)
-		{
-			const ImDrawList* cmd_list = data->CmdLists[n];
-			const uint8* vtx_buffer = (const uint8*)cmd_list->VtxBuffer.begin();
-			uint32 byte_offset = 0;
-			uint32 vtx_offset = 0;
-
-			const ImDrawCmd* pcmd_end = cmd_list->CmdBuffer.end();
-			for( const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != pcmd_end; pcmd++ )
-			{
-				void* Dst = glMapBufferRange( GL_ARRAY_BUFFER, vbo_byte_offset, pcmd->ElemCount * sizeof(UIVertex), GL_MAP_UNSYNCHRONIZED_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_WRITE_BIT );
-				Memory::Memcpy( Dst, vtx_buffer + byte_offset, pcmd->ElemCount * sizeof(UIVertex) );
-				glUnmapBuffer( GL_ARRAY_BUFFER );
-
-				//--Memory::Memcpy( m_UI_VBO.m_VertexDataPtr + vbo_byte_offset, vtx_buffer + byte_offset, pcmd->vtx_count * sizeof(UIVertex) );
-				//glScissor((int)pcmd->clip_rect.x, (int)(height - pcmd->clip_rect.w), (int)(pcmd->clip_rect.z - pcmd->clip_rect.x), (int)(pcmd->clip_rect.w - pcmd->clip_rect.y));
-				glDrawArrays( GL_TRIANGLES, StartIndex + vbo_vtx_offset, pcmd->ElemCount );
-
-				vtx_offset += pcmd->ElemCount;
-				vbo_vtx_offset += pcmd->ElemCount;
-				byte_offset += pcmd->ElemCount * sizeof(UIVertex); 
-				vbo_byte_offset += pcmd->ElemCount * sizeof(UIVertex); 
-			}
-		}
-	}
-
-
-	glBindVertexArray(0);
-#endif
 
 	// glFenceSync() / glClientWaitSync() ?
 	//WriteGeometry( data, ... );

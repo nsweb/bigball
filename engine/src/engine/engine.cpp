@@ -203,7 +203,7 @@ void Engine::MainLoop()
 		glEnable( GL_DEPTH_TEST ); // enable depth-testing
 		glDepthFunc( GL_LESS ); // depth-testing interprets a smaller value as "closer"
 		glEnable( GL_CULL_FACE );
-		glCullFace( GL_FRONT );
+		glCullFace( GL_BACK );
 
 		if( m_render_mode == RenderContext::eRM_Wireframe )
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
