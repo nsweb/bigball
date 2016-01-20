@@ -23,13 +23,13 @@ public:
 
 	virtual void		Create();
 	virtual void		Destroy();	
-	virtual void		Tick( struct TickContext& TickCtxt );
+	virtual void		Tick( struct TickContext& tick_ctxt );
 
-	Shader*				LoadShader( String const& ShaderName );
-    Shader*				LoadShaderFromMemory( String const& ShaderName, const char** src_buffers );
+	Shader*				LoadShader( String const& shader_name );
+    Shader*				LoadShaderFromMemory( String const& shader_name, const char** src_buffers );
 
 protected:
-	Map<String,Shader*>		m_Shaders;
+	Map<String,Shader*>		m_shaders;
 
 };
 

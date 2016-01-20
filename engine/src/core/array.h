@@ -10,10 +10,10 @@ namespace bigball
  * The base array type.
  *
  * Contains an m_data memory array of Elements, of which only the first
- * m_count are allocated. The rest is uninitialised memory.
+ * m_count are allocated. The rest is uninitialized memory.
  */
 
-template<typename T/*, typename ARRAY*/> 
+template<typename T> 
 class /*BIGBALL_API*/ Array
 {
 public:
@@ -103,9 +103,9 @@ public:
         return *this;
     }
 
-    Array/*ARRAY*/ operator+(Array/*ARRAY*/ const &that) const
+    Array operator+(Array const &that) const
     {
-        Array/*ARRAY*/ ret;
+        Array ret;
         ret.reserve(m_count + that.m_count);
         ret += *this;
         ret += that;
@@ -241,6 +241,19 @@ public:
         ++m_count;
     }
 
+	void insert( Array const &that, int pos )
+	{
+		BB_ASSERT(pos >= 0);
+		BB_ASSERT(pos <= m_count);
+		if (m_count + that.m_count > m_reserved)
+			reserve(m_count + that.m_count);
+
+		Memory::Memmove( &m_data[pos + that.m_count], &m_data[pos], that.m_count * sizeof(Element) );
+		Memory::Memcpy( &m_data[pos], &that.m_data[0], that.m_count * sizeof(Element) );
+
+		m_count += that.m_count;
+	}
+
 	void remove( const Element& item )
     {
         for( int i = 0; i < m_count; )
@@ -338,13 +351,6 @@ protected:
     Element *m_data;
     int m_count, m_reserved;
 };
-
-
-
-//template<typename T>
-//class /*BIGBALL_API*/ Array : public ArrayBase<T, Array<T> >
-//{
-//};
 
 } /* namespace bigball */
 

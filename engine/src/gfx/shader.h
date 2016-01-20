@@ -4,6 +4,7 @@
 #ifndef BB_GFXSHADER_H
 #define BB_GFXSHADER_H
 
+#include "../core/map_rh.h"
 
 namespace bigball
 {
@@ -49,7 +50,7 @@ public:
 
 	bool				Create( String const& shader_name );
     /** Create shaders from memory, src_buffers should hold at least MAX elements */
-    bool				CreateFromMemory( const char** src_buffers );
+    bool				CreateFromMemory( String const& shader_name, const char** src_buffers );
 	ShaderUniform		GetUniformLocation( char const* uniform_name ) const;
     int                 GetActiveUniforms( Array<ShaderUniformDetail>& uniforms ) const;
 	void				SetUniform( ShaderUniform const &uni, int i);
@@ -82,9 +83,13 @@ public:
 	void				Unbind() const;
 
 protected:
-	GLuint	m_shader_ids[MAX];
-	GLuint	m_program_id;
+	String					m_name;
+	GLuint					m_shader_ids[MAX];
+	GLuint					m_program_id;
 
+	MapRH<String,String>		m_include_files;
+
+	bool				ParseIncludeFiles( String& shader_src );
 	void				DeleteShaders();
     bool                CreateAndCompileShader( char const* shader_src, GLenum shader_type, GLuint& shader_id );
     bool                LinkProgram();

@@ -22,6 +22,7 @@ Shader::~Shader()
 
 bool Shader::Create( String const& shader_name )
 {
+	m_name = shader_name;
 	m_program_id = glCreateProgram();
 
 	GLenum shader_types[Shader::MAX] = { GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_TESS_CONTROL_SHADER, GL_TESS_EVALUATION_SHADER, GL_GEOMETRY_SHADER, GL_COMPUTE_SHADER };
@@ -36,6 +37,8 @@ bool Shader::Create( String const& shader_name )
 			continue;
 
 		shader_file.SerializeString( shader_src );
+
+		ParseIncludeFiles( shader_src );
         
         bool shader_success = CreateAndCompileShader( shader_src.c_str(), shader_types[i], m_shader_ids[i] );
         if( !shader_success )
@@ -63,18 +66,23 @@ bool Shader::Create( String const& shader_name )
 	return true;
 }
     
-bool Shader::CreateFromMemory( const char** src_buffers )
+bool Shader::CreateFromMemory( String const& shader_name, const char** src_buffers )
 {
+	m_name = shader_name;
     m_program_id = glCreateProgram();
     
     GLenum shader_types[Shader::MAX] = { GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_TESS_CONTROL_SHADER, GL_TESS_EVALUATION_SHADER, GL_GEOMETRY_SHADER, GL_COMPUTE_SHADER };
+	String str_shader;
 
     for( int32 i = 0; i < Shader::MAX; ++i )
     {
         if( !src_buffers[i] )
             continue;
 
-        bool shader_success = CreateAndCompileShader( src_buffers[i], shader_types[i], m_shader_ids[i] );
+		str_shader = src_buffers[i];
+		ParseIncludeFiles( str_shader );
+
+        bool shader_success = CreateAndCompileShader( str_shader.c_str(), shader_types[i], m_shader_ids[i] );
         if( !shader_success )
         {
             DeleteShaders();
@@ -118,7 +126,7 @@ bool Shader::CreateAndCompileShader( char const* shader_src, GLenum shader_type,
         String log_str;
         log_str.resize( len );
         glGetShaderInfoLog( shader_id, len, &len, log_str.c_str() );
-        BB_LOG( Shader, Log, "Shader compilation failed: %s", log_str.c_str() );
+        BB_LOG( Shader, Log, "<%s> Shader compilation failed: %s", m_name.c_str(), log_str.c_str() );
 #endif /* BB_BUILD_DEBUG */
         
         return false;
@@ -142,7 +150,7 @@ bool Shader::LinkProgram()
         String log_str;
         log_str.resize( len );
         glGetProgramInfoLog( m_program_id, len, &len, log_str.c_str() );
-        BB_LOG( Shader, Log, "Shader linking failed: %s", log_str.c_str() );
+        BB_LOG( Shader, Log, "<%s> Shader linking failed: %s", m_name.c_str(), log_str.c_str() );
 #endif /* BB_BUILD_DEBUG */
         
         return false;
@@ -162,6 +170,53 @@ void Shader::DeleteShaders()
 	if( m_program_id != 0 )
 		glDeleteProgram( m_program_id );
 	m_program_id = 0;
+}
+
+/** Search for #include directive and substitute with proper include file */
+bool Shader::ParseIncludeFiles( String& shader_src )
+{
+	int last_inc_idx = 0;
+	while( 1 )
+	{
+		int inc_idx = shader_src.IndexOf("#include", last_inc_idx);
+		if( inc_idx == INDEX_NONE )
+			break;
+		int quote_start_idx = shader_src.IndexOf("\"", inc_idx);
+		if( quote_start_idx == INDEX_NONE )
+		{
+			BB_LOG( Shader, Error, "<%s> Invalid include directive", m_name.c_str() );
+			return false;
+		}
+		int quote_end_idx = shader_src.IndexOf("\"", quote_start_idx + 1);
+		if( quote_end_idx == INDEX_NONE )
+		{
+			BB_LOG( Shader, Error, "<%s> Invalid include directive", m_name.c_str() );
+			return false;
+		}
+
+		String inc_file = shader_src.Sub( quote_start_idx + 1, quote_end_idx - quote_start_idx - 1 );
+		auto pair = m_include_files.Find( inc_file );
+		if( !pair )
+		{
+			// include file not found, load it
+			File shader_file;
+			String inc_file_name = String::Printf( "../data/shader/%s", inc_file.c_str() );
+			if( !shader_file.Open( inc_file_name.c_str(), false /*bWrite*/) )
+			{
+				BB_LOG( Shader, Error, "<%s> Could not find include file <%s>", m_name.c_str(), inc_file.c_str() );
+				return false;
+			}
+
+			String inc_src;
+			shader_file.SerializeString( inc_src );
+			pair = m_include_files.Add( inc_file, inc_src );
+		}
+
+		// Substitute include directive with include file
+		shader_src.erase( inc_idx, quote_end_idx - inc_idx + 1 );
+		shader_src.insert( pair->Value, inc_idx );
+	}
+	return true;
 }
 
 ShaderUniform Shader::GetUniformLocation( char const* uniform_name ) const

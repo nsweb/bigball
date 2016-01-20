@@ -118,6 +118,12 @@ public:
         ((Super &)*this).Last() = '\0';
     }
 
+	void erase(int pos, int todelete)
+	{
+		BB_ASSERT(pos + todelete <= Len());
+		((Super &)*this).erase(pos, todelete);
+	}
+
     String Sub(int start, int count) const
     {
         BB_ASSERT(start >= 0);
@@ -134,11 +140,14 @@ public:
         return tmp ? (int)(intptr_t)(tmp - c_str()) : -1;
     }
 
-    int IndexOf(char const* token) const
+    int IndexOf(char const* token, int start=0) const
     {
+		BB_ASSERT(start >= 0);
+		BB_ASSERT(start <= Len());
+
         using namespace std;
 
-        char const *tmp = strstr(c_str(), token);
+        char const *tmp = strstr(c_str() + start, token);
         return tmp ? (int)(intptr_t)(tmp - c_str()) : -1;
     }
 
@@ -208,6 +217,17 @@ public:
         return Len() >= s.Len()
                 && memcmp(c_str() + Len() - s.Len(), s.c_str(), s.Len()) == 0;
     }
+
+	void insert( String const &s, int pos )
+	{
+		BB_ASSERT(pos >= 0);
+		BB_ASSERT(pos <= Len());
+		int old_count = Len();
+		resize(Len() + s.Len());
+
+		Memory::Memmove( &(*this)[pos + s.Len()], &(*this)[pos], old_count - pos );
+		Memory::Memcpy( &(*this)[pos], &s[0], s.Len() );
+	}
 
     inline String operator +(String const &s) const
     {
