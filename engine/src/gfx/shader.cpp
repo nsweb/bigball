@@ -112,7 +112,9 @@ bool Shader::CreateAndCompileShader( char const* shader_src, GLenum shader_type,
 {
     shader_id = glCreateShader( shader_type );
     
-    glShaderSource( shader_id, 1, &shader_src, nullptr );
+	char const* shader_define = "#define SHADER_SECTION	\n";
+	char const* shader_strings[2] = { shader_define, shader_src };
+    glShaderSource( shader_id, 2, shader_strings, nullptr );
     glCompileShader( shader_id );
     
     GLint compiled_status;
