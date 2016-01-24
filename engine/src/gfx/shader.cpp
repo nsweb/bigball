@@ -46,6 +46,9 @@ bool Shader::Create( String const& shader_name )
             DeleteShaders();
             return false;
         }
+        
+        //vec3 t(0.f, 0.f, 0.f);
+        //vec2 t2 = t.yz;
 
 		glAttachShader( m_program_id, m_shader_ids[i] );
 	}
@@ -112,7 +115,7 @@ bool Shader::CreateAndCompileShader( char const* shader_src, GLenum shader_type,
 {
     shader_id = glCreateShader( shader_type );
     
-	char const* shader_define = "#define SHADER_SECTION	\n";
+	char const* shader_define = "#version 330	\n#define SHADER_SECTION	\n#define UNIFORM_LEVEL( type, lvl_name, value ) uniform type lvl_name = value;	\n";
 	char const* shader_strings[2] = { shader_define, shader_src };
     glShaderSource( shader_id, 2, shader_strings, nullptr );
     glCompileShader( shader_id );
