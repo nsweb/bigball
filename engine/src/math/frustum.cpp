@@ -5,7 +5,7 @@
 //#include <cstring> /* strdup() */
 
 
-using namespace std;
+//using namespace std;
 
 namespace bigball
 {

@@ -5,7 +5,7 @@
 #include "jsmn.h"
 #include "imgui.h"
 #include "types.h"
-#include <cmath>
+//#include <cmath>
 #include <algorithm>
 #include <ostream>
 #include <thread>

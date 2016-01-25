@@ -12,8 +12,8 @@ namespace bigball
 #undef max
 
 /* Standard cmath functions */
-static inline double sqrt(double const &x) { return std::sqrt(x); }
-static inline float sqrt(float const &x) { return std::sqrt(x); }
+static inline double sqrt(double x) { return std::sqrt(x); }
+static inline float sqrt(float x) { return std::sqrt(x); }
 
 static inline double exp(double const &x) { return std::exp(x); }
 static inline float exp(float const &x) { return std::exp(x); }
