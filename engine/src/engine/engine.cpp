@@ -202,6 +202,7 @@ void Engine::MainLoop()
 		// tell GL to only draw onto a pixel if the shape is closer to the viewer
 		glEnable( GL_DEPTH_TEST ); // enable depth-testing
 		glDepthFunc( GL_LESS ); // depth-testing interprets a smaller value as "closer"
+        //glDepthRange(0.f, 1.f);
 		glEnable( GL_CULL_FACE );
 		glCullFace( GL_BACK );
 
