@@ -39,8 +39,10 @@ Engine::~Engine()
 
 }
 
-bool Engine::Init( bool create_window )
+bool Engine::Init(EngineInitParams const& init_params)
 {
+	m_init_params = init_params;
+
     if (SDL_Init(SDL_INIT_VIDEO) < 0) /* Initialize SDL's Video subsystem */
 	{
         //sdldie("Unable to initialize SDL"); /* Or die on error */
@@ -60,16 +62,19 @@ bool Engine::Init( bool create_window )
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 
     /* Create our window centered at 512x512 resolution */
-	int res_x = 800;
-	int res_y = 600;
+	int res_x = init_params.default_res_x;
+	int res_y = init_params.default_res_y;
 	String str_value;
 	if( m_cmd_line.GetTokenValue( "res_x", str_value ) )
 		res_x = std::atoi( str_value.c_str() );
 	if( m_cmd_line.GetTokenValue( "res_y", str_value ) )
 		res_y = std::atoi( str_value.c_str() );
 
+	uint32 window_flags = SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN;
+	if (init_params.resizable_window)
+		window_flags |= SDL_WINDOW_RESIZABLE;
     m_main_window = SDL_CreateWindow("GL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                  res_x, res_y, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+		res_x, res_y, window_flags);
     if( !m_main_window ) /* Die if creation failed */
 	{
       //  sdldie("Unable to create window");
@@ -101,10 +106,9 @@ bool Engine::Init( bool create_window )
 
 	SDL_GetWindowDisplayMode( m_main_window, &m_display_mode );
 
-	// Allow FPS style mouse movement
-	//SDL_SetRelativeMouseMode(SDL_FALSE);
-	SDL_SetRelativeMouseMode(SDL_TRUE);
-	SDL_SetWindowGrab( m_main_window, SDL_TRUE );
+	// Allow FPS style mouse movement if needed (mouse capture)
+	SDL_SetRelativeMouseMode(init_params.mouse_capture ? SDL_TRUE : SDL_FALSE);
+	SDL_SetWindowGrab(m_main_window, init_params.mouse_capture ? SDL_TRUE : SDL_FALSE);
 
 	// Ready to init our managers
 	InitManagers();
@@ -349,6 +353,26 @@ void Engine::MainLoop()
 				break;
 			case SDL_MOUSEBUTTONUP:
 				break;
+			//case SDL_RENDER_TARGETS_RESET:
+				//break;
+			case SDL_WINDOWEVENT:
+			{
+				switch (event.window.event)
+				{
+				case SDL_WINDOWEVENT_RESIZED:
+					SDL_Log("Window %d resized to %dx%d",
+						event.window.windowID, event.window.data1,
+						event.window.data2);
+					ResizeWindow(event.window.data1, event.window.data2);
+					break;
+				case SDL_WINDOWEVENT_SIZE_CHANGED:
+					SDL_Log("Window %d size changed to %dx%d",
+						event.window.windowID, event.window.data1,
+						event.window.data2);
+					break;
+				}
+				break;
+			}
 			case SDL_QUIT:
 				loop_status = 1;
 				break;
@@ -366,6 +390,13 @@ void Engine::MainLoop()
 bool Engine::RunCommand( String const& cmd_type, Array<String> const& switches, Array<String> const& tokens )
 {
 	return false;
+}
+
+void Engine::ResizeWindow(int w, int h)
+{
+	m_display_mode.w = w;
+	m_display_mode.h = h;
+	SDL_SetWindowDisplayMode(m_main_window, &m_display_mode);
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -21,6 +21,7 @@ UIManager* UIManager::m_pStaticInstance = NULL;
 UIManager::UIManager() :
     m_pDrawEditorFn(nullptr),
     m_pToggleEditorFn(nullptr),
+	m_pDrawMainMenuBarFn(nullptr),
 	m_DebugFontTexId(0),
 	m_UIShader(nullptr),
 	m_UI_VAO(0),
@@ -359,6 +360,9 @@ void UIManager::_Render( struct RenderContext& RenderCtxt )
     
     if( m_bShowEditor && m_pDrawEditorFn )
         (*m_pDrawEditorFn)( &m_bShowEditor, RenderCtxt );
+
+	if (m_pDrawMainMenuBarFn)
+		(*m_pDrawMainMenuBarFn)(RenderCtxt);
         
 	//static bool show_test_window = false;//true;
 	//static bool show_another_window = true;

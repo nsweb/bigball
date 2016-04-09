@@ -11,6 +11,7 @@ namespace bigball
 
 typedef void (*DrawEditorCB)( bool*, struct RenderContext& );
 typedef void (*ToggleEditorCB)( bool );
+typedef void (*DrawMainMenuBarCB)(struct RenderContext&);
     
     
 class BIGBALL_API Shader;
@@ -42,6 +43,7 @@ public:
     void                ToggleEditor();
     void                SetDrawEditorFn( DrawEditorCB pFn ) { m_pDrawEditorFn = pFn; }
     void                SetToggleEditorFn( ToggleEditorCB pFn ) { m_pToggleEditorFn = pFn; }
+	void                SetDrawMainMenuBarFn(DrawMainMenuBarCB pFn) { m_pDrawMainMenuBarFn = pFn; }
 
 protected:
 	void				InitImGui();
@@ -53,6 +55,7 @@ protected:
 public:
     DrawEditorCB            m_pDrawEditorFn;
     ToggleEditorCB          m_pToggleEditorFn;
+	DrawMainMenuBarCB		m_pDrawMainMenuBarFn;
 	GLuint					m_DebugFontTexId;
 	Shader*					m_UIShader;
 	/** Dynamic VB used to render ui elements */
