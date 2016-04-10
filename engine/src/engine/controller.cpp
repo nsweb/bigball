@@ -132,7 +132,7 @@ void Controller::OnInputZ( uint32 modifier_flags, float delta )
 
 void Controller::OnInputXYZ( uint32 modifier_flags, vec3 delta )
 {
-	eControllerInputType input_type = (modifier_flags & eIM_Ctrl ? eCIT_KeyCtrl : eCIT_Key);
+    eControllerInputType input_type = (modifier_flags & eIM_Ctrl ? eCIT_KeyCtrl : (modifier_flags & eIM_Alt ? eCIT_KeyAlt : eCIT_Key));
 	int Idx = m_frame_inputs.FindByKey( input_type );
 	if( Idx == INDEX_NONE )
 	{

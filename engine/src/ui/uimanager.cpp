@@ -16,18 +16,18 @@
 namespace bigball
 {
 
-UIManager* UIManager::m_pStaticInstance = NULL;
+UIManager* UIManager::m_pStaticInstance = nullptr;
 
 UIManager::UIManager() :
-    m_pDrawEditorFn(nullptr),
-    m_pToggleEditorFn(nullptr),
-	m_pDrawMainMenuBarFn(nullptr),
+    m_draw_editor_fn(nullptr),
+    m_toggle_editor_fn(nullptr),
+	m_draw_custom_menu_fn(nullptr),
 	m_DebugFontTexId(0),
 	m_UIShader(nullptr),
 	m_UI_VAO(0),
-	m_bShowDebugMenu(false),
-	m_bShowProfiler(false),
-    m_bShowEditor(false)
+	m_show_debug_menu(false),
+	m_show_profiler(false),
+    m_show_editor(false)
 {
 	m_pStaticInstance = this;
 }
@@ -288,20 +288,9 @@ void UIManager::InitImGui()
 }
 
 
-void UIManager::Tick( TickContext& TickCtxt )
+void UIManager::Tick( TickContext& tick_ctxt )
 {
-	// Manage inputs
-	//if( m_pActiveCamCtrl && m_pActiveCam )
-	//{
-	//	for( int32 i = 0; i < m_FrameInputs.size(); ++i )
-	//	{
-	//		m_pActiveCamCtrl->OnControllerInput( m_pActiveCam, m_FrameInputs[i] );
-	//	}
-	//}
-	//m_FrameInputs.clear();
 
-
-	//UpdateRenderCamera( TickCtxt.m_DeltaSeconds );
 }
 
 
@@ -327,7 +316,7 @@ void UIManager::Tick( TickContext& TickCtxt )
 //	ImGui::NewFrame();
 //}
 
-void UIManager::_Render( struct RenderContext& RenderCtxt )
+void UIManager::_Render( struct RenderContext& render_ctxt )
 {
 	ImGuiIO& io = ImGui::GetIO();
 	//mousePressed[0] = mousePressed[1] = false;
@@ -335,34 +324,34 @@ void UIManager::_Render( struct RenderContext& RenderCtxt )
 	//glfwPollEvents();
 	//UpdateImGui();
 
-	io.DeltaTime = bigball::max(0.000001f, RenderCtxt.m_delta_seconds);
+	io.DeltaTime = bigball::max(0.000001f, render_ctxt.m_delta_seconds);
 
 
 	// Setup inputs
 	// (we already got mouse wheel, keyboard keys & characters from glfw callbacks polled in glfwPollEvents())
 	//double mouse_x, mouse_y;
 	//glfwGetCursorPos(window, &mouse_x, &mouse_y);
-	int MouseX, MouseY;
-	uint32 MouseState = SDL_GetMouseState( &MouseX, &MouseY );
+	int mouse_x, mouse_y;
+	uint32 mouse_state = SDL_GetMouseState( &mouse_x, &mouse_y );
 
-	io.MousePos = ImVec2((float)MouseX,(float)MouseY);//(float)mouse_x * mousePosScale.x, (float)mouse_y * mousePosScale.y);      // Mouse position, in pixels (set to -1,-1 if no mouse / on another screen, etc.)
-	io.MouseDown[0] = MouseState & SDL_BUTTON_LMASK ? true : false;//mousePressed[0] || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) != 0;  // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
-	io.MouseDown[1] = MouseState & SDL_BUTTON_RMASK ? true : false;//mousePressed[1] || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) != 0;
+	io.MousePos = ImVec2((float)mouse_x,(float)mouse_y);//(float)mouse_x * mousePosScale.x, (float)mouse_y * mousePosScale.y);      // Mouse position, in pixels (set to -1,-1 if no mouse / on another screen, etc.)
+	io.MouseDown[0] = mouse_state & SDL_BUTTON_LMASK ? true : false;//mousePressed[0] || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) != 0;  // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
+	io.MouseDown[1] = mouse_state & SDL_BUTTON_RMASK ? true : false;//mousePressed[1] || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) != 0;
 
 	// Start the frame
 	ImGui::NewFrame();
 
-	if( m_bShowDebugMenu )
+	if( m_show_debug_menu )
 		DrawDebugMenu();
 
-	if( m_bShowProfiler )
+	if( m_show_profiler )
 		DrawProfiler();
     
-    if( m_bShowEditor && m_pDrawEditorFn )
-        (*m_pDrawEditorFn)( &m_bShowEditor, RenderCtxt );
+    if( m_show_editor && m_draw_editor_fn )
+        (*m_draw_editor_fn)( &m_show_editor, render_ctxt );
 
-	if (m_pDrawMainMenuBarFn)
-		(*m_pDrawMainMenuBarFn)(RenderCtxt);
+	if (m_draw_custom_menu_fn)
+		(*m_draw_custom_menu_fn)(render_ctxt);
         
 	//static bool show_test_window = false;//true;
 	//static bool show_another_window = true;
@@ -408,13 +397,13 @@ void UIManager::_Render( struct RenderContext& RenderCtxt )
 
 void UIManager::DrawDebugMenu()
 {
-	bool bShowDebugMenu = m_bShowDebugMenu;
+	bool show_debug_menu = m_show_debug_menu;
 
-	ImGui::Begin("Debug menu", &bShowDebugMenu, ImVec2(10,10));
+	ImGui::Begin("Debug menu", &show_debug_menu, ImVec2(10,10));
 	ImGui::Text("Hello");
 	if (ImGui::CollapsingHeader("Profiling"))
 	{
-		ImGui::Checkbox("enable profiling", &m_bShowProfiler);
+		ImGui::Checkbox("enable profiling", &m_show_profiler);
 	}
 	if (ImGui::CollapsingHeader("Style Editor"))
 	{
@@ -428,22 +417,22 @@ void UIManager::DrawDebugMenu()
 	ImGui::End();
 
 	// Release mouse if window was closed
-	if( bShowDebugMenu != m_bShowDebugMenu )
+	if( show_debug_menu != m_show_debug_menu )
 		ToggleDebugMenu();
 }
 
 void UIManager::DrawProfiler()
 {
-	ImGui::Begin("Profiler", &m_bShowDebugMenu, ImVec2(200,400), -1.f, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar );
+	ImGui::Begin("Profiler", &m_show_debug_menu, ImVec2(200,400), -1.f, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar );
 	Profiler::BuildGui();	
 	ImGui::End();
 }
 
 void UIManager::ToggleDebugMenu()
 {
-	bool bNewShowDebugMenu = !m_bShowDebugMenu;
+	bool new_show_debug_menu = !m_show_debug_menu;
 
-	if( bNewShowDebugMenu )
+	if( new_show_debug_menu )
 	{
 		// Allow menu interaction
 		SDL_SetRelativeMouseMode(SDL_FALSE);
@@ -456,19 +445,19 @@ void UIManager::ToggleDebugMenu()
 		SDL_SetWindowGrab( g_pEngine->GetDisplayWindow(), SDL_TRUE );
 	}
 
-	m_bShowDebugMenu = bNewShowDebugMenu;
+	m_show_debug_menu = new_show_debug_menu;
 }
 void UIManager::ToggleEditor()
 {
-    if( !m_pDrawEditorFn )
+    if( !m_draw_editor_fn )
         return;
     
-    bool bNewShowEditor = !m_bShowEditor;
+    bool new_show_editor = !m_show_editor;
     
-    if( m_pToggleEditorFn )
-        (*m_pToggleEditorFn)( bNewShowEditor );
+    if( m_toggle_editor_fn )
+        (*m_toggle_editor_fn)( new_show_editor );
     
-    if( bNewShowEditor )
+    if( new_show_editor )
     {
         // Allow menu interaction
         SDL_SetRelativeMouseMode(SDL_FALSE);
@@ -481,7 +470,7 @@ void UIManager::ToggleEditor()
         SDL_SetWindowGrab( g_pEngine->GetDisplayWindow(), SDL_TRUE );
     }
     
-    m_bShowEditor = bNewShowEditor;
+    m_show_editor = new_show_editor;
 }
 
 } /* namespace bigball */

@@ -11,16 +11,16 @@ namespace bigball
 
 typedef void (*DrawEditorCB)( bool*, struct RenderContext& );
 typedef void (*ToggleEditorCB)( bool );
-typedef void (*DrawMainMenuBarCB)(struct RenderContext&);
+typedef void (*DrawCustomMenuBarCB)(struct RenderContext&);
     
     
 class BIGBALL_API Shader;
 
 struct UIVertex
 {
-	vec2	Pos;
-	vec2	Tex;
-	u8vec4	Col;
+	vec2	m_os;
+	vec2	m_tex;
+	u8vec4	m_col;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -34,16 +34,16 @@ public:
 
 	virtual void		Create();
 	virtual void		Destroy();	
-	virtual void		Tick( struct TickContext& TickCtxt );
-	virtual void		_Render( struct RenderContext& RenderCtxt );
+	virtual void		Tick( struct TickContext& tick_ctxt );
+	virtual void		_Render( struct RenderContext& render_ctxt );
 	static UIManager*	GetStaticInstance()		{ return m_pStaticInstance; }
 
 	void				RenderDrawLists(struct ImDrawData* data);
 	void				ToggleDebugMenu();
     void                ToggleEditor();
-    void                SetDrawEditorFn( DrawEditorCB pFn ) { m_pDrawEditorFn = pFn; }
-    void                SetToggleEditorFn( ToggleEditorCB pFn ) { m_pToggleEditorFn = pFn; }
-	void                SetDrawMainMenuBarFn(DrawMainMenuBarCB pFn) { m_pDrawMainMenuBarFn = pFn; }
+    void                SetDrawEditorFn( DrawEditorCB fn )          { m_draw_editor_fn = fn; }
+    void                SetToggleEditorFn( ToggleEditorCB fn )      { m_toggle_editor_fn = fn; }
+	void                SetDrawCustomMenuFn(DrawCustomMenuBarCB fn) { m_draw_custom_menu_fn = fn; }
 
 protected:
 	void				InitImGui();
@@ -53,9 +53,9 @@ protected:
 	static UIManager*		m_pStaticInstance;
 
 public:
-    DrawEditorCB            m_pDrawEditorFn;
-    ToggleEditorCB          m_pToggleEditorFn;
-	DrawMainMenuBarCB		m_pDrawMainMenuBarFn;
+    DrawEditorCB            m_draw_editor_fn;
+    ToggleEditorCB          m_toggle_editor_fn;
+	DrawCustomMenuBarCB		m_draw_custom_menu_fn;
 	GLuint					m_DebugFontTexId;
 	Shader*					m_UIShader;
 	/** Dynamic VB used to render ui elements */
@@ -65,9 +65,9 @@ public:
 	GLuint					m_UI_VBO;
 	GLuint					m_UI_EBO;
 
-	bool					m_bShowDebugMenu;
-	bool					m_bShowProfiler;
-    bool                    m_bShowEditor;
+	bool					m_show_debug_menu;
+	bool					m_show_profiler;
+    bool                    m_show_editor;
 };
 
 } /* namespace bigball */

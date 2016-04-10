@@ -339,7 +339,7 @@ void Engine::MainLoop()
 				break;
 			case SDL_MOUSEMOTION:
 				{
-					if( !UIManager::GetStaticInstance()->m_bShowDebugMenu )
+					if( !UIManager::GetStaticInstance()->m_show_debug_menu )
 					{
 						vec3 mouse_delta(	-(float)event.motion.xrel / (float)m_display_mode.w, 
 							-(float)event.motion.yrel / (float)m_display_mode.h,
@@ -397,6 +397,20 @@ void Engine::ResizeWindow(int w, int h)
 	m_display_mode.w = w;
 	m_display_mode.h = h;
 	SDL_SetWindowDisplayMode(m_main_window, &m_display_mode);
+    
+    glViewport(0,0,w,h);
+    
+    ImGuiIO& io = ImGui::GetIO();
+    io.DisplaySize = ImVec2((float)w, (float)h);  // Display size, in pixels. For clamping windows positions.
+    
+    /*
+    SDL_CreateRenderer();
+    SDL_Rect topLeftViewport;
+    topLeftViewport.x = 0;
+    topLeftViewport.y = 0;
+    topLeftViewport.w = SCREEN_WIDTH / 2;
+    topLeftViewport.h = SCREEN_HEIGHT / 2;
+    SDL_RenderSetViewport( gRenderer, &topLeftViewport );*/
 }
 
 //////////////////////////////////////////////////////////////////////////

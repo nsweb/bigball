@@ -21,6 +21,7 @@ enum eControllerInputType
 {
 	eCIT_Key = 0,
 	eCIT_KeyCtrl,
+    eCIT_KeyAlt,
 	eCIT_Mouse,
 	eCIT_MouseCtrl,
 };
