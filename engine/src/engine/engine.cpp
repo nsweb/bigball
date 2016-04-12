@@ -235,6 +235,8 @@ void Engine::MainLoop()
 		}
 
 		DrawUtils::GetStaticInstance()->_Render(render_ctxt);
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		UIManager::GetStaticInstance()->_Render(render_ctxt);
 
 		SDL_GL_SwapWindow( m_main_window );
