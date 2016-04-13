@@ -24,12 +24,12 @@ void BaseManager::Destroy()
 {
 
 }
-void BaseManager::Tick( struct TickContext& TickCtxt )
+void BaseManager::Tick( struct TickContext& tick_ctxt )
 {
 
 }
 
-void BaseManager::_Render( struct RenderContext& RenderCtxt )
+void BaseManager::_Render( struct RenderContext& render_ctxt )
 {
 
 }

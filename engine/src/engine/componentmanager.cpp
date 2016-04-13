@@ -17,12 +17,12 @@ ComponentManager::~ComponentManager()
 
 }
 
-void ComponentManager::AddComponentToWorld( Component* pComponent )
+void ComponentManager::AddComponentToWorld( Component* component )
 {
 
 }
 
-void ComponentManager::RemoveComponentFromWorld( Component* pComponent )
+void ComponentManager::RemoveComponentFromWorld( Component* component )
 {
 
 }

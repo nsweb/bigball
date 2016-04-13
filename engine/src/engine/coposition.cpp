@@ -17,14 +17,14 @@ CoPosition::~CoPosition()
 
 }
 
-void CoPosition::SetPosition( vec3 Position )
+void CoPosition::SetPosition( vec3 position )
 {
-	m_transform.SetTranslation( Position );
+	m_transform.SetTranslation( position );
 }
 
-void CoPosition::SetRotation( quat Rotation )
+void CoPosition::SetRotation( quat rotation )
 {
-	m_transform.SetRotation( Rotation );
+	m_transform.SetRotation( rotation );
 }
 
 

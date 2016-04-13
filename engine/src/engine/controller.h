@@ -22,6 +22,7 @@ enum eControllerInputType
 	eCIT_Key = 0,
 	eCIT_KeyCtrl,
     eCIT_KeyAlt,
+    eCIT_KeyShift,
 	eCIT_Mouse,
 	eCIT_MouseCtrl,
 };
@@ -47,7 +48,7 @@ public:
 
 	virtual void		Create();
 	virtual void		Destroy();	
-	virtual void		Tick( struct TickContext& TickCtxt );
+	virtual void		Tick( struct TickContext& tick_ctxt );
 
 	void				RegisterCameraCtrl( CameraCtrl_Base* cam_ctrl );
 	void				SetActiveCameraCtrl( Name const& cam_ctrl_name );
