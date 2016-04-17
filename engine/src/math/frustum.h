@@ -52,92 +52,92 @@ public:
 	};
 public:
     inline BB_CONSTEXPR Frustum() {}
-	Frustum( CameraView const& View, bool bLocalToView )
+	Frustum( CameraView const& view, bool is_local_to_view )
 	{
-		BuildFromView( View, bLocalToView );
+		BuildFromView( view, is_local_to_view );
 	}
 
-	void BuildFromView( CameraView const& View, bool bLocalToView )
+	void BuildFromView( CameraView const& view, bool is_local_to_view )
 	{
-		T fov_y = (T)View.m_fParameters[eCP_FOV];
+		T fov_y = (T)view.m_fParameters[eCP_FOV];
 		fov_y *= ((T)D_PI / (T)180.0);
 
 		T cf_y = cos(fov_y * (T)0.5);
 		T sf_y = sin(fov_y * (T)0.5);
 		T tf_y = sf_y / cf_y;
-		T half_fov_x = atan2( tf_y * (T)View.m_fParameters[eCP_ASPECT], (T)1.0 );
+		T half_fov_x = atan2( tf_y * (T)view.m_fParameters[eCP_ASPECT], (T)1.0 );
 		T cf_x = cos(half_fov_x);
 		T sf_x = sin(half_fov_x);
 
-		auto ComputeFunc = [&] ( Vec3<T> const& Eye, Vec3<T> const& Right, Vec3<T> const& Up, Vec3<T> const& Front )
+		auto ComputeFunc = [&] ( Vec3<T> const& eye, Vec3<T> const& right, Vec3<T> const& up, Vec3<T> const& front )
 		{
 			// Compute planes
-			m_Planes[eFP_Near].xyz = Front;
-			m_Planes[eFP_Far].xyz = -Front;
-			m_Planes[eFP_Right].xyz = Right * -cf_x + Front * sf_x;
-			m_Planes[eFP_Left].xyz = Right * cf_x + Front * sf_x;
-			m_Planes[eFP_Top].xyz = Up * -cf_x + Front * sf_x;
-			m_Planes[eFP_Bottom].xyz = Up * cf_x + Front * sf_x;
+			m_planes[eFP_Near].xyz = front;
+			m_planes[eFP_Far].xyz = -front;
+			m_planes[eFP_right].xyz = right * -cf_x + front * sf_x;
+			m_planes[eFP_Left].xyz = right * cf_x + front * sf_x;
+			m_planes[eFP_Top].xyz = up * -cf_x + front * sf_x;
+			m_planes[eFP_Bottom].xyz = up * cf_x + front * sf_x;
 
-			Vec3<T> PNear = Eye + Front * (T)View.m_fParameters[eCP_NEAR];
-			Vec3<T> PFar = Eye + Front * (T)View.m_fParameters[eCP_FAR];
-			m_Planes[eFP_Near].w = -dot( PNear, m_Planes[eFP_Near].xyz );
-			m_Planes[eFP_Far].w = -dot( PFar, m_Planes[eFP_Far].xyz );
-			for( int32 i = eFP_Right; i < eFP_MAX; ++i )
-				m_Planes[i].w = -dot( Eye, m_Planes[i].xyz );
+			Vec3<T> PNear = eye + front * (T)view.m_fParameters[eCP_NEAR];
+			Vec3<T> PFar = eye + front * (T)view.m_fParameters[eCP_FAR];
+			m_planes[eFP_Near].w = -dot( PNear, m_planes[eFP_Near].xyz );
+			m_planes[eFP_Far].w = -dot( PFar, m_planes[eFP_Far].xyz );
+			for( int32 i = eFP_right; i < eFP_MAX; ++i )
+				m_planes[i].w = -dot( eye, m_planes[i].xyz );
 
 			// Compute points
-			T y_near = tf_y * (T)View.m_fParameters[eCP_NEAR];
-			T x_near = y_near * (T)View.m_fParameters[eCP_ASPECT];
-			T y_far = tf_y * (T)View.m_fParameters[eCP_FAR];
-			T x_far = y_far * (T)View.m_fParameters[eCP_ASPECT];
-			m_Points[eFPT_NTL] = PNear + Up * y_near - Right * x_near;
-			m_Points[eFPT_NTR] = PNear + Up * y_near + Right * x_near;
-			m_Points[eFPT_NBL] = PNear - Up * y_near - Right * x_near;
-			m_Points[eFPT_NBR] = PNear - Up * y_near + Right * x_near;
-			m_Points[eFPT_FTL] = PFar + Up * y_far - Right * x_far;
-			m_Points[eFPT_FTR] = PFar + Up * y_far + Right * x_far;
-			m_Points[eFPT_FBL] = PFar - Up * y_far - Right * x_far;
-			m_Points[eFPT_FBR] = PFar - Up * y_far + Right * x_far;
+			T y_near = tf_y * (T)view.m_fParameters[eCP_NEAR];
+			T x_near = y_near * (T)view.m_fParameters[eCP_ASPECT];
+			T y_far = tf_y * (T)view.m_fParameters[eCP_FAR];
+			T x_far = y_far * (T)view.m_fParameters[eCP_ASPECT];
+			m_points[eFPT_NTL] = PNear + up * y_near - right * x_near;
+			m_points[eFPT_NTR] = PNear + up * y_near + right * x_near;
+			m_points[eFPT_NBL] = PNear - up * y_near - right * x_near;
+			m_points[eFPT_NBR] = PNear - up * y_near + right * x_near;
+			m_points[eFPT_FTL] = PFar + up * y_far - right * x_far;
+			m_points[eFPT_FTR] = PFar + up * y_far + right * x_far;
+			m_points[eFPT_FBL] = PFar - up * y_far - right * x_far;
+			m_points[eFPT_FBR] = PFar - up * y_far + right * x_far;
 		};
 
-		if( bLocalToView )
+		if( is_local_to_view )
 		{
-			Vec3<T> Eye(0,0,0);
-			Vec3<T> Right(1,0,0);
-			Vec3<T> Up(0,1,0);
-			Vec3<T> Front(0,0,-1);
-			ComputeFunc( Eye, Right, Up, Front );
+			Vec3<T> eye(0,0,0);
+			Vec3<T> right(1,0,0);
+			Vec3<T> up(0,1,0);
+			Vec3<T> front(0,0,-1);
+			ComputeFunc( eye, right, up, front );
 		}
 		else
 		{
-			Mat4<T> CamToWorldMat( View.m_Transform.GetRotation() );
-			Vec3<T> Eye = View.m_Transform.GetTranslation();
-			Vec3<T> Right = CamToWorldMat.v0.xyz;
-			Vec3<T> Up = CamToWorldMat.v1.xyz;
-			Vec3<T> Front = -CamToWorldMat.v2.xyz;
-			ComputeFunc( Eye, Right, Up, Front );
+			Mat4<T> CamToWorldMat( view.m_Transform.GetRotation() );
+			Vec3<T> eye = view.m_Transform.GetTranslation();
+			Vec3<T> right = CamToWorldMat.v0.xyz;
+			Vec3<T> up = CamToWorldMat.v1.xyz;
+			Vec3<T> front = -CamToWorldMat.v2.xyz;
+			ComputeFunc( eye, right, up, front );
 		}
 	}
   
     template<typename U>
     friend std::ostream &operator<<(std::ostream &stream, Transform<U> const &v);
 
-	eIntersectionStatus AABBIntersection( Vec3<T> const& BoxMin, Vec3<T> const& BoxMax ) const
+	eIntersectionStatus AABBIntersection( Vec3<T> const& box_min, Vec3<T> const& box_max ) const
 	{
 		// check box outside/inside of frustum
 		int SumOut = 0;
 		for( int i = 0; i < eFP_MAX; i++ )
 		{
 			int Out = 0;
-			Out += ((dot( m_Planes[i], Vec4<T>(BoxMin.x, BoxMin.y, BoxMin.z, (T)1.0) ) < (T)0.0 ) ? 1 : 0);
-			Out += ((dot( m_Planes[i], Vec4<T>(BoxMax.x, BoxMin.y, BoxMin.z, (T)1.0) ) < (T)0.0 ) ? 1 : 0);
-			Out += ((dot( m_Planes[i], Vec4<T>(BoxMin.x, BoxMax.y, BoxMin.z, (T)1.0) ) < (T)0.0 ) ? 1 : 0);
-			Out += ((dot( m_Planes[i], Vec4<T>(BoxMax.x, BoxMax.y, BoxMin.z, (T)1.0) ) < (T)0.0 ) ? 1 : 0);
-			Out += ((dot( m_Planes[i], Vec4<T>(BoxMin.x, BoxMin.y, BoxMax.z, (T)1.0) ) < (T)0.0 ) ? 1 : 0);
-			Out += ((dot( m_Planes[i], Vec4<T>(BoxMax.x, BoxMin.y, BoxMax.z, (T)1.0) ) < (T)0.0 ) ? 1 : 0);
-			Out += ((dot( m_Planes[i], Vec4<T>(BoxMin.x, BoxMax.y, BoxMax.z, (T)1.0) ) < (T)0.0 ) ? 1 : 0);
-			Out += ((dot( m_Planes[i], Vec4<T>(BoxMax.x, BoxMax.y, BoxMax.z, (T)1.0) ) < (T)0.0 ) ? 1 : 0);
+			Out += ((dot( m_planes[i], Vec4<T>(box_min.x, box_min.y, box_min.z, (T)1.0) ) < (T)0.0 ) ? 1 : 0);
+			Out += ((dot( m_planes[i], Vec4<T>(box_max.x, box_min.y, box_min.z, (T)1.0) ) < (T)0.0 ) ? 1 : 0);
+			Out += ((dot( m_planes[i], Vec4<T>(box_min.x, box_max.y, box_min.z, (T)1.0) ) < (T)0.0 ) ? 1 : 0);
+			Out += ((dot( m_planes[i], Vec4<T>(box_max.x, box_max.y, box_min.z, (T)1.0) ) < (T)0.0 ) ? 1 : 0);
+			Out += ((dot( m_planes[i], Vec4<T>(box_min.x, box_min.y, box_max.z, (T)1.0) ) < (T)0.0 ) ? 1 : 0);
+			Out += ((dot( m_planes[i], Vec4<T>(box_max.x, box_min.y, box_max.z, (T)1.0) ) < (T)0.0 ) ? 1 : 0);
+			Out += ((dot( m_planes[i], Vec4<T>(box_min.x, box_max.y, box_max.z, (T)1.0) ) < (T)0.0 ) ? 1 : 0);
+			Out += ((dot( m_planes[i], Vec4<T>(box_max.x, box_max.y, box_max.z, (T)1.0) ) < (T)0.0 ) ? 1 : 0);
 			if( Out==8 ) 
 				return Outside;
 			SumOut += Out;
@@ -145,12 +145,12 @@ public:
 
 		// check frustum outside/inside box
 		int Out;
-		Out=0; for( int i=0; i < eFPT_MAX; i++ ) Out += ((m_Points[i].x > BoxMax.x) ? 1 : 0); if( Out==eFPT_MAX ) return Outside;
-		Out=0; for( int i=0; i < eFPT_MAX; i++ ) Out += ((m_Points[i].x < BoxMin.x) ? 1 : 0); if( Out==eFPT_MAX ) return Outside;
-		Out=0; for( int i=0; i < eFPT_MAX; i++ ) Out += ((m_Points[i].y > BoxMax.y) ? 1 : 0); if( Out==eFPT_MAX ) return Outside;
-		Out=0; for( int i=0; i < eFPT_MAX; i++ ) Out += ((m_Points[i].y < BoxMin.y) ? 1 : 0); if( Out==eFPT_MAX ) return Outside;
-		Out=0; for( int i=0; i < eFPT_MAX; i++ ) Out += ((m_Points[i].z > BoxMax.z) ? 1 : 0); if( Out==eFPT_MAX ) return Outside;
-		Out=0; for( int i=0; i < eFPT_MAX; i++ ) Out += ((m_Points[i].z < BoxMin.z) ? 1 : 0); if( Out==eFPT_MAX ) return Outside;
+		Out=0; for( int i=0; i < eFPT_MAX; i++ ) Out += ((m_points[i].x > box_max.x) ? 1 : 0); if( Out==eFPT_MAX ) return Outside;
+		Out=0; for( int i=0; i < eFPT_MAX; i++ ) Out += ((m_points[i].x < box_min.x) ? 1 : 0); if( Out==eFPT_MAX ) return Outside;
+		Out=0; for( int i=0; i < eFPT_MAX; i++ ) Out += ((m_points[i].y > box_max.y) ? 1 : 0); if( Out==eFPT_MAX ) return Outside;
+		Out=0; for( int i=0; i < eFPT_MAX; i++ ) Out += ((m_points[i].y < box_min.y) ? 1 : 0); if( Out==eFPT_MAX ) return Outside;
+		Out=0; for( int i=0; i < eFPT_MAX; i++ ) Out += ((m_points[i].z > box_max.z) ? 1 : 0); if( Out==eFPT_MAX ) return Outside;
+		Out=0; for( int i=0; i < eFPT_MAX; i++ ) Out += ((m_points[i].z < box_min.z) ? 1 : 0); if( Out==eFPT_MAX ) return Outside;
 
 		return SumOut > 0 ? Intersect : FullyInside;
 	}
@@ -160,24 +160,24 @@ public:
 		Vec4<T> VSphere( SphereCenter, (T)1.0 );
 		int In = 0;
 		float d;
-		if( (d = dot( m_Planes[eFP_Near], VSphere )) < -SphereRadius ) return Outside;
+		if( (d = dot( m_planes[eFP_Near], VSphere )) < -SphereRadius ) return Outside;
 		In += d > SphereRadius ? 1 : 0;
-		if( (d = dot( m_Planes[eFP_Far], VSphere )) < -SphereRadius ) return Outside;
+		if( (d = dot( m_planes[eFP_Far], VSphere )) < -SphereRadius ) return Outside;
 		In += d > SphereRadius ? 1 : 0;
-		if( (d = dot( m_Planes[eFP_Right], VSphere )) < -SphereRadius ) return Outside;
+		if( (d = dot( m_planes[eFP_right], VSphere )) < -SphereRadius ) return Outside;
 		In += d > SphereRadius ? 1 : 0;
-		if( (d = dot( m_Planes[eFP_Left], VSphere )) < -SphereRadius ) return Outside;
+		if( (d = dot( m_planes[eFP_Left], VSphere )) < -SphereRadius ) return Outside;
 		In += d > SphereRadius ? 1 : 0;
-		if( (d = dot( m_Planes[eFP_Top], VSphere )) < -SphereRadius ) return Outside;
+		if( (d = dot( m_planes[eFP_Top], VSphere )) < -SphereRadius ) return Outside;
 		In += d > SphereRadius ? 1 : 0;
-		if( (d = dot( m_Planes[eFP_Bottom], VSphere )) < -SphereRadius ) return Outside;
+		if( (d = dot( m_planes[eFP_Bottom], VSphere )) < -SphereRadius ) return Outside;
 		In += d > SphereRadius ? 1 : 0;
 
 		return In < 6 ? Intersect : FullyInside;
 	}
 
-    Vec4<T> m_Planes[eFP_MAX];
-	Vec3<T> m_Points[eFPT_MAX];
+    Vec4<T> m_planes[eFP_MAX];
+	Vec3<T> m_points[eFPT_MAX];
 };
 
 
