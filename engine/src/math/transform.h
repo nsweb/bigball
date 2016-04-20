@@ -91,6 +91,11 @@ template <typename T> struct /*BIGBALL_API*/ Transform
         return Mat4<T>( m_rotation, m_translation, m_scale );
     }
 
+	bool operator == (Transform<T> const & oth) const
+	{
+		return m_rotation == oth.m_rotation && m_translation == oth.m_translation && m_scale == oth.m_scale;
+	}
+
     template<typename U>
     friend std::ostream &operator<<(std::ostream &stream, Transform<U> const &v);
 
