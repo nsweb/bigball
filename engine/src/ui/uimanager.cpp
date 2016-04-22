@@ -3,6 +3,7 @@
 #include "../bigball.h"
 #include "uimanager.h"
 #include "../engine/engine.h"
+#include "../engine/controller.h"
 #include "../gfx/gfxmanager.h"
 #include "../gfx/shader.h"
 #include "../gfx/rendercontext.h"
@@ -293,50 +294,18 @@ void UIManager::Tick( TickContext& tick_ctxt )
 
 }
 
-
-//void UpdateImGui()
-//{
-//	ImGuiIO& io = ImGui::GetIO();
-//
-//	// Setup timestep
-//	static double time = 0.0f;
-//	const double current_time =  glfwGetTime();
-//	io.DeltaTime = (float)(current_time - time);
-//	time = current_time;
-//
-//	// Setup inputs
-//	// (we already got mouse wheel, keyboard keys & characters from glfw callbacks polled in glfwPollEvents())
-//	double mouse_x, mouse_y;
-//	glfwGetCursorPos(window, &mouse_x, &mouse_y);
-//	io.MousePos = ImVec2((float)mouse_x * mousePosScale.x, (float)mouse_y * mousePosScale.y);      // Mouse position, in pixels (set to -1,-1 if no mouse / on another screen, etc.)
-//	io.MouseDown[0] = mousePressed[0] || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) != 0;  // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
-//	io.MouseDown[1] = mousePressed[1] || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) != 0;
-//
-//	// Start the frame
-//	ImGui::NewFrame();
-//}
-
 void UIManager::_Render( struct RenderContext& render_ctxt )
 {
 	ImGuiIO& io = ImGui::GetIO();
-	//mousePressed[0] = mousePressed[1] = false;
 	io.MouseWheel = 0;
-	//glfwPollEvents();
-	//UpdateImGui();
-
 	io.DeltaTime = bigball::max(0.000001f, render_ctxt.m_delta_seconds);
 
-
 	// Setup inputs
-	// (we already got mouse wheel, keyboard keys & characters from glfw callbacks polled in glfwPollEvents())
-	//double mouse_x, mouse_y;
-	//glfwGetCursorPos(window, &mouse_x, &mouse_y);
-	int mouse_x, mouse_y;
-	uint32 mouse_state = SDL_GetMouseState( &mouse_x, &mouse_y );
-
-	io.MousePos = ImVec2((float)mouse_x,(float)mouse_y);//(float)mouse_x * mousePosScale.x, (float)mouse_y * mousePosScale.y);      // Mouse position, in pixels (set to -1,-1 if no mouse / on another screen, etc.)
-	io.MouseDown[0] = mouse_state & SDL_BUTTON_LMASK ? true : false;//mousePressed[0] || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) != 0;  // If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
-	io.MouseDown[1] = mouse_state & SDL_BUTTON_RMASK ? true : false;//mousePressed[1] || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) != 0;
+	ControllerMouseState const& mouse_state = Controller::GetStaticInstance()->GetMouseState();
+	io.MousePos = ImVec2((float)mouse_state.m_mouse_x, (float)mouse_state.m_mouse_y);
+	io.MouseDown[0] = mouse_state.m_left_down;
+	io.MouseDown[1] = mouse_state.m_right_down;
+	io.MouseDown[2] = mouse_state.m_middle_down;
 
 	// Start the frame
 	ImGui::NewFrame();

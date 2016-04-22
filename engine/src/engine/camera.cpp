@@ -12,12 +12,12 @@ CLASS_EQUIP_CPP(CameraCtrl_Base);
 CLASS_EQUIP_CPP(CameraCtrl_Fly);
 
 CameraView::CameraView() :
-	m_Transform( dquat(1.), dvec3(0.), 1. )
+	m_transform( dquat(1.), dvec3(0.), 1. )
 {
-	m_fParameters[eCP_FOV] = 55.0f;
-	m_fParameters[eCP_ASPECT] = 16.0f / 9.0f;
-	m_fParameters[eCP_NEAR] = 0.01f;
-	m_fParameters[eCP_FAR] = 100.0f;
+	m_parameters[eCP_FOV] = 55.0f;
+	m_parameters[eCP_ASPECT] = 16.0f / 9.0f;
+	m_parameters[eCP_NEAR] = 0.01f;
+	m_parameters[eCP_FAR] = 100.0f;
 }
 
 Camera::Camera()
@@ -29,20 +29,20 @@ Camera::~Camera()
 {
 }
 
-void Camera::Create( EntityPattern* Pattern, class json::Object* Proto, Name InName )
+void Camera::Create( EntityPattern* pattern, class json::Object* proto, Name in_name )
 {
-	Super::Create( Pattern, Proto, InName );
+	Super::Create(pattern, proto, in_name);
 
-	json::TokenIdx EntTok = Proto->GetToken( "entity", json::OBJECT );
-	json::TokenIdx CamTok = Proto->GetToken( "camera", json::OBJECT, EntTok );
-	if( CamTok != INDEX_NONE )
+	json::TokenIdx ent_tok = proto->GetToken("entity", json::OBJECT);
+	json::TokenIdx cam_tok = proto->GetToken("camera", json::OBJECT, ent_tok);
+	if (cam_tok != INDEX_NONE)
 	{
-		char const* ParamNames[] = { "fov", "near", "far" };
-		for( int32 i = 0; i < COUNT_OF( ParamNames ); ++i )
+		char const* param_names[] = { "fov", "near", "far" };
+		for (int32 i = 0; i < COUNT_OF(param_names); ++i)
 		{
-			json::TokenIdx ParamTok = Proto->GetToken( ParamNames[i], json::PRIMITIVE, CamTok );
-			if( ParamTok != INDEX_NONE )
-				m_View.m_fParameters[i] = Proto->GetFloatValue( ParamTok, m_View.m_fParameters[i] );
+			json::TokenIdx param_tok = proto->GetToken(param_names[i], json::PRIMITIVE, cam_tok);
+			if (param_tok != INDEX_NONE)
+				m_view.m_parameters[i] = proto->GetFloatValue(param_tok, m_view.m_parameters[i]);
 		}
 	}
 }
@@ -67,155 +67,17 @@ void Camera::Tick( float DeltaSeconds )
 {
 }
 
-void Camera::SetPosition( dvec3 Position )
+void Camera::SetPosition( dvec3 position )
 {
-	m_View.m_Transform.SetTranslation( Position );
+	m_view.m_transform.SetTranslation( position );
 }
-void Camera::SetRotation( dquat Rotation )
+void Camera::SetRotation( dquat rotation )
 {
-	m_View.m_Transform.SetRotation( Rotation );
+	m_view.m_transform.SetRotation( rotation );
 }
 
 #if 0
 
-Camera::Camera()
-{
-	m_fParameters[eParam_FOV] = 50.0f * F_DEG_TO_RAD;
-	m_fParameters[eParam_ASPECTRATIO] = 1.333f;
-	m_fParameters[eParam_NEARPLANE] = 30.0f;
-	m_fParameters[eParam_FARPLANE] = 2500.0f;
-
-	m_mTarget[eReference_CURRENT] = mat4(1.0f);
-	m_mTarget[eReference_DESIRED] = mat4(1.0f);
-
-	/*vec3 Up( 0.0f, 0.0f, 1.0f );
-	SetUpVector( Up );
-	vec3 LookAt( 1.0f, 0.0f, 0.0f );
-	SetTargetPosition( LookAt, true );
-	vec3 Ref( 0.0f, 0.0f, 0.0f );
-	SetPosition( Ref, true );*/
-}
-
-Camera::~Camera()
-{
-}
-
-
-//-------------------------------------------------------------------------------
-void Camera::SetParam( eParam _eParam, float _fValue )
-{
-	m_fParameters[_eParam] = _fValue;
-}
-
-//-------------------------------------------------------------------------------
-float Camera::GetParam( eParam _eParam ) const
-{
-	return m_fParameters[_eParam];
-}
-
-//-------------------------------------------------------------------------------
-/*void Camera::SetPosition( const vec3& _Position, bool _bImmediate )
-{
-	m_Position[eReference_DESIRED] = _Position;
-	UpdateYawPitchTargetDist( eReference_DESIRED );
-	if( _bImmediate ) 
-	{
-		m_Position[eReference_CURRENT] = _Position;
-		UpdateYawPitchTargetDist( eReference_CURRENT );
-	}
-}
-
-//-------------------------------------------------------------------------------
-const vec3& Camera::GetPosition( bool _bCurrent ) const
-{
-	return ( _bCurrent ? m_Position[eReference_CURRENT] : m_Position[eReference_DESIRED] );
-}
-*/
-//-------------------------------------------------------------------------------
-/*void Camera::SetUpVector( const vec3& _UpVector, bool _bImmediate )
-{
-	m_UpVector[eReference_DESIRED] = _UpVector;
-	UpdateYawPitchTargetDist( eReference_DESIRED );
-	if( _bImmediate ) 
-	{
-		m_UpVector[eReference_CURRENT] = _UpVector;
-		UpdateYawPitchTargetDist( eReference_CURRENT );
-	}
-}*/
-
-//-------------------------------------------------------------------------------
-/*const vec3& Camera::GetUpVector( bool _bCurrent ) const
-{
-	return ( _bCurrent ? m_UpVector[eReference_CURRENT] : m_UpVector[eReference_DESIRED] );
-}*/
-
-//-------------------------------------------------------------------------------
-/*void Camera::SetTargetPosition( const vec3& _TargetPosition, bool _bImmediate )
-{
-	m_TargetPosition[eReference_DESIRED] = _TargetPosition;
-	if( _bImmediate ) 
-		m_TargetPosition[eReference_CURRENT] = _TargetPosition;
-}
-*/
-//-------------------------------------------------------------------------------
-const vec3& Camera::GetTargetPosition() const
-{
-	return m_TargetPosition;
-}
-
-//-------------------------------------------------------------------------------
-void Camera::SetTarget( const mat4& _mTarget, bool _bImmediate )
-{
-	m_mTarget[eReference_DESIRED] = _mTarget;
-	if( _bImmediate ) 
-		m_mTarget[eReference_CURRENT] = _mTarget;
-}
-
-//-------------------------------------------------------------------------------
-void Camera::SetYaw( float _fValue, bool _bImmediate )
-{
-	m_fYaw[eReference_DESIRED] = _fValue;
-	//UpdatePosition( eReference_DESIRED );
-	if( _bImmediate ) 
-	{
-		m_fYaw[eReference_CURRENT] = _fValue;
-		//UpdatePosition( eReference_CURRENT );
-	}
-}
-float Camera::GetYaw( bool _bCurrent ) const
-{
-	return ( _bCurrent ? m_fYaw[eReference_CURRENT] : m_fYaw[eReference_DESIRED] );
-}
-//-------------------------------------------------------------------------------
-void Camera::SetPitch( float _fValue, bool _bImmediate )
-{
-	m_fPitch[eReference_DESIRED] = _fValue;
-	//UpdatePosition( eReference_DESIRED );
-	if( _bImmediate ) 
-	{
-		m_fPitch[eReference_CURRENT] = _fValue;
-		//UpdatePosition( eReference_CURRENT );
-	}
-}
-float Camera::GetPitch( bool _bCurrent ) const
-{
-	return ( _bCurrent ? m_fPitch[eReference_CURRENT] : m_fPitch[eReference_DESIRED] );
-}
-//-------------------------------------------------------------------------------
-void Camera::SetTargetDist( float _fValue, bool _bImmediate )
-{
-	m_fTargetDist[eReference_DESIRED] = _fValue;
-	//UpdatePosition( eReference_DESIRED );
-	if( _bImmediate ) 
-	{
-		m_fTargetDist[eReference_CURRENT] = _fValue;
-		//UpdatePosition( eReference_CURRENT );
-	}
-}
-float Camera::GetTargetDist( bool _bCurrent ) const
-{
-	return ( _bCurrent ? m_fTargetDist[eReference_CURRENT] : m_fTargetDist[eReference_DESIRED] );
-}
 
 //-------------------------------------------------------------------------------
 void Camera::Tick( float DeltaSeconds )
@@ -272,144 +134,53 @@ void Camera::Tick( float DeltaSeconds )
 	UpdateMatrix();
 }
 
-//-------------------------------------------------------------------------------
-/*void Camera::UpdatePosition( eReference _eRef )
-{
-	//vec3 v3Dir( sinf( m_fYaw[_eRef] )*cosf( m_fPitch[_eRef] ), sinf( m_fPitch[_eRef] ), cosf( m_fYaw[_eRef] )*cosf( m_fPitch[_eRef] ) );
-	vec3 v3Dir( cosf( m_fYaw[_eRef] )*cosf( m_fPitch[_eRef] ), cosf( m_fPitch[_eRef] )*sinf( m_fYaw[_eRef] ), sinf( m_fPitch[_eRef] ) );
-	m_Position[_eRef] = m_TargetPosition[_eRef] - v3Dir*m_fTargetDist[_eRef];
-}
-
-//-------------------------------------------------------------------------------
-void Camera::UpdateYawPitchTargetDist( eReference _eRef )
-{
-	vec3 v3Dir( m_TargetPosition[_eRef] - m_Position[_eRef] );
-	m_fTargetDist[_eRef] = D3DXVec3Length( &v3Dir );
-	D3DXVec3Normalize( &v3Dir, &v3Dir );
-	vec3 v3DirProj( v3Dir.x, 0.0f, v3Dir.z );
-	D3DXVec3Normalize( &v3DirProj, &v3DirProj );
-	m_fYaw[_eRef] = atan2f( v3DirProj.x, v3DirProj.z );
-	m_fPitch[_eRef] = atan2f( v3Dir.y, D3DXVec3Dot( &v3Dir, &v3DirProj ) );
-	if( m_fYaw[_eRef] < 0.0f )		m_fYaw[_eRef] = 2.0f*F_PI + m_fYaw[_eRef];
-	if( m_fPitch[_eRef] < 0.0f )	m_fPitch[_eRef] = 2.0f*F_PI + m_fPitch[_eRef];
-}*/
-
-//## Operation: UpdateRwFrame%3F65ABA6027B
-/*void cgCamera::UpdateRwFrame () const
-{
-	//## begin cgCamera::UpdateRwFrame%3F65ABA6027B.body preserve=yes
-
-	// à l'aide des vecteurs Position & TargetPosition, calcul la matrice de la caméra (lookat)
-
-	if ( NULL != m_pRwFrame)
-	{
-		RwMatrix *pMatrix = RwFrameGetMatrix( m_pRwFrame);
-		RwV3d *pEye = &m_Position[ EReference_CURRENT];
-		RwV3d *pAt = &m_TargetPosition[ EReference_CURRENT];
-		RwV3d *pUp = &m_UpVector;
-
-		*RwMatrixGetPos( pMatrix) = *pEye;
-
-		RwV3dSub( RwMatrixGetAt( pMatrix), pAt, RwMatrixGetPos( pMatrix));
-		RwV3dNormalize( RwMatrixGetAt( pMatrix), RwMatrixGetAt( pMatrix));
-
-		RwV3dCrossProduct( RwMatrixGetRight( pMatrix), RwMatrixGetAt( pMatrix), pUp);
-		RwV3dNormalize( RwMatrixGetRight( pMatrix), RwMatrixGetRight( pMatrix));
-
-		RwV3dCrossProduct( RwMatrixGetUp( pMatrix), RwMatrixGetAt( pMatrix), RwMatrixGetRight( pMatrix));
-		RwV3dNormalize( RwMatrixGetUp( pMatrix ), RwMatrixGetUp( pMatrix));
-
-		RwMatrixUpdate( pMatrix);
-		RwMatrixOrthoNormalize( pMatrix, pMatrix);
-		RwFrameUpdateObjects( m_pRwFrame);
-	}
-
-	// maj. des propriétés de la caméra RenderWare en fonction de celles-ci
-
-	RwCamera *pRwCamera = dtgRwGraphics::GetCamera();
-
-	RwCameraSetNearClipPlane( pRwCamera, m_fParameters[ EParm_NEARPLANE]);
-	RwCameraSetFarClipPlane( pRwCamera, m_fParameters[ EParm_FARPLANE]);
-
-	// [RenderWare] Note that the view-window is fixed at unit distance from the camera and cannot be moved.
-	// In this situation changes to the aspect ratio and angular field-of-view of the rendered image can be achieved by defining new values for the width and height of the view-window
-
-	RwV2d temp;
-	temp.y = m_fParameters[EParm_FOV];
-	temp.x = m_fParameters[EParm_FOV] * m_fParameters[EParm_ASPECTRATIO];
-
-	RwCameraSetViewWindow(pRwCamera, &temp);
-
-	//## end cgCamera::UpdateRwFrame%3F65ABA6027B.body
-}*/
-
-//-------------------------------------------------------------------------------
-void Camera::UpdateMatrix()
-{
-	m_mProj.perspective( m_fParameters[eParam_FOV] / m_fParameters[eParam_ASPECTRATIO], m_fParameters[eParam_ASPECTRATIO], m_fParameters[eParam_NEARPLANE], m_fParameters[eParam_FARPLANE] );
-	//D3DXMatrixPerspectiveFovRH( &m_mProj, m_fParameters[eParam_FOV] / m_fParameters[eParam_ASPECTRATIO], m_fParameters[eParam_ASPECTRATIO], m_fParameters[eParam_NEARPLANE], m_fParameters[eParam_FARPLANE] );
-	//vec3 UpVector( m_mTarget[eReference_CURRENT]._31, m_mTarget[eReference_CURRENT]._32, m_mTarget[eReference_CURRENT]._33 );
-	//D3DXMatrixLookAtRH( &m_mView, &m_Position, &m_TargetPosition/*v3LookAt*/, &UpVector /*&m_UpVector[eReference_CURRENT]*/ );
-	vec3 UpVector( m_mTarget[eReference_CURRENT][2].xyz );
-	m_mView.lookat( m_Position, m_TargetPosition, UpVector );
-}
-
-//-------------------------------------------------------------------------------
-void Camera::GetViewMatrixVectors( vec3& _Right, vec3& _Up, vec3& _Front )
-{
-	mat4 ViewT( transpose( m_mView ) );
-	_Right = ViewT[0].xyz;
-	_Up = ViewT[1].xyz;
-	_Front = ViewT[2].xyz;
-}
-
-
-
 #endif
     
-    void CameraCtrl_Base::UpdateView( CameraView& CamView, float DeltaSeconds )
-    {
+void CameraCtrl_Base::UpdateView( CameraView& cam_view, float delta_seconds )
+{
         
-    }
+}
 
-
-
-
-bool CameraCtrl_Base::OnControllerInput( Camera* pCamera, ControllerInput const& Input )
+bool CameraCtrl_Base::OnControllerInput( Camera* camera, ControllerInput const& input )
 {
 	return false;
 }
 
+void CameraCtrl_Base::TickMouseState(ControllerMouseState const& mouse_state)
+{
+
+}
+
 CameraCtrl_Fly::CameraCtrl_Fly() :
-	m_StrafeSpeed(200.0f),
-	m_RotationSpeed(1000.0f)
+	m_strafe_speed(200.0f),
+	m_rotation_speed(1000.0f)
 {
 
 }
 
-void CameraCtrl_Fly::UpdateView( CameraView& CamView, float DeltaSeconds )
+void CameraCtrl_Fly::UpdateView(CameraView& cam_view, float delta_seconds)
 {
 
 }
 
-bool CameraCtrl_Fly::OnControllerInput( Camera* pCamera, ControllerInput const& Input )
+bool CameraCtrl_Fly::OnControllerInput(Camera* camera, ControllerInput const& input)
 {
-	CameraView& View = pCamera->GetView();
+	CameraView& view = camera->GetView();
 
-	if( Input.m_type == eCIT_Key )
+	if (input.m_type == eCIT_Key)
 	{
-		mat4 CamToWorldMat( View.m_Transform.GetRotation() );
+		mat4 CamToWorldMat(view.m_transform.GetRotation());
 		vec3 Right = CamToWorldMat.v0.xyz;
 		vec3 Up = CamToWorldMat.v1.xyz;
 		vec3 Front = -CamToWorldMat.v2.xyz;
-		View.m_Transform.GetTranslation() += (Right * Input.m_delta.x + Up * Input.m_delta.z + Front * Input.m_delta.y) * m_StrafeSpeed;
+		view.m_transform.GetTranslation() += (Right * input.m_delta.x + Up * input.m_delta.z + Front * input.m_delta.y) * m_strafe_speed;
 	}
-	else if( Input.m_type == eCIT_Mouse )
+	else if (input.m_type == eCIT_Mouse)
 	{
 		// TODO : arcball rotation
-		quat YawPitchRoll( quat::fromeuler_xyz( Input.m_delta.y * m_RotationSpeed, Input.m_delta.x * m_RotationSpeed, 0.0f ) );
+		quat YawPitchRoll(quat::fromeuler_xyz(input.m_delta.y * m_rotation_speed, input.m_delta.x * m_rotation_speed, 0.0f));
 
-		View.m_Transform.SetRotation( View.m_Transform.GetRotation() * YawPitchRoll );
+		view.m_transform.SetRotation(view.m_transform.GetRotation() * YawPitchRoll);
 	}
 
 	return true;

@@ -97,7 +97,7 @@ void DrawUtils::Tick( TickContext& tick_ctxt )
 
 void DrawUtils::_Render( struct RenderContext& render_ctxt )
 {
-    mat4 view_inv_mat( render_ctxt.m_view.m_Transform.GetRotation(), render_ctxt.m_view.m_Transform.GetTranslation(), (float)render_ctxt.m_view.m_Transform.GetScale() );
+	mat4 view_inv_mat(render_ctxt.m_view.m_transform.GetRotation(), render_ctxt.m_view.m_transform.GetTranslation(), (float)render_ctxt.m_view.m_transform.GetScale());
     
     // Render Segments
     m_util_seg_shader->Bind();

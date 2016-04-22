@@ -252,7 +252,6 @@ void Engine::MainLoop()
 		if( keys[SDL_SCANCODE_LALT] || keys[SDL_SCANCODE_RALT] )
 			modifiers |= eIM_Alt;
 
-		//Event.key.keysym.mod
 		if( keys[SDL_SCANCODE_LEFT] )
 			Controller::GetStaticInstance()->OnInputX( modifiers, -delta_seconds );
 		if( keys[SDL_SCANCODE_RIGHT] )
@@ -265,6 +264,13 @@ void Engine::MainLoop()
 			Controller::GetStaticInstance()->OnInputZ( modifiers, delta_seconds );
 		if( keys[SDL_SCANCODE_PAGEDOWN] )
 			Controller::GetStaticInstance()->OnInputZ( modifiers, -delta_seconds );
+
+		int mouse_x, mouse_y;
+		uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+		bool left_down = mouse_state & SDL_BUTTON_LMASK ? true : false;
+		bool right_down = mouse_state & SDL_BUTTON_RMASK ? true : false;
+		bool middle_down = mouse_state & SDL_BUTTON_MMASK ? true : false;
+		Controller::GetStaticInstance()->SetMouseState(modifiers, left_down, right_down, middle_down, mouse_x, mouse_y);
 		
 		ImGuiIO& io = ImGui::GetIO();
 		while( SDL_PollEvent( &event ) )
@@ -273,10 +279,6 @@ void Engine::MainLoop()
 			{
 			case SDL_KEYDOWN:
 				{
-					//SDL_Keycode keyPressed = Event.key.keysym.sym;
-					//if( keyPressed == SDLK_LEFT )
-					//	Controller::GetStaticInstance()->OnInputX( Event.key.keysym.mod, -DeltaSeconds );
-
 					// Warn ImGui
 					int key = event.key.keysym.sym & ~SDLK_SCANCODE_MASK;
 					io.KeysDown[key] = (event.type == SDL_KEYDOWN);
@@ -314,8 +316,8 @@ void Engine::MainLoop()
 							if( current_cam )
 							{
 								CameraView& cam_view = current_cam->GetView();
-								out_file.Serialize( &cam_view.m_Transform, sizeof(cam_view.m_Transform) );
-								out_file.Serialize( &cam_view.m_fParameters, sizeof(cam_view.m_fParameters) );
+								out_file.Serialize(&cam_view.m_transform, sizeof(cam_view.m_transform));
+								out_file.Serialize( &cam_view.m_parameters, sizeof(cam_view.m_parameters) );
 							}
 						}
 					}

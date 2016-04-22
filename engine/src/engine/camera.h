@@ -8,6 +8,8 @@
 namespace bigball
 {
 
+struct ControllerMouseState;
+
 namespace json
 {
 	class Object;
@@ -27,10 +29,8 @@ class BIGBALL_API CameraView
 public:
 					CameraView();
 
-	//dvec3	m_Position;
-	//quat	m_Rotation;
-	dtransform	m_Transform;
-	float		m_fParameters[eCP_MAX];
+	dtransform	m_transform;
+	float		m_parameters[eCP_MAX];
 };
 
 class BIGBALL_API Camera : public Entity
@@ -43,7 +43,7 @@ public:
 
 	// Begin : Entity interface
 	static Entity*	NewEntity()		{ return new Camera();	}
-	virtual void	Create( EntityPattern* Pattern, class json::Object* Proto = nullptr, Name InName = Name() );
+	virtual void	Create( EntityPattern* pattern, class json::Object* proto = nullptr, Name in_name = Name() );
 	virtual void	Destroy();	
 	virtual void	AddToWorld();
 	virtual void	RemoveFromWorld();
@@ -51,13 +51,13 @@ public:
 	// End : Entity interface
 
 	void			SetPosition( dvec3 Position );
-	dvec3			GetPosition()		{ return m_View.m_Transform.GetTranslation(); }
+	dvec3			GetPosition()		{ return m_view.m_transform.GetTranslation(); }
 	void			SetRotation( dquat Rotation );
-	dquat			GetRotation()		{ return m_View.m_Transform.GetRotation(); }
-	CameraView&		GetView()			{ return m_View;			}
+	dquat			GetRotation()		{ return m_view.m_transform.GetRotation(); }
+	CameraView&		GetView()			{ return m_view; }
 
 protected:
-	CameraView			m_View;
+	CameraView			m_view;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -66,8 +66,9 @@ class BIGBALL_API CameraCtrl_Base
 	CLASS_EQUIP_BASE_H(CameraCtrl_Base)
 
 public:
-	virtual void		UpdateView( CameraView& CamView, float DeltaSeconds );
-	virtual bool		OnControllerInput( Camera* pCamera, struct ControllerInput const& Input );
+	virtual void		UpdateView( CameraView& cam_view, float delta_seconds );
+	virtual bool		OnControllerInput( Camera* camera, struct ControllerInput const& input );
+	virtual void		TickMouseState(ControllerMouseState const& mouse_state);
 };
 
 class BIGBALL_API CameraCtrl_Fly : public CameraCtrl_Base
@@ -77,88 +78,13 @@ class BIGBALL_API CameraCtrl_Fly : public CameraCtrl_Base
 public:
 						CameraCtrl_Fly();
 
-	float			m_StrafeSpeed;
-	float			m_RotationSpeed;
+	float			m_strafe_speed;
+	float			m_rotation_speed;
 
 public:
-	virtual void		UpdateView( CameraView& CamView, float DeltaSeconds );
-	virtual bool		OnControllerInput( Camera* pCamera, struct ControllerInput const& Input );
+	virtual void		UpdateView(CameraView& cam_view, float delta_seconds);
+	virtual bool		OnControllerInput(Camera* camera, struct ControllerInput const& input);
 };
-
-#if 0
-class Camera : public Entity
-{
-private:
-	typedef Entity Super;
-
-public:
-					Camera();
-					~Camera();
-
-	enum eReference
-	{
-		eReference_CURRENT = 0,
-		eReference_DESIRED,
-		eReference_COUNT
-	};
-
-	// Begin : Entity interface
-	static Entity*			NewEntity()		{ return new Camera();	}
-	virtual void			Create( EntityPattern* Pattern, class tinyxml2::XMLDocument* Proto = nullptr );
-	virtual void			Destroy();	
-	virtual void			AddToWorld();
-	virtual void			RemoveFromWorld();
-	virtual void			Tick( float DeltaSeconds );
-	// End : Entity interface
-
-	void					SetParam( eParam _eParam, float _fValue );
-	float					GetParam( eParam _eParm ) const;
-	//void					SetUpVector( const P3f& _UpVector, bool _bImmediate = false );
-	//const P3f&				GetUpVector( bool _bCurrent = true ) const;
-	//void					SetPosition( const P3f& _Position, bool _bImmediate = false );
-	const vec3&				GetPosition() const				{ return m_Position;		}
-	void					SetYaw( float _fValue, bool _bImmediate = false );
-	float					GetYaw( bool _bCurrent = true ) const;
-	void					SetPitch( float _fValue, bool _bImmediate = false );
-	float					GetPitch( bool _bCurrent = true ) const;
-	void					SetTargetDist( float _fValue, bool _bImmediate = false );
-	float					GetTargetDist( bool _bCurrent = true ) const;
-	/*void					SetTargetPosition( const P3f& _TargetPosition, bool _bImmediate = false );
-	const P3f&				GetTargetPosition( bool _bCurrent = true ) const;*/
-	const vec3&				GetTargetPosition() const;
-	void					SetTarget( const mat4& _mTarget, bool _bImmediate = false );
-	//const P3f&				GetTarget( bool _bCurrent = true ) const;
-
-	const mat4&				GetViewMatrix()					{ return m_mView;			}
-	const mat4&				GetProjMatrix()					{ return m_mProj;			}
-	void					GetViewMatrixVectors( vec3& _Right, vec3& _Up, vec3& _Front );
-	
-
-protected:
-	dvec3					m_Position;
-	quat					m_Rotation;
-
-
-	//P3f					m_Position[eReference_COUNT];
-	//P3f					m_TargetPosition[eReference_COUNT];
-	mat4					m_mTarget[eReference_COUNT];
-	//P3f					m_UpVector[eReference_COUNT];
-	float					m_fYaw[eReference_COUNT];
-	float					m_fPitch[eReference_COUNT];
-	float					m_fTargetDist[eReference_COUNT];
-
-	float					m_fParameters[eParam_COUNT];
-
-	mat4					m_mView;
-	mat4					m_mProj;
-	vec3					m_Position;
-	vec3					m_TargetPosition;
-
-	void					UpdateMatrix();
-	//void					UpdateYawPitchTargetDist( eReference _eRef );
-	//void					UpdatePosition( eReference _eRef );
-};
-#endif
 
 } /* namespace bigball */
 

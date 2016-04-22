@@ -47,6 +47,7 @@ void Controller::Tick( TickContext& tick_ctxt )
 	}
 	m_frame_inputs.clear();
 
+	m_active_cam_ctrl->TickMouseState(m_frame_mouse_state);
 
 	UpdateRenderCamera( tick_ctxt.m_delta_seconds );
 }
@@ -109,8 +110,8 @@ void Controller::UpdateRenderCamera( float delta_seconds )
 
 	// Compute proj matrix
 	SDL_DisplayMode display_mode = g_pEngine->GetDisplayMode();
-	m_render_view.m_fParameters[eCP_ASPECT] = (float)display_mode.w / (float)display_mode.h;
-	m_render_proj_matrix = mat4::perspective( m_render_view.m_fParameters[eCP_FOV] * (F_PI / 180.0f), (float)display_mode.w / (float)display_mode.h, m_render_view.m_fParameters[eCP_NEAR], m_render_view.m_fParameters[eCP_FAR] );
+	m_render_view.m_parameters[eCP_ASPECT] = (float)display_mode.w / (float)display_mode.h;
+	m_render_proj_matrix = mat4::perspective(m_render_view.m_parameters[eCP_FOV] * (F_PI / 180.0f), (float)display_mode.w / (float)display_mode.h, m_render_view.m_parameters[eCP_NEAR], m_render_view.m_parameters[eCP_FAR]);
 }
 
 void Controller::OnInputX( uint32 modifier_flags, float delta )
@@ -164,6 +165,16 @@ void Controller::OnMouseMove( uint32 modifier_flags, vec3 delta )
 		ControllerInput& input = m_frame_inputs[Idx];
 		input.m_delta += delta;
 	}
+}
+
+void Controller::SetMouseState(uint32 modifier_flags, bool left_down, bool right_down, bool middle_down, int32 mouse_x, int32 mouse_y)
+{
+	m_frame_mouse_state.m_modifier_flags = modifier_flags;
+	m_frame_mouse_state.m_left_down = left_down;
+	m_frame_mouse_state.m_right_down = right_down;
+	m_frame_mouse_state.m_middle_down = middle_down;
+	m_frame_mouse_state.m_mouse_x = mouse_x;
+	m_frame_mouse_state.m_mouse_y = mouse_y;
 }
 
 }

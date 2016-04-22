@@ -35,6 +35,16 @@ struct ControllerInput
 	bool operator == ( eControllerInputType other_type ) const		{ return m_type == other_type; }
 };
 
+struct ControllerMouseState
+{
+	uint32	m_modifier_flags;
+	bool	m_left_down;
+	bool	m_right_down;
+	bool	m_middle_down;
+	int32	m_mouse_x;
+	int32	m_mouse_y;
+};
+
 
 //////////////////////////////////////////////////////////////////////////
 class BIGBALL_API Controller : public BaseManager 
@@ -63,13 +73,16 @@ public:
 	void				OnInputY( uint32 modifier_flags, float delta );
 	void				OnInputZ( uint32 modifier_flags, float delta );
 	void				OnMouseMove( uint32 modifier_flags, vec3 delta );
+	void				SetMouseState(uint32 modifier_flags, bool left_down, bool right_down, bool middle_down, int32 mouse_x, int32 mouse_y);
 	CameraView const&	GetRenderView()					{ return m_render_view;				}
 	mat4 const&			GetRenderProjMatrix()			{ return m_render_proj_matrix;		}
+	ControllerMouseState const&	GetMouseState()			{ return m_frame_mouse_state;		}
 
 protected:
 	Array<ControllerInput>		m_frame_inputs;
 	Array<Camera*>				m_cameras;
 	Array<CameraCtrl_Base*>		m_cam_ctrls;
+	ControllerMouseState		m_frame_mouse_state;
 	Camera*						m_active_cam;
 	CameraCtrl_Base*			m_active_cam_ctrl;
 	CameraView					m_render_view;
