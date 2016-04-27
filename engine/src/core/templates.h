@@ -58,18 +58,18 @@ inline void swap( T& A, T& B )
 private:\
 	static Name m_ClassName;\
 public:\
-	static	Name		StaticClass()		{ return m_ClassName;		}\
-	virtual Name		GetClassName()		{ return m_ClassName;		}\
-	virtual bool		IsA( Name const& ClassName )	{ if( ClassName == GetClassName() ) return true; return false; }
+	static	Name		StaticClass()               { return m_ClassName;		}\
+	virtual Name		GetClassName()              { return m_ClassName;		}\
+	virtual bool		IsA( Name const& ClassName ) 	{ if( ClassName == GetClassName() ) return true; return false; }
 
 #define CLASS_EQUIP_H( klass, klassParent ) \
 private:\
 	typedef klassParent Super;\
 	static Name m_ClassName;\
 public:\
-	static	Name		StaticClass()		{ return m_ClassName;		}\
-	virtual Name		GetClassName()		{ return m_ClassName;		}\
-	virtual bool		IsA( Name const& ClassName )	{ if( ClassName == GetClassName() ) return true; return Super::IsA( ClassName ); }
+	static	Name		StaticClass()               { return m_ClassName;		}\
+	virtual Name		GetClassName() override		{ return m_ClassName;		}\
+	virtual bool		IsA( Name const& ClassName ) override	{ if( ClassName == GetClassName() ) return true; return Super::IsA( ClassName ); }
 
 #define CLASS_EQUIP_CPP( klass ) \
 Name klass::m_ClassName( #klass )

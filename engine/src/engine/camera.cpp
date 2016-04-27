@@ -169,11 +169,11 @@ bool CameraCtrl_Fly::OnControllerInput(Camera* camera, ControllerInput const& in
 
 	if (input.m_type == eCIT_Key)
 	{
-		mat4 CamToWorldMat(view.m_transform.GetRotation());
-		vec3 Right = CamToWorldMat.v0.xyz;
-		vec3 Up = CamToWorldMat.v1.xyz;
-		vec3 Front = -CamToWorldMat.v2.xyz;
-		view.m_transform.GetTranslation() += (Right * input.m_delta.x + Up * input.m_delta.z + Front * input.m_delta.y) * m_strafe_speed;
+		mat4 cam_to_world_mat(view.m_transform.GetRotation());
+		vec3 right = cam_to_world_mat.v0.xyz;
+		vec3 up = cam_to_world_mat.v1.xyz;
+		vec3 front = -cam_to_world_mat.v2.xyz;
+		view.m_transform.GetTranslation() += (right * input.m_delta.x + up * input.m_delta.z + front * input.m_delta.y) * m_strafe_speed;
 	}
 	else if (input.m_type == eCIT_Mouse)
 	{

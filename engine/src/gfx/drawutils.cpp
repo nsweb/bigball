@@ -25,7 +25,7 @@ DrawUtils::~DrawUtils()
 void DrawUtils::Create()
 {
     m_util_seg_shader = GfxManager::GetStaticInstance()->LoadShader( "utilseg" );
-    m_util_shape_shader = GfxManager::GetStaticInstance()->LoadShader( "utilshape" );
+    m_util_shape_shader = GfxManager::GetStaticInstance()->LoadShader( "utilshape2" );
     
     glGenVertexArrays( eVACount, m_varrays );
     glGenBuffers( eVBCount, m_vbuffers );
@@ -65,25 +65,38 @@ void DrawUtils::Create()
     glBufferData( GL_ARRAY_BUFFER, COUNT_OF(cube_data) * sizeof(vec3), cube_data, GL_STATIC_DRAW );
     glEnableVertexAttribArray(0);
     glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof(vec3) /*stride*/, (void*)0 /*offset*/ );
-
-    glBindBuffer( GL_ARRAY_BUFFER, m_vbuffers[eVBShapeCol] );
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer( 1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(u8vec4) /*stride*/, (void*)0 /*offset*/	);
-    glVertexAttribDivisor( 1, 1 );
     
     glBindBuffer( GL_ARRAY_BUFFER, m_vbuffers[eVBShapeMat] );
     for (int i = 0; i < 4; i++ )
     {
-        glEnableVertexAttribArray( 2 + i );
-        glVertexAttribPointer( 2 + i, 4, GL_FLOAT, GL_FALSE, sizeof(mat4) /*stride*/, (void*)(sizeof(vec4) * i) /*offset*/ );
-        glVertexAttribDivisor( 2 + i, 1 );
+        glEnableVertexAttribArray( 1 + i );
+        glVertexAttribPointer( 1 + i, 4, GL_FLOAT, GL_FALSE, sizeof(mat4) /*stride*/, (void*)(sizeof(vec4) * i) /*offset*/ );
+        glVertexAttribDivisor( 1 + i, 1 );
     }
+
+    int offset_params = 0;
+    glBindBuffer( GL_ARRAY_BUFFER, m_vbuffers[eVBShapeParams] );
+    glEnableVertexAttribArray(5);
+    glVertexAttribPointer( 5, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Draw::InstanceParams) /*stride*/, (void*)offset_params );
+    glVertexAttribDivisor( 5, 1 );
+    offset_params += sizeof(u8vec4);
+    
+    //glBindBuffer( GL_ARRAY_BUFFER, m_vbuffers[eVBShapeParams] );
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer( 6, 3, GL_FLOAT, GL_FALSE, sizeof(Draw::InstanceParams) /*stride*/, (void*)offset_params );
+    glVertexAttribDivisor( 6, 1 );
+    offset_params += sizeof(vec3);
+    
+    //glBindBuffer( GL_ARRAY_BUFFER, m_vbuffers[eVBShapeEye] );
+    glEnableVertexAttribArray(7);
+    glVertexAttribPointer( 7, 3, GL_FLOAT, GL_FALSE, sizeof(Draw::InstanceParams) /*stride*/, (void*)offset_params);
+    glVertexAttribDivisor( 7, 1 );
     
     glBindVertexArray(0);
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(2);
+    for( int attrib_idx = 0; attrib_idx < 8; attrib_idx++)
+        glDisableVertexAttribArray( attrib_idx);
 }
+    
 void DrawUtils::Destroy()
 {
     glDeleteBuffers( eVBCount, m_vbuffers );
@@ -97,7 +110,17 @@ void DrawUtils::Tick( TickContext& tick_ctxt )
 
 void DrawUtils::_Render( struct RenderContext& render_ctxt )
 {
-	mat4 view_inv_mat(render_ctxt.m_view.m_transform.GetRotation(), render_ctxt.m_view.m_transform.GetTranslation(), (float)render_ctxt.m_view.m_transform.GetScale());
+	mat4 cam_to_world_mat(render_ctxt.m_view.m_transform.GetRotation(), render_ctxt.m_view.m_transform.GetTranslation(), (float)render_ctxt.m_view.m_transform.GetScale());
+    mat4 view_mat = bigball::inverse(cam_to_world_mat);
+    
+    // Transform camera eye pos to box frame
+    for( int32 shape_idx = 0; shape_idx < m_shape_params.size(); shape_idx++ )
+    {
+        Draw::InstanceParams& params = m_shape_params[shape_idx];
+        mat4 const& box_to_world = m_shape_matrices[shape_idx];
+        mat4 box_to_view = view_mat * box_to_world;
+        params.m_eye_to_box = (inverse( box_to_view ) * vec4(0.f, 0.f, 0.f, 1.f)).xyz;
+    }
     
     // Render Segments
     m_util_seg_shader->Bind();
@@ -105,7 +128,7 @@ void DrawUtils::_Render( struct RenderContext& render_ctxt )
         ShaderUniform UniProj = m_util_seg_shader->GetUniformLocation("proj_mat");
         m_util_seg_shader->SetUniform( UniProj, render_ctxt.m_proj_mat );
         ShaderUniform UniView = m_util_seg_shader->GetUniformLocation("view_mat");
-        m_util_seg_shader->SetUniform( UniView, bigball::inverse(view_inv_mat) );
+        m_util_seg_shader->SetUniform( UniView, view_mat );
     
         glBindVertexArray( m_varrays[eVASeg] );
     
@@ -128,16 +151,22 @@ void DrawUtils::_Render( struct RenderContext& render_ctxt )
         ShaderUniform UniProj = m_util_shape_shader->GetUniformLocation("proj_mat");
         m_util_shape_shader->SetUniform( UniProj, render_ctxt.m_proj_mat );
         ShaderUniform UniView = m_util_shape_shader->GetUniformLocation("view_mat");
-        m_util_shape_shader->SetUniform( UniView, bigball::inverse(view_inv_mat) );
+        m_util_shape_shader->SetUniform( UniView, view_mat );
     
         glBindVertexArray( m_varrays[eVAShape] );
     
-        glBindBuffer(GL_ARRAY_BUFFER, m_vbuffers[eVBShapeCol]);
-        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_shape_colors.size() * sizeof(u8vec4), (GLvoid*)m_shape_colors.Data(), GL_DYNAMIC_DRAW );
+        //glBindBuffer(GL_ARRAY_BUFFER, m_vbuffers[eVBShapeCol]);
+        //glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_shape_colors.size() * sizeof(u8vec4), (GLvoid*)m_shape_colors.Data(), GL_DYNAMIC_DRAW );
         
         glBindBuffer(GL_ARRAY_BUFFER, m_vbuffers[eVBShapeMat]);
         glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_shape_matrices.size() * sizeof(mat4), (GLvoid*)m_shape_matrices.Data(), GL_DYNAMIC_DRAW );
 
+        glBindBuffer(GL_ARRAY_BUFFER, m_vbuffers[eVBShapeParams]);
+        glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_shape_params.size() * sizeof(Draw::InstanceParams), (GLvoid*)m_shape_params.Data(), GL_DYNAMIC_DRAW );
+        
+        //glBindBuffer(GL_ARRAY_BUFFER, m_vbuffers[eVBShapeEye]);
+        //glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_shape_eye_to_boxes.size() * sizeof(vec3), (GLvoid*)m_shape_eye_to_boxes.Data(), GL_DYNAMIC_DRAW );
+        
         glDrawElementsInstanced( GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)0, m_shape_matrices.size() );
     
         glBindVertexArray(0);
@@ -154,13 +183,15 @@ void DrawUtils::RemoveOldElements( float delta_seconds )
     m_seg_list.clear();
     m_seg_buffer.clear();
     
-    for (int i = 0; i < Draw::ShapeType::Count; i++)
+    //for (int i = 0; i < Draw::ShapeType::Count; i++)
     {
-        m_shapes[i].m_offset = 0;
-        m_shapes[i].m_count = 0;
+        m_shapes.m_offset = 0;
+        m_shapes.m_count = 0;
     }
-    m_shape_colors.clear();
+    //m_shape_colors.clear();
     m_shape_matrices.clear();
+    m_shape_params.clear();
+    //m_shape_eye_to_boxes.clear();
     
 #if 0
     for( int i = m_Segments.size() - 1; i >= 0 ; i++ )
@@ -195,7 +226,7 @@ void DrawUtils::RemoveOldElements( float delta_seconds )
 #endif
 }
 
-void DrawUtils::PushSegment( vec3 p0, vec3 p1, u8vec4 color0, u8vec4 color1, float persist_time )
+void DrawUtils::PushSegment( vec3 p0, vec3 p1, u8vec4 color0, u8vec4 color1 )
 {
     const int offset = m_seg_buffer.size();
 	Draw::Vertex v0 = { p0, color0 };
@@ -205,7 +236,7 @@ void DrawUtils::PushSegment( vec3 p0, vec3 p1, u8vec4 color0, u8vec4 color1, flo
 	Draw::BufferRange seg_list = { offset, 2 };
     m_seg_list.push_back( seg_list );
 }
-void DrawUtils::PushSegmentList( Array<vec3> const& segment_list, u8vec4 color, float persist_time )
+void DrawUtils::PushSegmentList( Array<vec3> const& segment_list, u8vec4 color )
 {
     const int offset = m_seg_buffer.size();
     for( int i =0; i < segment_list.size(); i++ )
@@ -216,7 +247,7 @@ void DrawUtils::PushSegmentList( Array<vec3> const& segment_list, u8vec4 color, 
 	Draw::BufferRange seg_list = { offset, segment_list.size() };
 	m_seg_list.push_back( seg_list );
 }
-void DrawUtils::PushSegmentList( Array<vec3> const& segment_list, Array<u8vec4> const& color_list, float persist_time )
+void DrawUtils::PushSegmentList( Array<vec3> const& segment_list, Array<u8vec4> const& color_list )
 {
     const int offset = m_seg_buffer.size();
     for( int i =0; i < segment_list.size(); i++ )
@@ -227,20 +258,32 @@ void DrawUtils::PushSegmentList( Array<vec3> const& segment_list, Array<u8vec4> 
     Draw::BufferRange seg_list = { offset, segment_list.size() };
     m_seg_list.push_back( seg_list );
 }
-void DrawUtils::PushOBB( transform t, u8vec4 color, float persist_time )
+void DrawUtils::PushOBB( transform const& t, u8vec4 color, float ratio_y, float ratio_z )
+{
+    PushGenericShape( t, color, Draw::Box, ratio_y, ratio_z);
+}
+void DrawUtils::PushAABB( vec3 pos, float scale, u8vec4 color, float ratio_y, float ratio_z )
+{
+    PushGenericShape( transform( quat(1.f,0.f,0.f,0.f), pos, scale ), color, Draw::Box, ratio_y, ratio_z);
+}
+void DrawUtils::PushSphere( vec3 pos, float scale, u8vec4 color )
+{
+    PushGenericShape( transform( quat(1.f,0.f,0.f,0.f), pos, scale ), color, Draw::Sphere );
+}
+void DrawUtils::PushCylinder( transform const& t, u8vec4 color, float ratio_radius )
+{
+    PushGenericShape( t, color, Draw::Cylinder, ratio_radius );
+}
+void DrawUtils::PushGenericShape( transform const& t, u8vec4 color, Draw::ShapeType type, float param0, float param1 )
 {
     mat4 m( t.GetRotation(), t.GetTranslation(), t.GetScale() );
-
-    m_shape_colors.push_back( color );
     m_shape_matrices.push_back( m );
     
-    m_shapes[Draw::ShapeType::Box].m_offset = 0;
-    m_shapes[Draw::ShapeType::Box].m_count = m_shape_matrices.size();
+    Draw::InstanceParams params = { color, vec3((float)type, param0, param1), t.GetTranslation() };
+    m_shape_params.push_back(params);
+    
+    m_shapes.m_offset = 0;
+    m_shapes.m_count = m_shape_matrices.size();
 }
-void DrawUtils::PushAABB( vec3 pos, float scale, u8vec4 color, float persist_time )
-{
-    PushOBB( transform( quat(1.f,0.f,0.f,0.f), pos, scale ), color );
-}
-
 
 } /*namespace bigball*/

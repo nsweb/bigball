@@ -43,11 +43,11 @@ public:
 
 	// Begin : Entity interface
 	static Entity*	NewEntity()		{ return new Camera();	}
-	virtual void	Create( EntityPattern* pattern, class json::Object* proto = nullptr, Name in_name = Name() );
-	virtual void	Destroy();	
-	virtual void	AddToWorld();
-	virtual void	RemoveFromWorld();
-	virtual void	Tick( float DeltaSeconds );
+	virtual void	Create( EntityPattern* pattern, class json::Object* proto = nullptr, Name in_name = Name() ) override;
+	virtual void	Destroy() override;
+	virtual void	AddToWorld() override;
+	virtual void	RemoveFromWorld() override;
+	virtual void	Tick( float DeltaSeconds ) override;
 	// End : Entity interface
 
 	void			SetPosition( dvec3 Position );
@@ -82,8 +82,8 @@ public:
 	float			m_rotation_speed;
 
 public:
-	virtual void		UpdateView(CameraView& cam_view, float delta_seconds);
-	virtual bool		OnControllerInput(Camera* camera, struct ControllerInput const& input);
+	virtual void		UpdateView(CameraView& cam_view, float delta_seconds) override;
+	virtual bool		OnControllerInput(Camera* camera, struct ControllerInput const& input) override;
 };
 
 } /* namespace bigball */
