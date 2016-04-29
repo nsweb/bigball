@@ -25,7 +25,7 @@ DrawUtils::~DrawUtils()
 void DrawUtils::Create()
 {
     m_util_seg_shader = GfxManager::GetStaticInstance()->LoadShader( "utilseg" );
-    m_util_shape_shader = GfxManager::GetStaticInstance()->LoadShader( "utilshape2" );
+    m_util_shape_shader = GfxManager::GetStaticInstance()->LoadShader( "utilshape" );
     
     glGenVertexArrays( eVACount, m_varrays );
     glGenBuffers( eVBCount, m_vbuffers );
