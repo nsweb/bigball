@@ -38,7 +38,12 @@ namespace bigball
 #define ALIGN_OF(p)			(__alignof(p))
 #define COUNT_OF(_Array)	(sizeof(_Array) / sizeof(_Array[0]))
 #define CACHE_LINE			32
-#define CACHE_ALIGN			__declspec(align(CACHE_LINE))
+    
+#if defined _MSC_VER
+#       define CACHE_ALIGN  __declspec(align(CACHE_LINE))
+#else
+#       define CACHE_ALIGN  __attribute__ ((aligned(CACHE_LINE)))
+#endif
     
 #if !defined _MSC_VER
     #define DECL_THREAD __thread

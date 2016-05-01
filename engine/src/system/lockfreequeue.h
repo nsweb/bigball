@@ -12,7 +12,7 @@ namespace bigball
 
 // reader-writer circular queue.. one thread writes, one thread reads only...
 template<class T> 
-class BIGBALL_API CACHE_ALIGN CircularQueue 
+class BIGBALL_API CACHE_ALIGN CircularQueue
 {
 
 public:
