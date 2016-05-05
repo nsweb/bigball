@@ -29,7 +29,7 @@ namespace Draw
     struct InstanceParams
     {
         u8vec4	m_col;
-        vec3    m_params;
+        vec4    m_params;
         vec3    m_eye_to_box;
     };
     

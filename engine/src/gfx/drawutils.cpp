@@ -83,9 +83,9 @@ void DrawUtils::Create()
     
     //glBindBuffer( GL_ARRAY_BUFFER, m_vbuffers[eVBShapeParams] );
     glEnableVertexAttribArray(6);
-    glVertexAttribPointer( 6, 3, GL_FLOAT, GL_FALSE, sizeof(Draw::InstanceParams) /*stride*/, (void*)offset_params );
+    glVertexAttribPointer( 6, 4, GL_FLOAT, GL_FALSE, sizeof(Draw::InstanceParams) /*stride*/, (void*)offset_params );
     glVertexAttribDivisor( 6, 1 );
-    offset_params += sizeof(vec3);
+    offset_params += sizeof(vec4);
     
     //glBindBuffer( GL_ARRAY_BUFFER, m_vbuffers[eVBShapeEye] );
     glEnableVertexAttribArray(7);
@@ -125,10 +125,10 @@ void DrawUtils::_Render( struct RenderContext& render_ctxt )
     // Render Segments
     m_util_seg_shader->Bind();
     {
-        ShaderUniform UniProj = m_util_seg_shader->GetUniformLocation("proj_mat");
-        m_util_seg_shader->SetUniform( UniProj, render_ctxt.m_proj_mat );
-        ShaderUniform UniView = m_util_seg_shader->GetUniformLocation("view_mat");
-        m_util_seg_shader->SetUniform( UniView, view_mat );
+        ShaderUniform uni_proj = m_util_seg_shader->GetUniformLocation("proj_mat");
+        m_util_seg_shader->SetUniform( uni_proj, render_ctxt.m_proj_mat );
+        ShaderUniform uni_view = m_util_seg_shader->GetUniformLocation("view_mat");
+        m_util_seg_shader->SetUniform( uni_view, view_mat );
     
         glBindVertexArray( m_varrays[eVASeg] );
     
@@ -148,10 +148,26 @@ void DrawUtils::_Render( struct RenderContext& render_ctxt )
     // Render Shapes
     m_util_shape_shader->Bind();
     {
-        ShaderUniform UniProj = m_util_shape_shader->GetUniformLocation("proj_mat");
-        m_util_shape_shader->SetUniform( UniProj, render_ctxt.m_proj_mat );
-        ShaderUniform UniView = m_util_shape_shader->GetUniformLocation("view_mat");
-        m_util_shape_shader->SetUniform( UniView, view_mat );
+        //const float fov_y = render_ctxt.m_view.m_parameters[eCP_FOV] * (F_PI / 180.0f);
+        const float z_near = render_ctxt.m_view.m_parameters[eCP_NEAR];
+        const float z_far = render_ctxt.m_view.m_parameters[eCP_FAR];
+        //vec2 screen_res;
+        //screen_res.y = bigball::tan( fov_y * 0.5f );
+        //screen_res.x = screen_res.y * render_ctxt.m_view.m_parameters[eCP_ASPECT];
+        vec2 z_var;
+        z_var.x = (z_far + z_near) / (z_far - z_near);
+        z_var.y = 2.0f*z_far*z_near / (z_far - z_near);
+        
+        ShaderUniform uni_proj = m_util_shape_shader->GetUniformLocation("proj_mat");
+        m_util_shape_shader->SetUniform( uni_proj, render_ctxt.m_proj_mat );
+        ShaderUniform uni_view = m_util_shape_shader->GetUniformLocation("view_mat");
+        m_util_shape_shader->SetUniform( uni_view, view_mat );
+        
+        //ShaderUniform uni_sr = m_util_shape_shader->GetUniformLocation("screen_res");
+        //m_util_shape_shader->SetUniform( uni_sr, screen_res );
+        ShaderUniform uni_zvar = m_util_shape_shader->GetUniformLocation("z_var");
+        m_util_shape_shader->SetUniform( uni_zvar, z_var );
+    
     
         glBindVertexArray( m_varrays[eVAShape] );
     
@@ -279,7 +295,7 @@ void DrawUtils::PushGenericShape( transform const& t, u8vec4 color, Draw::ShapeT
     mat4 m( t.GetRotation(), t.GetTranslation(), t.GetScale() );
     m_shape_matrices.push_back( m );
     
-    Draw::InstanceParams params = { color, vec3((float)type, param0, param1), t.GetTranslation() };
+    Draw::InstanceParams params = { color, vec4((float)type, param0, param1, t.GetScale()), t.GetTranslation() };
     m_shape_params.push_back(params);
     
     m_shapes.m_offset = 0;
