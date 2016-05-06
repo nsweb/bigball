@@ -148,12 +148,8 @@ void DrawUtils::_Render( struct RenderContext& render_ctxt )
     // Render Shapes
     m_util_shape_shader->Bind();
     {
-        //const float fov_y = render_ctxt.m_view.m_parameters[eCP_FOV] * (F_PI / 180.0f);
         const float z_near = render_ctxt.m_view.m_parameters[eCP_NEAR];
         const float z_far = render_ctxt.m_view.m_parameters[eCP_FAR];
-        //vec2 screen_res;
-        //screen_res.y = bigball::tan( fov_y * 0.5f );
-        //screen_res.x = screen_res.y * render_ctxt.m_view.m_parameters[eCP_ASPECT];
         vec2 z_var;
         z_var.x = (z_far + z_near) / (z_far - z_near);
         z_var.y = 2.0f*z_far*z_near / (z_far - z_near);
@@ -162,26 +158,16 @@ void DrawUtils::_Render( struct RenderContext& render_ctxt )
         m_util_shape_shader->SetUniform( uni_proj, render_ctxt.m_proj_mat );
         ShaderUniform uni_view = m_util_shape_shader->GetUniformLocation("view_mat");
         m_util_shape_shader->SetUniform( uni_view, view_mat );
-        
-        //ShaderUniform uni_sr = m_util_shape_shader->GetUniformLocation("screen_res");
-        //m_util_shape_shader->SetUniform( uni_sr, screen_res );
         ShaderUniform uni_zvar = m_util_shape_shader->GetUniformLocation("z_var");
         m_util_shape_shader->SetUniform( uni_zvar, z_var );
     
-    
         glBindVertexArray( m_varrays[eVAShape] );
     
-        //glBindBuffer(GL_ARRAY_BUFFER, m_vbuffers[eVBShapeCol]);
-        //glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_shape_colors.size() * sizeof(u8vec4), (GLvoid*)m_shape_colors.Data(), GL_DYNAMIC_DRAW );
-        
         glBindBuffer(GL_ARRAY_BUFFER, m_vbuffers[eVBShapeMat]);
         glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_shape_matrices.size() * sizeof(mat4), (GLvoid*)m_shape_matrices.Data(), GL_DYNAMIC_DRAW );
 
         glBindBuffer(GL_ARRAY_BUFFER, m_vbuffers[eVBShapeParams]);
         glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_shape_params.size() * sizeof(Draw::InstanceParams), (GLvoid*)m_shape_params.Data(), GL_DYNAMIC_DRAW );
-        
-        //glBindBuffer(GL_ARRAY_BUFFER, m_vbuffers[eVBShapeEye]);
-        //glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)m_shape_eye_to_boxes.size() * sizeof(vec3), (GLvoid*)m_shape_eye_to_boxes.Data(), GL_DYNAMIC_DRAW );
         
         glDrawElementsInstanced( GL_TRIANGLES, 36, GL_UNSIGNED_INT, (void*)0, m_shape_matrices.size() );
     
@@ -189,7 +175,6 @@ void DrawUtils::_Render( struct RenderContext& render_ctxt )
     }
     m_util_shape_shader->Unbind();
     
-
 	// Purge old elements
 	RemoveOldElements( render_ctxt.m_delta_seconds );
 }
@@ -199,15 +184,10 @@ void DrawUtils::RemoveOldElements( float delta_seconds )
     m_seg_list.clear();
     m_seg_buffer.clear();
     
-    //for (int i = 0; i < Draw::ShapeType::Count; i++)
-    {
-        m_shapes.m_offset = 0;
-        m_shapes.m_count = 0;
-    }
-    //m_shape_colors.clear();
+    m_shapes.m_offset = 0;
+    m_shapes.m_count = 0;
     m_shape_matrices.clear();
     m_shape_params.clear();
-    //m_shape_eye_to_boxes.clear();
     
 #if 0
     for( int i = m_Segments.size() - 1; i >= 0 ; i++ )
