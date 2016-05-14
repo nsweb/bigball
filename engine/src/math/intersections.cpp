@@ -5,10 +5,11 @@
 namespace bigball
 {
 
+#if 0
 //////////////////////////////////////////////////////////////////////////
 // Explicit instantiation
-template struct Intersect<double>; 
-template struct Intersect<float>;
+//template struct Intersect<double>;
+//template struct Intersect<float>;
 
 /* Fast Ray-Box Intersection by Andrew Woo */
 template <typename T>
@@ -170,6 +171,7 @@ T Intersect<T>::RayBoxIntersection(Vec3<T> const& ray_orig, Vec3<T> const& ray_d
 
 	return tmin;
 }
+#endif // 0
 
 } /* namespace bigball */
 

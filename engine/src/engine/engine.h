@@ -47,6 +47,7 @@ public:
 	virtual void	Shutdown();
 	virtual void	MainLoop();
 	virtual bool	RunCommand( String const& cmd_type, Array<String> const& switches, Array<String> const& tokens );
+    virtual int     HandleEvents(float delta_seconds);
 
 	SDL_DisplayMode const&	GetDisplayMode()							{ return m_display_mode;		}
 	SDL_Window*				GetDisplayWindow()							{ return m_main_window;		}

@@ -36,7 +36,8 @@ public:
 	virtual void		Destroy();	
 	virtual void		Tick( struct TickContext& tick_ctxt );
 	virtual void		_Render( struct RenderContext& render_ctxt );
-	static UIManager*	GetStaticInstance()		{ return m_pStaticInstance; }
+	static UIManager*	GetStaticInstance()		{ return m_static_instance; }
+    void                NewFrame();
 
 	void				RenderDrawLists(struct ImDrawData* data);
 	void				ToggleDebugMenu();
@@ -50,14 +51,14 @@ protected:
 	void				DrawDebugMenu();
 	void				DrawProfiler();
 
-	static UIManager*		m_pStaticInstance;
+	static UIManager*		m_static_instance;
 
 public:
     DrawEditorCB            m_draw_editor_fn;
     ToggleEditorCB          m_toggle_editor_fn;
 	DrawCustomMenuBarCB		m_draw_custom_menu_fn;
-	GLuint					m_DebugFontTexId;
-	Shader*					m_UIShader;
+	GLuint					m_debug_font_tex_id;
+	Shader*					m_ui_shader;
 	/** Dynamic VB used to render ui elements */
 	GLuint					m_UI_VAO;
 	//GLuint					m_UI_VB_TEMP;

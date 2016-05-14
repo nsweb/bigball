@@ -195,12 +195,11 @@ void Engine::MainLoop()
 
 	while( 1 )
 	{
-		int32 loop_status = 0;
 		old_time = current_time;
 		current_time = SDL_GetPerformanceCounter();
-
 		float delta_seconds = (current_time - old_time) / (float)SDL_GetPerformanceFrequency(); // / 1000.0f;
-
+        
+        int loop_status = HandleEvents(delta_seconds);
 
 		glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 		// tell GL to only draw onto a pixel if the shape is closer to the viewer
@@ -241,148 +240,6 @@ void Engine::MainLoop()
 
 		SDL_GL_SwapWindow( m_main_window );
 
-		// Handle SDL events & inputs
-		SDL_Event event;
-		const uint8* keys = SDL_GetKeyboardState( nullptr );
-		uint32 modifiers = 0;
-		if( keys[SDL_SCANCODE_LCTRL] || keys[SDL_SCANCODE_RCTRL] )
-			modifiers |= eIM_Ctrl;
-		if( keys[SDL_SCANCODE_LSHIFT] || keys[SDL_SCANCODE_RSHIFT] )
-			modifiers |= eIM_Shift;
-		if( keys[SDL_SCANCODE_LALT] || keys[SDL_SCANCODE_RALT] )
-			modifiers |= eIM_Alt;
-
-		if( keys[SDL_SCANCODE_LEFT] )
-			Controller::GetStaticInstance()->OnInputX( modifiers, -delta_seconds );
-		if( keys[SDL_SCANCODE_RIGHT] )
-			Controller::GetStaticInstance()->OnInputX( modifiers, delta_seconds );
-		if( keys[SDL_SCANCODE_UP] )
-			Controller::GetStaticInstance()->OnInputY( modifiers, delta_seconds );
-		if( keys[SDL_SCANCODE_DOWN] )
-			Controller::GetStaticInstance()->OnInputY( modifiers, -delta_seconds );
-		if( keys[SDL_SCANCODE_PAGEUP] )
-			Controller::GetStaticInstance()->OnInputZ( modifiers, delta_seconds );
-		if( keys[SDL_SCANCODE_PAGEDOWN] )
-			Controller::GetStaticInstance()->OnInputZ( modifiers, -delta_seconds );
-
-		int mouse_x, mouse_y;
-		uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
-		bool left_down = mouse_state & SDL_BUTTON_LMASK ? true : false;
-		bool right_down = mouse_state & SDL_BUTTON_RMASK ? true : false;
-		bool middle_down = mouse_state & SDL_BUTTON_MMASK ? true : false;
-		Controller::GetStaticInstance()->SetMouseState(modifiers, left_down, right_down, middle_down, mouse_x, mouse_y);
-		
-		ImGuiIO& io = ImGui::GetIO();
-		while( SDL_PollEvent( &event ) )
-		{
-			switch( event.type )
-			{
-			case SDL_KEYDOWN:
-				{
-					// Warn ImGui
-					int key = event.key.keysym.sym & ~SDLK_SCANCODE_MASK;
-					io.KeysDown[key] = (event.type == SDL_KEYDOWN);
-					io.KeyShift = ((SDL_GetModState() & KMOD_SHIFT) != 0);
-					io.KeyCtrl = ((SDL_GetModState() & KMOD_CTRL) != 0);
-					io.KeyAlt = ((SDL_GetModState() & KMOD_ALT) != 0);
-				}
-				break;
-			case SDL_KEYUP:
-				{
-					// if escape is pressed, quit
-					if( event.key.keysym.sym == SDLK_ESCAPE )
-						loop_status = 1; // set status to 1 to exit main loop
-					else if( event.key.keysym.sym >= SDLK_F1 && event.key.keysym.sym <= SDLK_F4 )
-					{
-						m_render_mode = event.key.keysym.sym - SDLK_F1;
-					}
-					else if( event.key.keysym.sym == SDLK_F5 )
-					{
-						UIManager::GetStaticInstance()->ToggleDebugMenu();
-					}
-                    else if( event.key.keysym.sym == SDLK_e )
-                    {
-                        UIManager::GetStaticInstance()->ToggleEditor();
-                    }
-					else if( event.key.keysym.sym == SDLK_F9 || event.key.keysym.sym == SDLK_F10 )
-					{
-						// HACK
-						bool is_write = event.key.keysym.sym == SDLK_F9 ? true : false;
-
-						File out_file;
-						if( out_file.Open("../save/camera_debug.bin", is_write) )
-						{
-							Camera* current_cam = Controller::GetStaticInstance()->GetActiveCamera();
-							if( current_cam )
-							{
-								CameraView& cam_view = current_cam->GetView();
-								out_file.Serialize(&cam_view.m_transform, sizeof(cam_view.m_transform));
-								out_file.Serialize( &cam_view.m_parameters, sizeof(cam_view.m_parameters) );
-							}
-						}
-					}
-					else if( event.key.keysym.sym == SDLK_c )
-					{
-						m_show_culling = !m_show_culling;
-						if( m_show_culling )
-							g_SavedFrustumView = Controller::GetStaticInstance()->GetRenderView();
-					}
-
-					// Warn ImGui
-					int key = event.key.keysym.sym & ~SDLK_SCANCODE_MASK;
-					io.KeysDown[key] = (event.type == SDL_KEYDOWN);
-					io.KeyShift = ((SDL_GetModState() & KMOD_SHIFT) != 0);
-					io.KeyCtrl = ((SDL_GetModState() & KMOD_CTRL) != 0);
-					io.KeyAlt = ((SDL_GetModState() & KMOD_ALT) != 0);
-				}
-				break;
-			case SDL_TEXTINPUT:
-				{
-					io.AddInputCharactersUTF8(event.text.text);
-				}
-				break;
-			case SDL_MOUSEMOTION:
-				{
-					if( !UIManager::GetStaticInstance()->m_show_debug_menu )
-					{
-						vec3 mouse_delta(	-(float)event.motion.xrel / (float)m_display_mode.w, 
-							-(float)event.motion.yrel / (float)m_display_mode.h,
-							0.f );
-						//BB_LOG( Inputs, Log, "MouseDelta x=%f y=%f Mouse x=%d y=%d xrel=%d yrel=%d mod=%d", MouseDelta.x, MouseDelta.y, Event.motion.x, Event.motion.y, Event.motion.xrel, Event.motion.yrel, Event.key.keysym.mod );
-						Controller::GetStaticInstance()->OnMouseMove( modifiers, mouse_delta * delta_seconds );
-					}
-				}
-				break;
-			case SDL_MOUSEBUTTONDOWN:
-				break;
-			case SDL_MOUSEBUTTONUP:
-				break;
-			//case SDL_RENDER_TARGETS_RESET:
-				//break;
-			case SDL_WINDOWEVENT:
-			{
-				switch (event.window.event)
-				{
-				case SDL_WINDOWEVENT_RESIZED:
-					SDL_Log("Window %d resized to %dx%d",
-						event.window.windowID, event.window.data1,
-						event.window.data2);
-					ResizeWindow(event.window.data1, event.window.data2);
-					break;
-				case SDL_WINDOWEVENT_SIZE_CHANGED:
-					SDL_Log("Window %d size changed to %dx%d",
-						event.window.windowID, event.window.data1,
-						event.window.data2);
-					break;
-				}
-				break;
-			}
-			case SDL_QUIT:
-				loop_status = 1;
-				break;
-			}
-		}
-
 		// Reset profiler data for next frame
 		PROFILE_THREAD_FRAMERESET()
 
@@ -390,10 +247,178 @@ void Engine::MainLoop()
 			break;
 	}
 }
-
+    
+int Engine::HandleEvents(float delta_seconds)
+{
+    int loop_status = 0;
+    
+    // Handle SDL events & inputs
+    SDL_Event event;
+    const uint8* keys = SDL_GetKeyboardState( nullptr );
+    uint32 modifiers = 0;
+    if( keys[SDL_SCANCODE_LCTRL] || keys[SDL_SCANCODE_RCTRL] )
+        modifiers |= eIM_Ctrl;
+    if( keys[SDL_SCANCODE_LSHIFT] || keys[SDL_SCANCODE_RSHIFT] )
+        modifiers |= eIM_Shift;
+    if( keys[SDL_SCANCODE_LALT] || keys[SDL_SCANCODE_RALT] )
+        modifiers |= eIM_Alt;
+    
+    if( keys[SDL_SCANCODE_LEFT] )
+        Controller::GetStaticInstance()->OnInputX( modifiers, -delta_seconds );
+    if( keys[SDL_SCANCODE_RIGHT] )
+        Controller::GetStaticInstance()->OnInputX( modifiers, delta_seconds );
+    if( keys[SDL_SCANCODE_UP] )
+        Controller::GetStaticInstance()->OnInputY( modifiers, delta_seconds );
+    if( keys[SDL_SCANCODE_DOWN] )
+        Controller::GetStaticInstance()->OnInputY( modifiers, -delta_seconds );
+    if( keys[SDL_SCANCODE_PAGEUP] )
+        Controller::GetStaticInstance()->OnInputZ( modifiers, delta_seconds );
+    if( keys[SDL_SCANCODE_PAGEDOWN] )
+        Controller::GetStaticInstance()->OnInputZ( modifiers, -delta_seconds );
+    
+    ImGuiIO& io = ImGui::GetIO();
+    // Setup inputs for imgui
+    {
+        io.MouseWheel = 0;
+        io.DeltaTime = bigball::max(0.000001f, delta_seconds);
+        
+        int mouse_x, mouse_y;
+        uint32 mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+        bool left_down = (mouse_state & SDL_BUTTON_LMASK ? true : false);
+        bool right_down = (mouse_state & SDL_BUTTON_RMASK ? true : false);
+        bool middle_down = (mouse_state & SDL_BUTTON_MMASK ? true : false);
+        io.MousePos = ImVec2((float)mouse_x, (float)mouse_y);
+        io.MouseDown[0] = left_down;
+        io.MouseDown[1] = right_down;
+        io.MouseDown[2] = middle_down;
+    }
+    
+    while( SDL_PollEvent( &event ) )
+    {
+        switch( event.type )
+        {
+            case SDL_KEYDOWN:
+            {
+                // Warn ImGui
+                int key = event.key.keysym.sym & ~SDLK_SCANCODE_MASK;
+                io.KeysDown[key] = (event.type == SDL_KEYDOWN);
+                io.KeyShift = ((SDL_GetModState() & KMOD_SHIFT) != 0);
+                io.KeyCtrl = ((SDL_GetModState() & KMOD_CTRL) != 0);
+                io.KeyAlt = ((SDL_GetModState() & KMOD_ALT) != 0);
+            }
+                break;
+            case SDL_KEYUP:
+            {
+                // if escape is pressed, quit
+                if( event.key.keysym.sym == SDLK_ESCAPE )
+                    loop_status = 1; // set status to 1 to exit main loop
+                else if( event.key.keysym.sym >= SDLK_F1 && event.key.keysym.sym <= SDLK_F4 )
+                {
+                    m_render_mode = event.key.keysym.sym - SDLK_F1;
+                }
+                else if( event.key.keysym.sym == SDLK_F5 )
+                {
+                    UIManager::GetStaticInstance()->ToggleDebugMenu();
+                }
+                else if( event.key.keysym.sym == SDLK_e )
+                {
+                    UIManager::GetStaticInstance()->ToggleEditor();
+                }
+                else if( event.key.keysym.sym == SDLK_F9 || event.key.keysym.sym == SDLK_F10 )
+                {
+                    // HACK
+                    bool is_write = event.key.keysym.sym == SDLK_F9 ? true : false;
+                    
+                    File out_file;
+                    if( out_file.Open("../save/camera_debug.bin", is_write) )
+                    {
+                        Camera* current_cam = Controller::GetStaticInstance()->GetActiveCamera();
+                        if( current_cam )
+                        {
+                            CameraView& cam_view = current_cam->GetView();
+                            out_file.Serialize(&cam_view.m_transform, sizeof(cam_view.m_transform));
+                            out_file.Serialize( &cam_view.m_parameters, sizeof(cam_view.m_parameters) );
+                        }
+                    }
+                }
+                else if( event.key.keysym.sym == SDLK_c )
+                {
+                    m_show_culling = !m_show_culling;
+                    if( m_show_culling )
+                        g_SavedFrustumView = Controller::GetStaticInstance()->GetRenderView();
+                }
+                
+                // Warn ImGui
+                int key = event.key.keysym.sym & ~SDLK_SCANCODE_MASK;
+                io.KeysDown[key] = (event.type == SDL_KEYDOWN);
+                io.KeyShift = ((SDL_GetModState() & KMOD_SHIFT) != 0);
+                io.KeyCtrl = ((SDL_GetModState() & KMOD_CTRL) != 0);
+                io.KeyAlt = ((SDL_GetModState() & KMOD_ALT) != 0);
+            }
+                break;
+            case SDL_TEXTINPUT:
+            {
+                io.AddInputCharactersUTF8(event.text.text);
+            }
+                break;
+            case SDL_MOUSEMOTION:
+            {
+                if( !UIManager::GetStaticInstance()->m_show_debug_menu )
+                {
+                    vec3 mouse_delta(	-(float)event.motion.xrel / (float)m_display_mode.w,
+                                     -(float)event.motion.yrel / (float)m_display_mode.h,
+                                     0.f );
+                    //BB_LOG( Inputs, Log, "MouseDelta x=%f y=%f Mouse x=%d y=%d xrel=%d yrel=%d mod=%d", mouse_delta, mouse_delta, event.motion.x, event.motion.y, event.motion.xrel, event.motion.yrel, event.key.keysym.mod );
+                    Controller::GetStaticInstance()->OnMouseMove( modifiers, mouse_delta * delta_seconds );
+                }
+            }
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+                break;
+            case SDL_MOUSEBUTTONUP:
+                break;
+                //case SDL_RENDER_TARGETS_RESET:
+                //break;
+            case SDL_WINDOWEVENT:
+            {
+                switch (event.window.event)
+                {
+                    case SDL_WINDOWEVENT_RESIZED:
+                        SDL_Log("Window %d resized to %dx%d",
+                                event.window.windowID, event.window.data1,
+                                event.window.data2);
+                        ResizeWindow(event.window.data1, event.window.data2);
+                        break;
+                    case SDL_WINDOWEVENT_SIZE_CHANGED:
+                        SDL_Log("Window %d size changed to %dx%d",
+                                event.window.windowID, event.window.data1,
+                                event.window.data2);
+                        break;
+                }
+                break;
+            }
+            case SDL_QUIT:
+                loop_status = 1;
+                break;
+        }
+    }
+    
+    // Inputs have been set up, proceed with a new frame for UI
+    UIManager::GetStaticInstance()->NewFrame();
+    
+    // Set mouse state
+    bool controller_left_down = io.MouseDown[0] && !io.MouseDownOwned[0];
+    bool controller_right_down = io.MouseDown[1] && !io.MouseDownOwned[1];
+    bool controller_middle_down = io.MouseDown[2] && !io.MouseDownOwned[2];
+    Controller::GetStaticInstance()->SetMouseState(modifiers, controller_left_down, controller_right_down, controller_middle_down, io.MousePos.x, io.MousePos.y);
+    
+    
+    return loop_status;
+}
+    
 bool Engine::RunCommand( String const& cmd_type, Array<String> const& switches, Array<String> const& tokens )
 {
-	return false;
+    return false;
 }
 
 void Engine::ResizeWindow(int w, int h)

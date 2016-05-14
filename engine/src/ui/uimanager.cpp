@@ -17,32 +17,32 @@
 namespace bigball
 {
 
-UIManager* UIManager::m_pStaticInstance = nullptr;
+UIManager* UIManager::m_static_instance = nullptr;
 
 UIManager::UIManager() :
     m_draw_editor_fn(nullptr),
     m_toggle_editor_fn(nullptr),
 	m_draw_custom_menu_fn(nullptr),
-	m_DebugFontTexId(0),
-	m_UIShader(nullptr),
+	m_debug_font_tex_id(0),
+	m_ui_shader(nullptr),
 	m_UI_VAO(0),
 	m_show_debug_menu(false),
 	m_show_profiler(false),
     m_show_editor(false)
 {
-	m_pStaticInstance = this;
+	m_static_instance = this;
 }
 
 UIManager::~UIManager()
 {
-	m_pStaticInstance = nullptr;
+	m_static_instance = nullptr;
 }
 
 void UIManager::Create()
 {
 	InitImGui();
 
-	m_UIShader = GfxManager::GetStaticInstance()->LoadShader( "ui" );
+	m_ui_shader = GfxManager::GetStaticInstance()->LoadShader( "ui" );
 
 	glGenVertexArrays( 1, &m_UI_VAO);
 	glBindVertexArray( m_UI_VAO);
@@ -67,7 +67,7 @@ void UIManager::Create()
 }
 void UIManager::Destroy()
 {
-	m_UIShader = nullptr;
+	m_ui_shader = nullptr;
 
 	//m_UI_VBO.Cleanup();
 	glDeleteBuffers( 1, &m_UI_VBO );
@@ -81,8 +81,8 @@ void UIManager::Destroy()
 // This is the main rendering function that you have to implement and provide to ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)
 static void ImImpl_RenderDrawLists(ImDrawData* draw_data)
 {
-	UIManager* pManager = UIManager::GetStaticInstance();
-	pManager->RenderDrawLists( draw_data );
+	UIManager* manager = UIManager::GetStaticInstance();
+	manager->RenderDrawLists( draw_data );
 }
 
 void UIManager::RenderDrawLists(ImDrawData* draw_data)
@@ -131,11 +131,11 @@ void UIManager::RenderDrawLists(ImDrawData* draw_data)
 	const float height = ImGui::GetIO().DisplaySize.y;
 	mat4 UIProjMatrix = mat4::ortho( 0.f, width, height, 0.f, 0.f, 1.f );
 
-	m_UIShader->Bind();
-	ShaderUniform UniProj = m_UIShader->GetUniformLocation("proj_mat");
-	ShaderUniform UniSampler0 =  m_UIShader->GetUniformLocation("textureUnit0");
-	m_UIShader->SetUniform( UniSampler0, 0 );
-	m_UIShader->SetUniform( UniProj, UIProjMatrix );
+	m_ui_shader->Bind();
+	ShaderUniform UniProj = m_ui_shader->GetUniformLocation("proj_mat");
+	ShaderUniform UniSampler0 =  m_ui_shader->GetUniformLocation("textureUnit0");
+	m_ui_shader->SetUniform( UniSampler0, 0 );
+	m_ui_shader->SetUniform( UniProj, UIProjMatrix );
 
 	glBindVertexArray( m_UI_VAO );
 
@@ -196,7 +196,7 @@ void UIManager::RenderDrawLists(ImDrawData* draw_data)
 	//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	//glDisableClientState(GL_VERTEX_ARRAY);
 
-	m_UIShader->Unbind();
+	m_ui_shader->Unbind();
 }
 
 // NB: ImGui already provide OS clipboard support for Windows so this isn't needed if you are using Windows only.
@@ -267,8 +267,8 @@ void UIManager::InitImGui()
 #endif
 
 	// Load font texture
-	glGenTextures(1, &m_DebugFontTexId);
-	glBindTexture(GL_TEXTURE_2D, m_DebugFontTexId);
+	glGenTextures(1, &m_debug_font_tex_id);
+	glBindTexture(GL_TEXTURE_2D, m_debug_font_tex_id);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -281,7 +281,7 @@ void UIManager::InitImGui()
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
 	// Store our identifier
-	io.Fonts->TexID = (void *)(intptr_t)m_DebugFontTexId;
+	io.Fonts->TexID = (void *)(intptr_t)m_debug_font_tex_id;
 
 	// Cleanup (don't clear the input data if you want to append new fonts later)
 	io.Fonts->ClearInputData();
@@ -293,23 +293,15 @@ void UIManager::Tick( TickContext& tick_ctxt )
 {
 
 }
-
+    
+void UIManager::NewFrame()
+{
+    // Start the frame
+    ImGui::NewFrame();
+}
+    
 void UIManager::_Render( struct RenderContext& render_ctxt )
 {
-	ImGuiIO& io = ImGui::GetIO();
-	io.MouseWheel = 0;
-	io.DeltaTime = bigball::max(0.000001f, render_ctxt.m_delta_seconds);
-
-	// Setup inputs
-	ControllerMouseState const& mouse_state = Controller::GetStaticInstance()->GetMouseState();
-	io.MousePos = ImVec2((float)mouse_state.m_mouse_x, (float)mouse_state.m_mouse_y);
-	io.MouseDown[0] = mouse_state.m_left_down;
-	io.MouseDown[1] = mouse_state.m_right_down;
-	io.MouseDown[2] = mouse_state.m_middle_down;
-
-	// Start the frame
-	ImGui::NewFrame();
-
 	if( m_show_debug_menu )
 		DrawDebugMenu();
 
