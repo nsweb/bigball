@@ -1,7 +1,7 @@
 
-
 #include "../bigball.h"
 #include "coposition.h"
+#include "../system/file.h"
 
 namespace bigball
 {
@@ -36,6 +36,9 @@ void CoPosition::SetTransform( transform const& t )
 {
     m_transform = t;
 }
-
+void CoPosition::Serialize(Archive& file)
+{
+    file.SerializeRaw(m_transform);
+}
 
 } /* namespace bigball */

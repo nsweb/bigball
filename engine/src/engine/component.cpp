@@ -26,7 +26,6 @@ void Component::Destroy()
 {
 
 }
-
 void Component::AddToWorld()
 {
 
@@ -34,6 +33,10 @@ void Component::AddToWorld()
 void Component::RemoveFromWorld()
 {
 
+}
+void Component::Serialize(Archive& file)
+{
+        
 }
 Component* Component::GetEntityComponent( Name const& component_name )
 {

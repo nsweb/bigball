@@ -81,6 +81,10 @@ static inline double lerp(double const &a, double const &b, double const &x)
 BIGBALL_API uint32 NextPowerOfTwo( uint32 x );
 BIGBALL_API bool IsPowerOfTwo( uint32 x );
 BIGBALL_API uint32 randhash(uint32 seed);
+static inline int32 rand()      { return std::rand();    }
+static inline float randfloat()      { return (float)std::rand() / (float)RAND_MAX;    }
+static inline void randinit(int32 seed)   { return srand(seed);    }
+    
 
 /* C++ doesn't define abs() and fmod() for all types; we add these for
  * convenience to avoid adding complexity to vector.h. */

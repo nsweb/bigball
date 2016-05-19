@@ -1,6 +1,4 @@
 
-
-
 #ifndef BB_COPOSITION_H
 #define BB_COPOSITION_H
 
@@ -8,8 +6,6 @@
 
 namespace bigball
 {
-
-//BIGBALL_TEMPLATE class vec3;
 
 class BIGBALL_API CoPosition : public Component 
 {
@@ -20,6 +16,7 @@ public:
 	virtual				~CoPosition();
 
 	static Component*	NewComponent()		{ return new CoPosition();	}
+    virtual void        Serialize(Archive& file) override;
 
 	void				SetPosition( vec3 p );
 	vec3				GetPosition()		{ return m_transform.GetTranslation(); }
@@ -36,4 +33,4 @@ protected:
 
 } /* namespace bigball */
 
-#endif // BB_COMPONENT_H
+#endif // BB_COPOSITION_H

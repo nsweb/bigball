@@ -1,6 +1,4 @@
 
-
-
 #ifndef BB_ENTITY_H
 #define BB_ENTITY_H
 
@@ -9,8 +7,7 @@ namespace bigball
 
 class BIGBALL_API Component;
 class BIGBALL_API EntityPattern;
-
-//BIGBALL_TEMPLATE template class BIGBALL_API Array<Component*>;
+class Archive;
 
 namespace json
 {
@@ -30,29 +27,29 @@ public:
 		InWorld,
 	};
 
-	Array<Component*>	m_Components;
+	Array<Component*>	m_components;
 
 					Entity();
 	virtual			~Entity();
 
 	static Entity*	NewEntity()		{ return new Entity();	}
 
-	virtual void	Create( EntityPattern* Pattern, class json::Object* Proto = nullptr, Name InName = Name() );
+	virtual void	Create( EntityPattern* pattern, class json::Object* proto = nullptr, Name in_name = Name() );
 	virtual void	Destroy();	
 	virtual void	AddToWorld();
 	virtual void	RemoveFromWorld();
-
 	virtual void	Tick( float DeltaSeconds );
+    virtual void    Serialize(Archive& file);
 
-	bool			IsInWorld()		{ return m_State == InWorld; }
-	Component*		GetComponent( Name const& ComponentName );
-	Component*		GetCompatibleComponent( Name const& ComponentName );
-	Name const&		GetName()		{ return m_Name;			}
+	bool			IsInWorld()		{ return m_state == InWorld; }
+	Component*		GetComponent( Name const& component_name );
+	Component*		GetCompatibleComponent( Name const& component_name );
+	Name const&		GetName()		{ return m_name;			}
 
 protected:
-	EntityPattern*		m_pPattern;
-	Name				m_Name;
-	State				m_State;
+	EntityPattern*		m_pattern;
+	Name				m_name;
+	State				m_state;
 
 };
 

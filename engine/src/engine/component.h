@@ -12,6 +12,7 @@ namespace json
 };
 
 class BIGBALL_API Entity;
+    class Archive;
 
 class BIGBALL_API Component 
 {
@@ -25,8 +26,10 @@ public:
 	virtual void		Destroy();	
 	virtual void		AddToWorld();
 	virtual void		RemoveFromWorld();
+    virtual void        Serialize(Archive& file);
 	inline Entity*		GetEntity()				{ return m_owner;		}
     Component*          GetEntityComponent( Name const& component_name );
+    
 
 private:
 	Entity*		m_owner;
