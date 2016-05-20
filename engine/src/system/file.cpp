@@ -6,8 +6,8 @@ namespace bigball
 {
 
 File::File() :
-	m_FileHandle(nullptr),
-	m_bAsync(false)
+	m_file_handle(nullptr),
+	m_async(false)
 {
 
 
@@ -23,18 +23,18 @@ File::~File()
 bool File::IsValidHandle()
 {
 #if _WIN32 || _WIN64
-	return (m_FileHandle != nullptr && m_FileHandle != INVALID_HANDLE_VALUE);
+	return (m_file_handle != nullptr && m_file_handle != INVALID_HANDLE_VALUE);
 #else
-	return (m_FileHandle != nullptr);
+	return (m_file_handle != nullptr);
 #endif
 }
 
 bool File::Open( char const* FileName, bool bWriteAccess, bool bAsync )
 {
-	m_Flags |= bWriteAccess ? ArchiveFlag_Write : ArchiveFlag_Read;
-	m_Flags &= bWriteAccess ? ~ArchiveFlag_Read : ~ArchiveFlag_Write;
+	m_flags |= bWriteAccess ? ArchiveFlag_Write : ArchiveFlag_Read;
+	m_flags &= bWriteAccess ? ~ArchiveFlag_Read : ~ArchiveFlag_Write;
 
-	m_bAsync = bAsync;
+	m_async = bAsync;
 
 #if _WIN32 || _WIN64
 	uint32 Flags = FILE_ATTRIBUTE_NORMAL;
@@ -42,15 +42,15 @@ bool File::Open( char const* FileName, bool bWriteAccess, bool bAsync )
 		Flags |= FILE_FLAG_OVERLAPPED;
 
 	if( IsReading() )
-		m_FileHandle = CreateFile( FileName, GENERIC_READ, 0/*FILE_SHARE_READ*/, nullptr, OPEN_EXISTING, Flags, nullptr );
+		m_file_handle = CreateFile( FileName, GENERIC_READ, 0/*FILE_SHARE_READ*/, nullptr, OPEN_EXISTING, Flags, nullptr );
 	else
-		m_FileHandle = CreateFile( FileName, GENERIC_WRITE, 0/*FILE_SHARE_WRITE*/, nullptr, CREATE_ALWAYS, Flags, nullptr );
+		m_file_handle = CreateFile( FileName, GENERIC_WRITE, 0/*FILE_SHARE_WRITE*/, nullptr, CREATE_ALWAYS, Flags, nullptr );
 
-	if( !m_FileHandle || m_FileHandle == INVALID_HANDLE_VALUE )
+	if( !m_file_handle || m_file_handle == INVALID_HANDLE_VALUE )
 		return false;
 #else
-	m_FileHandle = fopen( FileName, IsReading() ? "rb" : "wb" );
-	if( !m_FileHandle )
+	m_file_handle = fopen( FileName, IsReading() ? "rb" : "wb" );
+	if( !m_file_handle )
 		return false;
 #endif
 
@@ -64,27 +64,27 @@ bool File::Open( char const* FileName, bool bWriteAccess, bool bAsync )
 void File::Close()
 {
 #if _WIN32 || _WIN64
-	if( m_FileHandle && m_FileHandle != INVALID_HANDLE_VALUE )
-		CloseHandle( m_FileHandle );
+	if( m_file_handle && m_file_handle != INVALID_HANDLE_VALUE )
+		CloseHandle( m_file_handle );
 #else
-	if( m_FileHandle )
-		fclose( m_FileHandle );
+	if( m_file_handle )
+		fclose( m_file_handle );
 #endif
-	m_FileHandle = nullptr;
+	m_file_handle = nullptr;
 }
 
 void File::Seek( uint32 Offset )
 {
 #if _WIN32 || _WIN64
 	// Try to move hFile file pointer some distance  
-	DWORD dwPtr = SetFilePointer( m_FileHandle, Offset,	NULL, FILE_BEGIN ); 
+	DWORD dwPtr = SetFilePointer( m_file_handle, Offset,	NULL, FILE_BEGIN ); 
 	if( dwPtr == INVALID_SET_FILE_POINTER )
 	{ 
 		// Obtain the error code. 
 		DWORD dwError = GetLastError() ; 
 	}
 #else
-	fseek( m_FileHandle, Offset, SEEK_SET );
+	fseek( m_file_handle, Offset, SEEK_SET );
 #endif
 }
 
@@ -92,27 +92,27 @@ uint32 File::Tell()
 {
 #if _WIN32 || _WIN64
 	// Crappy, but there is no GetFilePointer in Win32 API
-	return SetFilePointer( m_FileHandle, 0, NULL, FILE_CURRENT );
+	return SetFilePointer( m_file_handle, 0, NULL, FILE_CURRENT );
 #else
-	return ftell( m_FileHandle );
+	return ftell( m_file_handle );
 #endif
 }
 
-uint32 File::Serialize( void* pBuffer, uint32 Size )
+uint32 File::Serialize( void* buffer, uint32 Size )
 {
 	int SerializedCount = 0;
 	if( IsReading() )
 	{
 #if _WIN32 || _WIN64
-		ReadFile( m_FileHandle, pBuffer, Size, (LPDWORD)&SerializedCount, nullptr );
+		ReadFile( m_file_handle, buffer, Size, (LPDWORD)&SerializedCount, nullptr );
 #else
-		SerializedCount = fread( pBuffer, 1, Size, m_FileHandle );
+		SerializedCount = fread( buffer, 1, Size, m_file_handle );
 #endif
 	}
 	else
 	{
 #if _WIN32 || _WIN64
-		if( !WriteFile( m_FileHandle, pBuffer, Size, (LPDWORD)&SerializedCount, nullptr ) )
+		if( !WriteFile( m_file_handle, buffer, Size, (LPDWORD)&SerializedCount, nullptr ) )
 		{
 			LPVOID lpMsgBuf;
 			DWORD dw = GetLastError(); 
@@ -128,25 +128,25 @@ uint32 File::Serialize( void* pBuffer, uint32 Size )
 				0, NULL );
 		}
 #else
-		SerializedCount = fwrite( pBuffer, 1, Size, m_FileHandle );
+		SerializedCount = fwrite( buffer, 1, Size, m_file_handle );
 #endif
 	}
 	return SerializedCount;
 }
 
-bool File::SerializeAsync( void* pBuffer, uint32 Size )
+bool File::SerializeAsync( void* buffer, uint32 Size )
 {
 #if _WIN32 || _WIN64
 	BOOL Result = 1;
 	uint32 SerializedCount = 0;
-	Memory::Memzero( &m_Overlapped, sizeof(m_Overlapped) );
+	Memory::Memzero(&m_overlapped, sizeof(m_overlapped));
 	if( IsReading() )
 	{
-		Result = ReadFile( m_FileHandle, pBuffer, Size, (LPDWORD)&SerializedCount, &m_Overlapped );
+		Result = ReadFile(m_file_handle, buffer, Size, (LPDWORD)&SerializedCount, &m_overlapped);
 	}
 	else
 	{
-		Result = WriteFile( m_FileHandle, pBuffer, Size, (LPDWORD)&SerializedCount, &m_Overlapped );
+		Result = WriteFile(m_file_handle, buffer, Size, (LPDWORD)&SerializedCount, &m_overlapped);
 	}
 	if( !Result )
 	{
@@ -165,7 +165,7 @@ bool File::SerializeAsync( void* pBuffer, uint32 Size )
 bool File::HasAsyncIOCompleted()
 {
 #if _WIN32 || _WIN64
-	return HasOverlappedIoCompleted( &m_Overlapped );
+	return HasOverlappedIoCompleted( &m_overlapped );
 #else
 	return false;
 #endif
@@ -180,14 +180,14 @@ size_t File::GetFileSize()
 #if _WIN32 || _WIN64
 	LARGE_INTEGER LInt;
 	Memory::Memzero( &LInt, sizeof(LInt) );
-	GetFileSizeEx( m_FileHandle, &LInt );
+	GetFileSizeEx( m_file_handle, &LInt );
 	Size = (size_t) LInt.QuadPart;
 	//DWORD dwSize = GetFileSize( m_hFile, NULL );
 #else
-	size_t Pos = ftell(m_FileHandle);
-	fseek( m_FileHandle, 0, SEEK_END );
-	Size = ftell(m_FileHandle);
-	fseek( m_FileHandle, Pos, SEEK_SET );
+	size_t Pos = ftell(m_file_handle);
+	fseek( m_file_handle, 0, SEEK_END );
+	Size = ftell(m_file_handle);
+	fseek( m_file_handle, Pos, SEEK_SET );
 #endif
 
 	return Size;
@@ -214,69 +214,72 @@ size_t File::GetFileSize()
 //}
 
 /////////////////////////////////////////////////////////////////////////////////////
-bool FileExits( char const* FileName )
+namespace FileUtils
 {
+	bool FileExits(char const* FileName)
+	{
 #if _WIN32 || _WIN64
-	WIN32_FIND_DATA FileInfo;
-	HANDLE FindHandle = ::FindFirstFile( FileName, &FileInfo ) ;
-	bool bFileFound = ( FindHandle == INVALID_HANDLE_VALUE ? false:true );
-	::FindClose( FindHandle );
+		WIN32_FIND_DATA FileInfo;
+		HANDLE FindHandle = ::FindFirstFile(FileName, &FileInfo);
+		bool bFileFound = (FindHandle == INVALID_HANDLE_VALUE ? false : true);
+		::FindClose(FindHandle);
 
-	return bFileFound;
+		return bFileFound;
 #else
-	if( FILE* file = fopen( FileName, "r" ) ) 
-	{
-		fclose(file);
-		return true;
-	} 
-	else
-		return false;
+		if( FILE* file = fopen( FileName, "r" ) ) 
+		{
+			fclose(file);
+			return true;
+		} 
+		else
+			return false;
 #endif
-}
-
-size_t FileSize( char const* FileName )
-{
-	size_t Size = 0;
-#if _WIN32 || _WIN64
-	HANDLE FileHandle = CreateFile( FileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL );
-	if( FileHandle == INVALID_HANDLE_VALUE )
-		return 0;
-
-	LARGE_INTEGER LInt;
-	Memory::Memzero( &LInt, sizeof(LInt) );
-	GetFileSizeEx( FileHandle, &LInt );
-	Size = (size_t) LInt.QuadPart;
-	CloseHandle( FileHandle );
-#else
-	if( FILE* file = fopen( FileName, "r" ) ) 
-	{
-		fseek( file, 0, SEEK_SET );
-		Size = ftell(file);
-		fclose(file);
-	} 
-#endif
-
-	return Size;
-}
-
-void ListFiles( char const* strSearch, Array<String>& OutFiles )
-{
-#if _WIN32 || _WIN64
-	WIN32_FIND_DATA FileInfo;
-	HANDLE hFind = FindFirstFile( strSearch, &FileInfo ) ;
-	if( hFind == INVALID_HANDLE_VALUE )
-		return;
-
-	OutFiles.push_back( FileInfo.cFileName );
-
-	while( FindNextFile( hFind, &FileInfo )  )
-	{
-		OutFiles.push_back( FileInfo.cFileName );
 	}
 
-	FindClose( hFind );
+	size_t FileSize(char const* FileName)
+	{
+		size_t Size = 0;
+#if _WIN32 || _WIN64
+		HANDLE file_handle = CreateFile(FileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		if (file_handle == INVALID_HANDLE_VALUE)
+			return 0;
+
+		LARGE_INTEGER LInt;
+		Memory::Memzero(&LInt, sizeof(LInt));
+		GetFileSizeEx(file_handle, &LInt);
+		Size = (size_t)LInt.QuadPart;
+		CloseHandle(file_handle);
+#else
+		if( FILE* file = fopen( FileName, "r" ) ) 
+		{
+			fseek( file, 0, SEEK_SET );
+			Size = ftell(file);
+			fclose(file);
+		} 
 #endif
-}
+
+		return Size;
+	}
+
+	void ListFiles(char const* strSearch, Array<String>& OutFiles)
+	{
+#if _WIN32 || _WIN64
+		WIN32_FIND_DATA file_info;
+		HANDLE hFind = FindFirstFile(strSearch, &file_info);
+		if (hFind == INVALID_HANDLE_VALUE)
+			return;
+
+		OutFiles.push_back(file_info.cFileName);
+
+		while (FindNextFile(hFind, &file_info))
+		{
+			OutFiles.push_back(file_info.cFileName);
+		}
+
+		FindClose(hFind);
+#endif
+	}
+} // namespace FileUtils
 
 
 
@@ -286,7 +289,7 @@ void ListFiles( char const* strSearch, Array<String>& OutFiles )
     
 uint32 Archive::SerializeString( String& BufferStr )
 {
-    uint32 SerializedCount = 0;
+    uint32 serialized_count = 0;
     if( IsReading() )
     {
         BufferStr = "";
@@ -299,43 +302,43 @@ uint32 Archive::SerializeString( String& BufferStr )
             BufferStr.resize( OldLen + SizeRead );
             Memory::Memcpy( &BufferStr[OldLen], Buffer, SizeRead );
         }
-        SerializedCount = BufferStr.Len();
+		serialized_count = BufferStr.Len();
     }
     else
     {
-        SerializedCount = Serialize( BufferStr.c_str(), BufferStr.Len() );
+		serialized_count = Serialize(BufferStr.c_str(), BufferStr.Len());
     }
     
-    return SerializedCount;
+	return serialized_count;
 }
     
-uint32 MemoryReader::Serialize( void* pBuffer, uint32 Size )
+uint32 MemoryReader::Serialize( void* buffer, uint32 size )
 {
 	// Ensure we have enough data
-	if( m_Offset + Size <= (uint32)m_Data.size() )
+	if (m_offset + size <= (uint32)m_data.size())
 	{
-		Memory::Memcpy( pBuffer, &m_Data[m_Offset], Size );
-		m_Offset += Size;
-		return Size;
+		Memory::Memcpy(buffer, &m_data[m_offset], size);
+		m_offset += size;
+		return size;
 	}
 
 	return 0;
 }
 
 
-uint32 MemoryWriter::Serialize( void* pBuffer, uint32 Size )
+uint32 MemoryWriter::Serialize(void* buffer, uint32 size)
 {
-	uint32 SizeNeeded = m_Offset + Size;
-	if( SizeNeeded > (uint32)m_Data.size() )
+	uint32 size_needed = m_offset + size;
+	if (size_needed > (uint32)m_data.size())
 	{
-		m_Data.resize(SizeNeeded );
+		m_data.resize(size_needed);
 	}
-	if( Size )
+	if (size)
 	{
-		Memory::Memcpy( &m_Data[m_Offset], pBuffer, Size );
-		m_Offset += Size;
+		Memory::Memcpy(&m_data[m_offset], buffer, size);
+		m_offset += size;
 	}
-	return Size;
+	return size;
 }
 
 } /* namespace bigball */

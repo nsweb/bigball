@@ -15,65 +15,65 @@ namespace bigball
 class Archive
 {
 public:
-						Archive() : m_Flags(0)  {}
+						Archive() : m_flags(0)  {}
 						~Archive() {}
 
 	template<typename K>
-	uint32				SerializeRaw( K& Val )			{ return Serialize( &Val, sizeof(K) );		}
-	virtual uint32		Serialize( void* pBuffer, uint32 Size ) = 0;
-    uint32				SerializeString( String& BufferStr );
-	uint32				IsReading()		{ return m_Flags & ArchiveFlag_Read; }
-	uint32				IsWriting() 	{ return m_Flags & ArchiveFlag_Write; }
-	virtual void		Seek( uint32 Offset ) = 0;
+	uint32				SerializeRaw( K& val )			{ return Serialize( &val, sizeof(K) );		}
+	virtual uint32		Serialize( void* buffer, uint32 size ) = 0;
+    uint32				SerializeString( String& buffer_str );
+	uint32				IsReading()		{ return m_flags & ArchiveFlag_Read; }
+	uint32				IsWriting() 	{ return m_flags & ArchiveFlag_Write; }
+	virtual void		Seek( uint32 offset ) = 0;
 	virtual uint32		Tell() = 0;
 
-	uint32			m_Flags;
+	uint32			m_flags;
 };
 
 /////////////////////////////////////////////////////////////////////
 class MemoryArchive : public Archive
 {
 public:
-	MemoryArchive() : m_Offset(0)		{}
+	MemoryArchive() : m_offset(0)		{}
 	~MemoryArchive()					{}
 
-	void	ResizeData( uint32 Size)	{ m_Data.resize(Size);	}
+	void	ResizeData(uint32 size)	{ m_data.resize(size); }
 	uint8*	Data()
 	{ 
-		BB_ASSERT( m_Data.size() > 0 ); 
-		return m_Data.Data();	
+		BB_ASSERT(m_data.size() > 0);
+		return m_data.Data();
 	}
-	virtual void		Seek( uint32 Offset )	
+	virtual void		Seek( uint32 offset )	
 	{ 
-		BB_ASSERT( Offset <= (uint32)m_Data.size() ); 
-		m_Offset = Offset; 
+		BB_ASSERT(offset <= (uint32)m_data.size());
+		m_offset = offset;
 	}
-	virtual uint32		Tell()			{ return m_Offset;		}
-	uint32	Size()						{ return (uint32)m_Data.size();	}
+	virtual uint32		Tell()			{ return m_offset; }
+	uint32	Size()						{ return (uint32)m_data.size(); }
 
 protected:
-	Array<uint8>		m_Data;
-	uint32			m_Offset;
+	Array<uint8>		m_data;
+	uint32				m_offset;
 };
 
 /////////////////////////////////////////////////////////////////////
 class MemoryReader : public MemoryArchive
 {
 public:
-	MemoryReader()						{ m_Flags |= ArchiveFlag_Read; }
+	MemoryReader()						{ m_flags |= ArchiveFlag_Read; }
 	~MemoryReader()						{}
 
-	virtual uint32		Serialize( void* pBuffer, uint32 Size );
+	virtual uint32		Serialize( void* buffer, uint32 size );
 };
 
 /////////////////////////////////////////////////////////////////////
 class MemoryWriter : public MemoryArchive
 {
 public:
-						MemoryWriter()  { m_Flags |= ArchiveFlag_Write; }
-						~MemoryWriter() {}
+	MemoryWriter()						{ m_flags |= ArchiveFlag_Write; }
+	~MemoryWriter()						{}
 
-	virtual uint32		Serialize( void* pBuffer, uint32 Size );
+	virtual uint32		Serialize(void* buffer, uint32 size);
 };
 
 /////////////////////////////////////////////////////////////////////
@@ -83,33 +83,35 @@ public:
 						File();
 						~File();
 
-	bool				Open( char const* FileName, bool bWriteAccess, bool bAsync = false );
+	bool				Open( char const* filename, bool write_access, bool async = false );
 	void				Close();
 	size_t				GetFileSize();
 	bool				IsValidHandle();
 	bool				HasAsyncIOCompleted();
 
-	virtual uint32		Serialize( void* pBuffer, uint32 Size );
-	bool				SerializeAsync( void* pBuffer, uint32 Size );
-	virtual void		Seek( uint32 Offset );
+	virtual uint32		Serialize(void* buffer, uint32 size);
+	bool				SerializeAsync(void* buffer, uint32 size);
+	virtual void		Seek( uint32 offset );
 	virtual uint32		Tell();
 
 private:
-	bool			m_bAsync;
+	bool			m_async;
 
 #if _WIN32 || _WIN64
-	HANDLE			m_FileHandle;
-	OVERLAPPED		m_Overlapped;
+	HANDLE			m_file_handle;
+	OVERLAPPED		m_overlapped;
 #else
-	FILE*			m_FileHandle;
+	FILE*			m_file_handle;
 #endif
 };
 
 /////////////////////////////////////////////////////////////////////
-BIGBALL_API bool FileExits( char const* FileName );
-BIGBALL_API size_t FileSize( char const* FileName );
-BIGBALL_API void ListFiles( char const* strSearch, Array<String>& OutFiles );
-
+namespace FileUtils
+{
+	BIGBALL_API bool FileExits(char const* filename);
+	BIGBALL_API size_t FileSize(char const* filename);
+	BIGBALL_API void ListFiles(char const* str_search, Array<String>& out_files);
+};
 
 #if _WIN32 || _WIN64
 #pragma pack(push, 1)

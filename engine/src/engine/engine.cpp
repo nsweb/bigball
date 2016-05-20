@@ -410,7 +410,7 @@ int Engine::HandleEvents(float delta_seconds)
     bool controller_left_down = io.MouseDown[0] && !io.MouseDownOwned[0];
     bool controller_right_down = io.MouseDown[1] && !io.MouseDownOwned[1];
     bool controller_middle_down = io.MouseDown[2] && !io.MouseDownOwned[2];
-    Controller::GetStaticInstance()->SetMouseState(modifiers, controller_left_down, controller_right_down, controller_middle_down, io.MousePos.x, io.MousePos.y);
+	Controller::GetStaticInstance()->SetMouseState(modifiers, controller_left_down, controller_right_down, controller_middle_down, (int32)io.MousePos.x, (int32)io.MousePos.y);
     
     
     return loop_status;
@@ -445,6 +445,11 @@ void Engine::ResizeWindow(int w, int h)
 //////////////////////////////////////////////////////////////////////////
 void CommandLine::Parse( int argc, char* argv[] )
 {
+	if (argc)
+		cmd_exec = argv[0];
+	else
+		cmd_exec = "";
+
 	String str_arg;
 	for( int32 arg_idx = 1; arg_idx < argc; ++arg_idx )
 	{

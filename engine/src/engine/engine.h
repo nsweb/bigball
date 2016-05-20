@@ -15,8 +15,9 @@ struct BIGBALL_API CommandLine
 	bool IsCommand( String& cmd_type );
 	bool GetTokenValue( String const& key, String& value );
 
-	Array<String> tokens;
-	Array<String> switches;
+	String			cmd_exec;
+	Array<String>	tokens;
+	Array<String>	switches;
 };
 
 struct BIGBALL_API EngineInitParams
