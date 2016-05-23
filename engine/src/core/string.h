@@ -193,12 +193,14 @@ public:
         return *this;
     }
 
-    int LastIndexOf(char const* token) const
+    int LastIndexOf(char const* token, int start = INDEX_NONE) const
     {
         using namespace std;
 
+        if (start == INDEX_NONE)
+            start = Len();
         int token_len = (int)strlen(token);
-        for (int i = Len() - token_len; i >= 0; --i)
+        for (int i = start - token_len; i >= 0; --i)
             if (strstr(c_str() + i, token))
                 return i;
         return -1;

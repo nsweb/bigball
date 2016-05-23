@@ -2,6 +2,12 @@
 #include "../bigball.h"
 #include "file.h"
 
+#if _WIN32 || _WIN64
+
+#else
+    #include <dirent.h>
+#endif
+
 namespace bigball
 {
 
@@ -29,7 +35,7 @@ bool File::IsValidHandle()
 #endif
 }
 
-bool File::Open( char const* FileName, bool bWriteAccess, bool bAsync )
+bool File::Open( char const* file_name, bool bWriteAccess, bool bAsync )
 {
 	m_flags |= bWriteAccess ? ArchiveFlag_Write : ArchiveFlag_Read;
 	m_flags &= bWriteAccess ? ~ArchiveFlag_Read : ~ArchiveFlag_Write;
@@ -42,14 +48,14 @@ bool File::Open( char const* FileName, bool bWriteAccess, bool bAsync )
 		Flags |= FILE_FLAG_OVERLAPPED;
 
 	if( IsReading() )
-		m_file_handle = CreateFile( FileName, GENERIC_READ, 0/*FILE_SHARE_READ*/, nullptr, OPEN_EXISTING, Flags, nullptr );
+		m_file_handle = CreateFile( file_name, GENERIC_READ, 0/*FILE_SHARE_READ*/, nullptr, OPEN_EXISTING, Flags, nullptr );
 	else
-		m_file_handle = CreateFile( FileName, GENERIC_WRITE, 0/*FILE_SHARE_WRITE*/, nullptr, CREATE_ALWAYS, Flags, nullptr );
+		m_file_handle = CreateFile( file_name, GENERIC_WRITE, 0/*FILE_SHARE_WRITE*/, nullptr, CREATE_ALWAYS, Flags, nullptr );
 
 	if( !m_file_handle || m_file_handle == INVALID_HANDLE_VALUE )
 		return false;
 #else
-	m_file_handle = fopen( FileName, IsReading() ? "rb" : "wb" );
+	m_file_handle = fopen( file_name, IsReading() ? "rb" : "wb" );
 	if( !m_file_handle )
 		return false;
 #endif
@@ -216,17 +222,17 @@ size_t File::GetFileSize()
 /////////////////////////////////////////////////////////////////////////////////////
 namespace FileUtils
 {
-	bool FileExits(char const* FileName)
+	bool FileExits(char const* file_name)
 	{
 #if _WIN32 || _WIN64
 		WIN32_FIND_DATA FileInfo;
-		HANDLE FindHandle = ::FindFirstFile(FileName, &FileInfo);
+		HANDLE FindHandle = ::FindFirstFile(file_name, &FileInfo);
 		bool bFileFound = (FindHandle == INVALID_HANDLE_VALUE ? false : true);
 		::FindClose(FindHandle);
 
 		return bFileFound;
 #else
-		if( FILE* file = fopen( FileName, "r" ) ) 
+		if( FILE* file = fopen( file_name, "r" ) ) 
 		{
 			fclose(file);
 			return true;
@@ -236,11 +242,11 @@ namespace FileUtils
 #endif
 	}
 
-	size_t FileSize(char const* FileName)
+	size_t FileSize(char const* file_name)
 	{
 		size_t Size = 0;
 #if _WIN32 || _WIN64
-		HANDLE file_handle = CreateFile(FileName, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		HANDLE file_handle = CreateFile(file_name, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 		if (file_handle == INVALID_HANDLE_VALUE)
 			return 0;
 
@@ -250,7 +256,7 @@ namespace FileUtils
 		Size = (size_t)LInt.QuadPart;
 		CloseHandle(file_handle);
 #else
-		if( FILE* file = fopen( FileName, "r" ) ) 
+		if( FILE* file = fopen( file_name, "r" ) ) 
 		{
 			fseek( file, 0, SEEK_SET );
 			Size = ftell(file);
@@ -261,7 +267,7 @@ namespace FileUtils
 		return Size;
 	}
 
-	void ListFiles(char const* strSearch, Array<String>& OutFiles)
+	void ListFiles(char const* strSearch, Array<String>& out_files)
 	{
 #if _WIN32 || _WIN64
 		WIN32_FIND_DATA file_info;
@@ -269,16 +275,119 @@ namespace FileUtils
 		if (hFind == INVALID_HANDLE_VALUE)
 			return;
 
-		OutFiles.push_back(file_info.cFileName);
+		out_files.push_back(file_info.cFileName);
 
 		while (FindNextFile(hFind, &file_info))
 		{
-			OutFiles.push_back(file_info.cFileName);
+			out_files.push_back(file_info.cFileName);
 		}
 
 		FindClose(hFind);
+#else
+        DIR* dp = opendir( strSearch );
+        if( !dp )
+            return;
+        
+        struct dirent* dirp;
+        while ((dirp = readdir(dp)) != nullptr)
+        {
+            out_files.push_back( dirp->d_name );
+        }
+        closedir(dp);
 #endif
 	}
+    
+    void NormalizePath( String& path )
+    {
+#if _WIN32 || _WIN64
+        char out_path[MAX_PATH];
+        PathCanonicalize( out_path, path.c_str();
+        path = out_path;
+#else
+        path.Replace( '\\', '/', true );
+            
+        struct SepVal
+        {
+            int sep_idx;
+            int sep_end; // -1 = . / -2 = .. / > 0 = other (len)
+        };
+                         
+        Array<SepVal> separators;
+        int last_idx = path.Len() - 1;
+        int sep_idx = 0;
+        while( (sep_idx = path.IndexOf( "/", sep_idx)) != INDEX_NONE )
+        {
+            if( separators.size() )
+            {
+                if( separators.Last().sep_end >= 0 )
+                    separators.Last().sep_end = sep_idx - 1;
+            }
+            else
+                last_idx = sep_idx - 1;
+            
+            SepVal sep_val;
+            sep_val.sep_idx = sep_idx;
+            sep_val.sep_end = sep_idx;
+            if( sep_idx + 1 < path.Len() && path[sep_idx + 1] == '.' )
+            {
+                sep_val.sep_end = -1;
+                if( sep_idx + 2 < path.Len() && path[sep_idx + 2] == '.' )
+                {
+                    sep_val.sep_end = -2;
+                }
+            }
+            
+            separators.push_back(sep_val);
+            sep_idx++;
+        }
+        
+        // simplify path
+        sep_idx = 0;
+        while( sep_idx < separators.size() )
+        {
+            if( separators[sep_idx].sep_end == -1 ) // .
+            {
+                separators.erase(sep_idx);
+            }
+            else if( separators[sep_idx].sep_end == -2 ) // ..
+            {
+                if( sep_idx > 0 && separators[sep_idx - 1].sep_end >= 0 )
+                {
+                    sep_idx--;
+                    separators.erase(sep_idx);
+                    separators.erase(sep_idx);
+                }
+                else
+                    sep_idx++;
+            }
+            else
+                sep_idx++;
+        }
+                    
+        String out_path = "";
+        out_path = path.Sub(0, last_idx + 1);
+        sep_idx = 0;
+        while( sep_idx < separators.size() )
+        {
+            SepVal& sep_val = separators[sep_idx];
+            if( sep_val.sep_end == -1 ) // .
+            {
+                out_path += "/.";
+            }
+            else if( sep_val.sep_end == -2 ) // ..
+            {
+                out_path += "/.";
+            }
+            else
+            {
+                out_path += path.Sub(sep_val.sep_idx, sep_val.sep_end - sep_val.sep_idx + 1);
+            }
+            sep_idx++;
+        }
+        path = out_path;
+
+#endif
+    }
 } // namespace FileUtils
 
 

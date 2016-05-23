@@ -111,6 +111,7 @@ namespace FileUtils
 	BIGBALL_API bool FileExits(char const* filename);
 	BIGBALL_API size_t FileSize(char const* filename);
 	BIGBALL_API void ListFiles(char const* str_search, Array<String>& out_files);
+    BIGBALL_API void NormalizePath( String& path );
 };
 
 #if _WIN32 || _WIN64
