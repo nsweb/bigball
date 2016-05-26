@@ -300,12 +300,12 @@ namespace FileUtils
     void NormalizePath( String& path )
     {
 #if _WIN32 || _WIN64
-        char out_path[MAX_PATH];
-        PathCanonicalize( out_path, path.c_str();
-        path = out_path;
+		const char* sz_sep = "\\";
+		path.Replace('/', '\\', true);
 #else
+		const char* sz_sep = "/";
         path.Replace( '\\', '/', true );
-            
+#endif 
         struct SepVal
         {
             int sep_idx;
@@ -315,7 +315,7 @@ namespace FileUtils
         Array<SepVal> separators;
         int last_idx = path.Len() - 1;
         int sep_idx = 0;
-        while( (sep_idx = path.IndexOf( "/", sep_idx)) != INDEX_NONE )
+		while ((sep_idx = path.IndexOf(sz_sep, sep_idx)) != INDEX_NONE)
         {
             if( separators.size() )
             {
@@ -372,11 +372,13 @@ namespace FileUtils
             SepVal& sep_val = separators[sep_idx];
             if( sep_val.sep_end == -1 ) // .
             {
-                out_path += "/.";
+				out_path += sz_sep;
+				out_path += ".";
             }
             else if( sep_val.sep_end == -2 ) // ..
             {
-                out_path += "/.";
+				out_path += sz_sep;
+				out_path += "..";
             }
             else
             {
@@ -385,9 +387,21 @@ namespace FileUtils
             sep_idx++;
         }
         path = out_path;
-
-#endif
     }
+
+	bool IsDirectory(char const* filename)
+	{
+#if _WIN32 || _WIN64
+		DWORD file_attr = GetFileAttributes(filename);
+		if (file_attr == INVALID_FILE_ATTRIBUTES)
+			return false;
+
+		if (file_attr & FILE_ATTRIBUTE_DIRECTORY)
+			return true;
+#else
+		return false;
+#endif
+	}
 } // namespace FileUtils
 
 

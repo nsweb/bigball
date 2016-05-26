@@ -112,6 +112,7 @@ namespace FileUtils
 	BIGBALL_API size_t FileSize(char const* filename);
 	BIGBALL_API void ListFiles(char const* str_search, Array<String>& out_files);
     BIGBALL_API void NormalizePath( String& path );
+	BIGBALL_API bool IsDirectory(char const* filename);
 };
 
 #if _WIN32 || _WIN64

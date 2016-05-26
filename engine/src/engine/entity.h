@@ -40,6 +40,7 @@ public:
 	virtual void	RemoveFromWorld();
 	virtual void	Tick( float DeltaSeconds );
     virtual void    Serialize(Archive& file);
+	virtual void    PostLoad();
 
 	bool			IsInWorld()		{ return m_state == InWorld; }
 	Component*		GetComponent( Name const& component_name );

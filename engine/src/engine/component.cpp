@@ -38,6 +38,10 @@ void Component::Serialize(Archive& file)
 {
         
 }
+void Component::PostLoad()
+{
+
+}
 Component* Component::GetEntityComponent( Name const& component_name )
 {
     return m_owner->GetComponent( component_name );

@@ -27,6 +27,7 @@ public:
 	virtual void		AddToWorld();
 	virtual void		RemoveFromWorld();
     virtual void        Serialize(Archive& file);
+	virtual void		PostLoad();
 	inline Entity*		GetEntity()				{ return m_owner;		}
     Component*          GetEntityComponent( Name const& component_name );
     

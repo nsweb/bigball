@@ -135,4 +135,12 @@ void Entity::Serialize(Archive& file)
     }
 }
 
+void Entity::PostLoad()
+{
+	for (int i = 0; i < m_components.size(); ++i)
+	{
+		m_components[i]->PostLoad();
+	}
+}
+
 } /* namespace bigball */
