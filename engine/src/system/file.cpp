@@ -6,6 +6,7 @@
 
 #else
     #include <dirent.h>
+    #include <sys/stat.h>
 #endif
 
 namespace bigball
@@ -398,7 +399,19 @@ namespace FileUtils
 
 		if (file_attr & FILE_ATTRIBUTE_DIRECTORY)
 			return true;
+        
+        return false;
 #else
+        struct stat st_buf;
+        int status = stat (filename, &st_buf);
+        if (status == 0)
+        {
+            if (S_ISDIR (st_buf.st_mode))
+                return true;
+                
+            //S_ISREG (st_buf.st_mode);
+        }
+        
 		return false;
 #endif
 	}
