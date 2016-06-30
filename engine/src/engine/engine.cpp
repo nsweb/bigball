@@ -90,10 +90,19 @@ bool Engine::Init(EngineInitParams const& init_params)
 	glewInit();
 
 	// Show version info
-	const char* RendererId = (const char*)glGetString (GL_RENDERER);	// get renderer string
-	const char* VersionId = (const char*)glGetString (GL_VERSION);		// version as a string
-	BB_LOG( EngineInit, Log, "Renderer: %s", RendererId );
-	BB_LOG( EngineInit, Log, "OpenGL version supported %s", VersionId );
+	/*int num_drivers = SDL_GetNumVideoDrivers();
+	for (int i = 0; i < num_drivers; i++)
+	{
+		const char* driver_id = SDL_GetVideoDriver(i);
+		BB_LOG(EngineInit, Log, "Driver<%d>: %s", i, driver_id);
+	}*/
+	
+	const char* driver_id = SDL_GetCurrentVideoDriver();
+	const char* renderer_id = (const char*)glGetString (GL_RENDERER);	// get renderer string
+	const char* version_id = (const char*)glGetString (GL_VERSION);		// version as a string
+	BB_LOG(EngineInit, Log, "Driver: %s", driver_id);
+	BB_LOG(EngineInit, Log, "Renderer: %s", renderer_id);
+	BB_LOG(EngineInit, Log, "OpenGL version supported %s", version_id);
 
     /* This makes our buffer swap syncronized with the monitor's vertical refresh */
     SDL_GL_SetSwapInterval(1);
