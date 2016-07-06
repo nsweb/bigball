@@ -12,23 +12,6 @@ namespace bigball
 
 namespace json
 {
-//void test()
-//{
-//	const char *js;
-//	int r;
-//	jsmn_parser p;
-//	jsmntok_t t[10];
-//
-//	//js = "{}";
-//	js = "{ \"entity\":	{ \"pattern\": \"Sun\",	\"toto\" : 3.0, \"Position\": {	} } }";
-//
-//	jsmn_init(&p);
-//	r = jsmn_parse(&p, js, t, 10);
-//	//check(r == JSMN_SUCCESS);
-//	//check(t[0].type == JSMN_OBJECT);
-//	//check(t[0].start == 0 && t[0].end == 2);
-//}
-
 
 bool Object::ParseFile( char const* path )
 {
@@ -122,9 +105,21 @@ float Object::GetFloatValue( TokenIdx token_idx, float default_value )
 	BB_ASSERT( token_idx >= 0 && token_idx < m_tokens.size() );
 	if( m_tokens[token_idx].type == JSMN_PRIMITIVE )
 	{
-		String strVal( m_str.c_str() + m_tokens[token_idx].start, m_tokens[token_idx].end - m_tokens[token_idx].start );
-		float Val = (float)std::atof( strVal.c_str() );
-		return Val;
+		String str_val( m_str.c_str() + m_tokens[token_idx].start, m_tokens[token_idx].end - m_tokens[token_idx].start );
+		float val = (float)std::atof( str_val.c_str() );
+		return val;
+	}
+	return default_value;
+}
+
+int Object::GetIntValue(TokenIdx token_idx, int default_value)
+{
+	BB_ASSERT(token_idx >= 0 && token_idx < m_tokens.size());
+	if (m_tokens[token_idx].type == JSMN_PRIMITIVE)
+	{
+		String str_val(m_str.c_str() + m_tokens[token_idx].start, m_tokens[token_idx].end - m_tokens[token_idx].start);
+		int val = std::atoi(str_val.c_str());
+		return val;
 	}
 	return default_value;
 }

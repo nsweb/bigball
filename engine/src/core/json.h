@@ -29,6 +29,7 @@ public:
 	bool		GetStringValue( TokenIdx token_idx, String& val );
 	bool		IsStringValue( TokenIdx token_idx, char const* sz );
 	float		GetFloatValue( TokenIdx token_idx, float default_value = 0.f );
+	int			GetIntValue(TokenIdx token_idx, int default_value = 0);
     int         GetArraySize( TokenIdx token_idx );
     bool		GetArrayStringValue( TokenIdx token_idx, int elt_idx, String& val );
 
