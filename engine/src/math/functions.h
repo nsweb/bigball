@@ -77,6 +77,12 @@ static inline double lerp(double const &a, double const &b, double const &x)
 {
     return a + (b - a) * x;
 }
+   
+static inline float smoothstep(float x)
+{
+    return x * x * (3.0f - 2.0f * x);
+}
+    
 
 BIGBALL_API uint32 NextPowerOfTwo( uint32 x );
 BIGBALL_API bool IsPowerOfTwo( uint32 x );
