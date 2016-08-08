@@ -78,12 +78,18 @@ static inline double lerp(double const &a, double const &b, double const &x)
     return a + (b - a) * x;
 }
    
+// cubic Hermite curve aka smoothstep() (C1 continuity)
 static inline float smoothstep(float x)
 {
     return x * x * (3.0f - 2.0f * x);
 }
     
-
+// quintic Hermite curve (C2 continuity)
+static float interp_c2(float x)
+{
+    return x * x * x * (x * (x * 6.f - 15.f) + 1.f);
+}
+    
 BIGBALL_API uint32 NextPowerOfTwo( uint32 x );
 BIGBALL_API bool IsPowerOfTwo( uint32 x );
 BIGBALL_API uint32 randhash(uint32 seed);

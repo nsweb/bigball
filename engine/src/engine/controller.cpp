@@ -47,7 +47,8 @@ void Controller::Tick( TickContext& tick_ctxt )
 	}
 	m_frame_inputs.clear();
 
-	m_active_cam_ctrl->TickMouseState(m_frame_mouse_state);
+    if (m_active_cam_ctrl)
+        m_active_cam_ctrl->TickMouseState(m_frame_mouse_state);
 
 	UpdateRenderCamera( tick_ctxt.m_delta_seconds );
 }
