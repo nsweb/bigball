@@ -74,7 +74,7 @@ void DrawUtils::Create()
         glVertexAttribDivisor( 1 + i, 1 );
     }
 
-    int offset_params = 0;
+	uintptr_t offset_params = 0;
     glBindBuffer( GL_ARRAY_BUFFER, m_vbuffers[eVBShapeParams] );
     glEnableVertexAttribArray(5);
     glVertexAttribPointer( 5, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Draw::InstanceParams) /*stride*/, (void*)offset_params );
