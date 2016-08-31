@@ -54,41 +54,6 @@ static inline float pow(float const &x, float const &y)
 
 static inline double log(double const &x) { return std::log(x); }
 static inline float log(float const &x) { return std::log(x); }
-
-/* Our extensions */
-static inline void sincos(double const &x, double *s, double *c)
-{
-    *s = std::sin(x);
-    *c = std::cos(x);
-}
-
-static inline void sincos(float const &x, float *s, float *c)
-{
-    *s = std::sin(x);
-    *c = std::cos(x);
-}
-
-static inline float lerp(float const &a, float const &b, float const &x)
-{
-    return a + (b - a) * x;
-}
-
-static inline double lerp(double const &a, double const &b, double const &x)
-{
-    return a + (b - a) * x;
-}
-   
-// cubic Hermite curve aka smoothstep() (C1 continuity)
-static inline float smoothstep(float x)
-{
-    return x * x * (3.0f - 2.0f * x);
-}
-    
-// quintic Hermite curve (C2 continuity)
-static float interp_c2(float x)
-{
-    return x * x * x * (x * (x * 6.f - 15.f) + 1.f);
-}
     
 BIGBALL_API uint32 NextPowerOfTwo( uint32 x );
 BIGBALL_API bool IsPowerOfTwo( uint32 x );
@@ -177,6 +142,43 @@ BB_GENERIC_FUNC_SIGNED(float)
 BB_GENERIC_FUNC_SIGNED(double)
 
 #undef BB_GENERIC_FUNC
+
+
+static inline void sincos(double const &x, double *s, double *c)
+{
+	*s = std::sin(x);
+	*c = std::cos(x);
+}
+
+static inline void sincos(float const &x, float *s, float *c)
+{
+	*s = std::sin(x);
+	*c = std::cos(x);
+}
+
+static inline float lerp(float const &a, float const &b, float const &x)
+{
+	return a + (b - a) * x;
+}
+
+static inline double lerp(double const &a, double const &b, double const &x)
+{
+	return a + (b - a) * x;
+}
+
+// cubic Hermite curve aka smoothstep() (C1 continuity)
+static inline float smoothstep(float x)
+{
+	x = clamp(x, 0.f, 1.f);
+	return x * x * (3.0f - 2.0f * x);
+}
+
+// quintic Hermite curve (C2 continuity)
+static float interp_c2(float x)
+{
+	x = clamp(x, 0.f, 1.f);
+	return x * x * x * (x * (x * 6.f - 15.f) + 1.f);
+}
 
 } /* namespace bigball */
 
