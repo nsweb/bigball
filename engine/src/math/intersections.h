@@ -100,7 +100,7 @@ template <typename T> struct Intersect
         T t = bigball::max(dot(dir_seg, V_seg0), (T)0.0);
         
         T dot_dd = dot(dir_seg, dir_seg);
-        t = min(t, dot_dd) / dot_dd;
+        t = bigball::min(t / dot_dd, (T)1.0) ;
         V_seg0 += dir_seg*(-t);
         
         t_on_segment = t;
