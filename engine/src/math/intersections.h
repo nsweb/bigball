@@ -168,6 +168,18 @@ template <typename T> struct Intersect
         
         return tmin;
     }
+
+	static T RayPlaneIntersection(Vec3<T> const& ray_orig, Vec3<T> const& ray_dir, Vec3<T> const& plane_orig, Vec3<T> const& plane_normal)
+	{
+		Vec3<T> pr = ray_orig - plane_orig;
+		T dot_prn = dot(pr, plane_normal);
+		T dot_pd = dot(plane_normal, ray_dir);
+		if (bigball::abs(dot_pd) < (T)1.e-4)
+			return (T)FLT_MAX;
+		
+		T t = -dot_prn / dot_pd;
+		return t;
+	}
 };
     
 } /* namespace bigball */
