@@ -118,6 +118,10 @@ bool Engine::Init(EngineInitParams const& init_params)
 	// Allow FPS style mouse movement if needed (mouse capture)
 	SDL_SetRelativeMouseMode(init_params.mouse_capture ? SDL_TRUE : SDL_FALSE);
 	SDL_SetWindowGrab(m_main_window, init_params.mouse_capture ? SDL_TRUE : SDL_FALSE);
+    
+    // Work around a bug on Mac OS X where window is not displayed correctly
+    glViewport(0, 0, m_display_mode.w, m_display_mode.h);
+    SDL_SetWindowSize(m_main_window, m_display_mode.w, m_display_mode.h);
 
 	// Ready to init our managers
 	InitManagers();
@@ -135,6 +139,8 @@ bool Engine::Init(EngineInitParams const& init_params)
 
 	// Setup available cameractrl
 	CreateGameCameras();
+    
+    
 	
 	return true;
 }
@@ -280,9 +286,9 @@ int Engine::HandleEvents(float delta_seconds)
         Controller::GetStaticInstance()->OnInputY( modifiers, delta_seconds );
     if( keys[SDL_SCANCODE_DOWN] )
         Controller::GetStaticInstance()->OnInputY( modifiers, -delta_seconds );
-    if( keys[SDL_SCANCODE_PAGEUP] )
+    if( keys[SDL_SCANCODE_PAGEUP] || keys[SDL_SCANCODE_U]  )
         Controller::GetStaticInstance()->OnInputZ( modifiers, delta_seconds );
-    if( keys[SDL_SCANCODE_PAGEDOWN] )
+    if( keys[SDL_SCANCODE_PAGEDOWN] || keys[SDL_SCANCODE_D]  )
         Controller::GetStaticInstance()->OnInputZ( modifiers, -delta_seconds );
     
     ImGuiIO& io = ImGui::GetIO();

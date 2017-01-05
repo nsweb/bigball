@@ -232,6 +232,7 @@ void UIManager::InitImGui()
 	SDL_GetWindowSize( g_pEngine->GetDisplayWindow(), &wx, &wy );
 	//float mousePosScalex = (float)g_pEngine->GetDisplayMode().w / wx;                  // Some screens e.g. Retina display have framebuffer size != from window size, and mouse inputs are given in window/screen coordinates.
 	//float mousePosScaley = (float)g_pEngine->GetDisplayMode().h / wy;
+    
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = "../data/imgui.ini";
