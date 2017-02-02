@@ -15,19 +15,22 @@ namespace bigball
 class Archive
 {
 public:
-						Archive() : m_flags(0)  {}
+						Archive() : m_flags(0), m_version(0) {}
 						~Archive() {}
 
 	template<typename K>
 	uint32				SerializeRaw( K& val )			{ return Serialize( &val, sizeof(K) );		}
 	virtual uint32		Serialize( void* buffer, uint32 size ) = 0;
     uint32				SerializeString( String& buffer_str );
+	virtual	void		SerializeVersion(uint32& version) { Serialize(&version, sizeof(version)); m_version = version; }
 	uint32				IsReading()		{ return m_flags & ArchiveFlag_Read; }
 	uint32				IsWriting() 	{ return m_flags & ArchiveFlag_Write; }
 	virtual void		Seek( uint32 offset ) = 0;
 	virtual uint32		Tell() = 0;
+	inline uint32		GetVersion() { return m_version; }
 
 	uint32			m_flags;
+	uint32			m_version;
 };
 
 /////////////////////////////////////////////////////////////////////
