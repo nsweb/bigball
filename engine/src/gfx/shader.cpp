@@ -29,13 +29,15 @@ bool Shader::Create( String const& shader_name )
 	char const* shader_exts[Shader::MAX] = { "vs", "fs", "tcs", "tes", "gs", "cs" };
 	File shader_file;
 	String shader_file_name, shader_src;
-
+    int shader_processed = 0;
+    
 	for( int32 i = 0; i < Shader::MAX; ++i )
 	{
 		shader_file_name = String::Printf( "../data/shader/%s.%s.glsl", shader_name.c_str(), shader_exts[i] );
 		if( !shader_file.Open( shader_file_name.c_str(), false /*bWrite*/) )
 			continue;
 
+        shader_processed++;
 		shader_file.SerializeString( shader_src );
 
 		ParseIncludeFiles( shader_src );
@@ -60,7 +62,7 @@ bool Shader::Create( String const& shader_name )
 	}
 #endif /* GL_VERSION_4_1 */
 
-    if( !LinkProgram() )
+    if( !shader_processed || !LinkProgram() )
     {
         DeleteShaders();
         return false;
@@ -76,12 +78,14 @@ bool Shader::CreateFromMemory( String const& shader_name, const char** src_buffe
     
     GLenum shader_types[Shader::MAX] = { GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_TESS_CONTROL_SHADER, GL_TESS_EVALUATION_SHADER, GL_GEOMETRY_SHADER, GL_COMPUTE_SHADER };
 	String str_shader;
+    int shader_processed = 0;
 
     for( int32 i = 0; i < Shader::MAX; ++i )
     {
         if( !src_buffers[i] )
             continue;
 
+        shader_processed++;
 		str_shader = src_buffers[i];
 		ParseIncludeFiles( str_shader );
 
@@ -102,7 +106,7 @@ bool Shader::CreateFromMemory( String const& shader_name, const char** src_buffe
     }
 #endif /* GL_VERSION_4_1 */
     
-    if( !LinkProgram() )
+    if( !shader_processed || !LinkProgram() )
     {
         DeleteShaders();
         return false;
