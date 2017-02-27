@@ -68,6 +68,7 @@ public:
 	void				RemoveCamera( Camera* camera );
 	void				UpdateRenderCamera( float delta_seconds );
 	Camera*				GetActiveCamera()				{ return m_active_cam;				}
+    void                SetActiveCamera(Camera* cam)    { m_active_cam = cam;               }
 
 	void				OnInputX( uint32 modifier_flags, float delta );
 	void				OnInputY( uint32 modifier_flags, float delta );
