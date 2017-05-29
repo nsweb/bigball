@@ -60,6 +60,9 @@ bool Engine::Init(EngineInitParams const& init_params)
      * You may need to change this to 16 or 32 for your system */
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 
     /* Create our window centered at 512x512 resolution */
 	int res_x = init_params.default_res_x;
@@ -237,8 +240,11 @@ void Engine::MainLoop()
 
 		// Prepare rendering
 		RenderContext render_ctxt;
-		render_ctxt.m_view = Controller::GetStaticInstance()->GetRenderView();
+        CameraView view = Controller::GetStaticInstance()->GetRenderView();
+		render_ctxt.m_view = view;
 		render_ctxt.m_pfrustum_view = (m_show_culling ? &g_SavedFrustumView : nullptr);
+        mat4 cam_to_world_mat(view.m_transform.GetRotation(), view.m_transform.GetTranslation(), (float)view.m_transform.GetScale());
+        render_ctxt.m_view_mat = bigball::inverse(cam_to_world_mat);
 		render_ctxt.m_proj_mat = Controller::GetStaticInstance()->GetRenderProjMatrix();
 		render_ctxt.m_delta_seconds = delta_seconds;
 		render_ctxt.m_frame_idx = m_frame_count++;

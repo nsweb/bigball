@@ -24,7 +24,8 @@ struct BIGBALL_API RenderContext
 
 	CameraView	m_view;
 	CameraView*	m_pfrustum_view;
-	mat4		m_proj_mat;
+	mat4		m_view_mat;
+    mat4		m_proj_mat;
 	float		m_delta_seconds;
 	uint32		m_frame_idx;
 	uint32		m_render_mode;
