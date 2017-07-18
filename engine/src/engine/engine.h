@@ -75,6 +75,7 @@ protected:
 	virtual void	CreateGameCameras() = 0;
 	void			InitImGui();
 	virtual void	ResizeWindow(int w, int h);
+    virtual void    PreTickManagers( struct TickContext& tick_ctxt );
 };
 
 extern BIGBALL_API Engine* g_pEngine;

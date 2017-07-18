@@ -232,10 +232,12 @@ void Engine::MainLoop()
 		else
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		TickContext TickCtxt( delta_seconds, m_frame_count );
+		TickContext tick_ctxt( delta_seconds, m_frame_count );
+        
+        PreTickManagers(tick_ctxt);
 		for( int32 i = 0; i < m_managers.size(); ++i )
 		{
-			m_managers[i]->Tick( TickCtxt );
+			m_managers[i]->Tick( tick_ctxt );
 		}
 
 		// Prepare rendering
@@ -267,6 +269,11 @@ void Engine::MainLoop()
 		if( loop_status == 1 ) // if received instruction to quit
 			break;
 	}
+}
+    
+void Engine::PreTickManagers( struct TickContext& tick_ctxt )
+{
+        
 }
     
 int Engine::HandleEvents(float delta_seconds)
