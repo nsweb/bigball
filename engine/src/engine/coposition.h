@@ -15,17 +15,17 @@ public:
 						CoPosition();
 	virtual				~CoPosition();
 
-	static Component*	NewComponent()		{ return new CoPosition();	}
+	static Component*	NewComponent()              { return new CoPosition();	}
     virtual void        Serialize(Archive& file) override;
 
 	void				SetPosition( vec3 p );
-	vec3				GetPosition()		{ return m_transform.GetTranslation(); }
+	vec3				GetPosition() const         { return m_transform.GetTranslation(); }
 	void				SetRotation( quat r );
-	quat				GetRotation()		{ return m_transform.GetRotation(); }
+	quat				GetRotation() const         { return m_transform.GetRotation(); }
     void                SetScale( float s );
-    float               GetScale()          { return m_transform.GetScale(); }
+    float               GetScale() const            { return m_transform.GetScale(); }
     void                SetTransform( transform const& t );
-	const transform&	GetTransform()		{ return m_transform;	}
+	const transform&	GetTransform() const		{ return m_transform;	}
 
 protected:
 	transform	m_transform;
