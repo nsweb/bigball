@@ -447,6 +447,16 @@ uint32 Archive::SerializeString( String& BufferStr )
     
 	return serialized_count;
 }
+
+uint32 Archive::WriteString(char const* str)
+{
+	uint32 serialized_count = 0;
+	
+	if (IsWriting())
+		serialized_count = Serialize((void*)str, (uint32)strlen(str));
+
+	return serialized_count;
+}
     
 uint32 MemoryReader::Serialize( void* buffer, uint32 size )
 {
