@@ -14,8 +14,8 @@ enum TokenType
 {
 	OBJECT = 1,
 	ARRAY = 2,
-	STRING = 3,
-	PRIMITIVE = 4
+	STRING = 4,
+	PRIMITIVE = 8
 };
 
 class Object

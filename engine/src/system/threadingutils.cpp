@@ -37,7 +37,7 @@ void Sleep( uint32 _nMs )
 #else // 64 bit architectures
     void InterlockedExchange( void *_dest, const int64 _exchange )
     {
-#if !defined _MS_VER
+#if !defined _MSC_VER
         __sync_lock_test_and_set( (int64*)_dest, _exchange );
         __sync_synchronize();
 #else
@@ -63,7 +63,7 @@ void Sleep( uint32 _nMs )
     
     int64 InterlockedCompareExchange( void* _dest, int64 _exchange, int64 _compare )
     {
-#if !defined _MS_VER
+#if !defined _MSC_VER
         //bool b = std::atomic_compare_exchange_strong (A* obj, T* expected, T val);
         return __sync_val_compare_and_swap( (int64*)_dest, _compare, _exchange );
 #else

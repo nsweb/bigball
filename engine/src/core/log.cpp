@@ -32,9 +32,8 @@ void BBLog::Print( char const* File, int Line, char const* Category, Type type, 
 		"ERROR",
 	};
 
-#if defined _MS_VER
-
-	String TmpString = String::Printf( Format, ap );
+#if defined _MSC_VER
+	String TmpString = String::vaPrintf( Format, ap);
 	TmpString += "\n";
 
 	String BufferString = String::Printf( "%s(%d) [%s] %s : %s", File, Line, LogPrefix[type], Category, TmpString.c_str() );
