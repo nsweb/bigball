@@ -49,8 +49,7 @@ bool Shader::Create( String const& shader_name )
             return false;
         }
         
-        //vec3 t(0.f, 0.f, 0.f);
-        //vec2 t2 = t.yz;
+        BB_LOG(Shader, Log, "<%s.%s> Shader compilation SUCCESSFUL", shader_name.c_str(), shader_exts[i]);
 
 		glAttachShader( m_program_id, m_shader_ids[i] );
 	}
@@ -119,7 +118,10 @@ bool Shader::CreateAndCompileShader( char const* shader_src, GLenum shader_type,
 {
     shader_id = glCreateShader( shader_type );
     
-	char const* shader_define = "#version 330	\n#define SHADER_SECTION	\n#define UNIFORM_LEVEL( type, lvl_name, value ) uniform type lvl_name = value;	\n";
+    char const* shader_define =
+        "#version 330	\n#define SHADER_SECTION	\n" \
+        "#define UNIFORM_LEVEL(type, lvl_name, value) uniform type lvl_name = value;\n";
+
 	char const* shader_strings[2] = { shader_define, shader_src };
     glShaderSource( shader_id, 2, shader_strings, nullptr );
     glCompileShader( shader_id );
@@ -135,7 +137,8 @@ bool Shader::CreateAndCompileShader( char const* shader_src, GLenum shader_type,
         String log_str;
         log_str.resize( len );
         glGetShaderInfoLog( shader_id, len, &len, log_str.c_str() );
-        BB_LOG( Shader, Log, "<%s> Shader compilation failed: %s", m_name.c_str(), log_str.c_str() );
+        BB_LOG(Shader, Log, "<%s> Shader compilation failed: %s", m_name.c_str(), log_str.c_str() );
+        //BB_LOG(Shader, Log, shader_src);
 #endif /* BB_BUILD_DEBUG */
         
         return false;
