@@ -75,7 +75,9 @@ void UIManager::Destroy()
 
 	glDeleteVertexArrays( 1, &m_UI_VAO );
 
-	ImGui::Shutdown();
+	//ImGui::Shutdown();
+
+	ImGui::DestroyContext();
 }
 
 // This is the main rendering function that you have to implement and provide to ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)
@@ -200,12 +202,12 @@ void UIManager::RenderDrawLists(ImDrawData* draw_data)
 }
 
 // NB: ImGui already provide OS clipboard support for Windows so this isn't needed if you are using Windows only.
-static const char* ImImpl_GetClipboardTextFn()
+static const char* ImImpl_GetClipboardTextFn(void* user_data)
 {
 	return SDL_GetClipboardText();
 }
 
-static void ImImpl_SetClipboardTextFn(const char* text)
+static void ImImpl_SetClipboardTextFn(void* user_data, const char* text)
 {
 	SDL_SetClipboardText(text);
 }
@@ -233,6 +235,7 @@ void UIManager::InitImGui()
 	//float mousePosScalex = (float)g_pEngine->GetDisplayMode().w / wx;                  // Some screens e.g. Retina display have framebuffer size != from window size, and mouse inputs are given in window/screen coordinates.
 	//float mousePosScaley = (float)g_pEngine->GetDisplayMode().h / wy;
     
+	ImGui::CreateContext();
 
 	ImGuiIO& io = ImGui::GetIO();
 	io.IniFilename = "../data/imgui.ini";
@@ -260,7 +263,7 @@ void UIManager::InitImGui()
 	io.KeyMap[ImGuiKey_Y] = SDLK_y;
 	io.KeyMap[ImGuiKey_Z] = SDLK_z;
 
-	io.RenderDrawListsFn = ImImpl_RenderDrawLists;
+	// TODO io.RenderDrawListsFn = ImImpl_RenderDrawLists;
 	io.SetClipboardTextFn = ImImpl_SetClipboardTextFn;
 	io.GetClipboardTextFn = ImImpl_GetClipboardTextFn;
 #ifdef _MSC_VER
@@ -361,7 +364,8 @@ void UIManager::DrawDebugMenu()
 {
 	bool show_debug_menu = m_show_debug_menu;
 
-	ImGui::Begin("Debug menu", &show_debug_menu, ImVec2(10,10));
+	// TODO
+	ImGui::Begin("Debug menu", &show_debug_menu);// , ImVec2(10, 10));
 	ImGui::Text("Hello");
 	if (ImGui::CollapsingHeader("Profiling"))
 	{
@@ -385,7 +389,8 @@ void UIManager::DrawDebugMenu()
 
 void UIManager::DrawProfiler()
 {
-	ImGui::Begin("Profiler", &m_show_debug_menu, ImVec2(200,400), -1.f, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar );
+	// TODO
+	ImGui::Begin("Profiler", &m_show_debug_menu, /*ImVec2(200, 400), -1.f,*/ ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
 	Profiler::BuildGui();	
 	ImGui::End();
 }
